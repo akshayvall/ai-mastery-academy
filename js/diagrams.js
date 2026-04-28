@@ -134,33 +134,34 @@ const DiagramEngine = {
 
         // 1. The AI stack — concentric labelled boxes
         'ai-stack'(d) {
+            // Each layer is 35px taller than the next inner one, so the
+            // visible top band is exactly 35px. Label + italic example must
+            // both fit inside that band, otherwise the inner box covers them.
             const layers = [
-                { label: 'Artificial Intelligence',         w: 720, h: 380, color: '#ddd6fe', text: '#4c1d95' },
-                { label: 'Machine Learning',                w: 600, h: 310, color: '#c4b5fd', text: '#4c1d95' },
-                { label: 'Deep Learning',                   w: 480, h: 240, color: '#a78bfa', text: '#312e81' },
-                { label: 'Generative AI',                   w: 360, h: 170, color: '#8b5cf6', text: '#fff' },
-                { label: 'Large Language Models',           w: 240, h: 100, color: '#7c3aed', text: '#fff' }
+                { label: 'Artificial Intelligence',  example: 'e.g. chess engines, fraud detection, spam filters', w: 720, h: 380, color: '#ddd6fe', text: '#4c1d95', sub: '#5b21b6' },
+                { label: 'Machine Learning',         example: 'e.g. Netflix recommendations, demand forecasting',  w: 600, h: 310, color: '#c4b5fd', text: '#4c1d95', sub: '#5b21b6' },
+                { label: 'Deep Learning',            example: 'e.g. image recognition, speech-to-text',            w: 480, h: 240, color: '#a78bfa', text: '#1e1b4b', sub: '#312e81' },
+                { label: 'Generative AI',            example: 'e.g. ChatGPT, Midjourney, Sora',                    w: 360, h: 170, color: '#8b5cf6', text: '#fff',    sub: '#ede9fe' },
+                { label: 'Large Language Models',    example: 'GPT · Claude · Gemini',                              w: 240, h: 100, color: '#7c3aed', text: '#fff',    sub: '#ede9fe', innermost: true }
             ];
             const cx = 400, cy = 220;
-            const boxes = layers.map((l, i) =>
-                `<g data-step="${i + 1}" class="step-highlight ai-stack-layer">
-                    <rect x="${cx - l.w / 2}" y="${cy - l.h / 2}" width="${l.w}" height="${l.h}" rx="10" fill="${l.color}" stroke="#4c1d95" stroke-width="1.5"/>
-                    <text x="${cx}" y="${cy - l.h / 2 + 22}" text-anchor="middle" fill="${l.text}" font-size="14" font-weight="700">${l.label}</text>
-                </g>`
-            ).join('');
-            const examples = [
-                { y: 56,  text: 'e.g. chess engines, fraud detection, spam filters' },
-                { y: 92,  text: 'e.g. Netflix recommendations, demand forecasting' },
-                { y: 128, text: 'e.g. image recognition, speech-to-text' },
-                { y: 164, text: 'e.g. ChatGPT, Midjourney, Sora' },
-                { y: 218, text: 'GPT · Claude · Gemini', big: true }
-            ];
-            const exText = examples.map(e =>
-                `<text x="${cx}" y="${cy - 220 + e.y}" text-anchor="middle" fill="#312e81" font-size="${e.big ? 13 : 11}" font-style="italic">${e.text}</text>`
-            ).join('');
+            const boxes = layers.map((l, i) => {
+                const top = cy - l.h / 2;
+                // Outer layers: stack label+example inside the 35px visible top band.
+                // Innermost layer: centre the label + example vertically (no inner box to dodge).
+                const labelY = l.innermost ? cy - 4 : top + 14;
+                const exY    = l.innermost ? cy + 14 : top + 27;
+                const labelSize = l.innermost ? 14 : 13;
+                const exSize    = l.innermost ? 12 : 10;
+                return `<g data-step="${i + 1}" class="step-highlight ai-stack-layer">
+                    <rect x="${cx - l.w / 2}" y="${top}" width="${l.w}" height="${l.h}" rx="10" fill="${l.color}" stroke="#4c1d95" stroke-width="1.5"/>
+                    <text x="${cx}" y="${labelY}" text-anchor="middle" fill="${l.text}" font-size="${labelSize}" font-weight="700">${l.label}</text>
+                    <text x="${cx}" y="${exY}" text-anchor="middle" fill="${l.sub}" font-size="${exSize}" font-style="italic">${l.example}</text>
+                </g>`;
+            }).join('');
             return `<svg viewBox="0 0 800 440" preserveAspectRatio="xMidYMid meet">
                 <defs>${this.arrowDefs(['#7c3aed'])}</defs>
-                ${boxes}${exText}
+                ${boxes}
             </svg>`;
         },
 
@@ -415,29 +416,37 @@ const DiagramEngine = {
         // 9. Embedding space — 2D scatter with clusters
         'embedding-space'(d) {
             const clusters = [
-                { color: '#7c3aed', label: 'Animals',   points: [[160, 110], [180, 140], [140, 150], [170, 170], [200, 130], [150, 175]] },
-                { color: '#0ea5e9', label: 'Vehicles',  points: [[480, 110], [510, 140], [460, 165], [530, 130], [500, 180], [475, 145]] },
+                { color: '#7c3aed', label: 'Animals',     points: [[160, 110], [180, 140], [140, 150], [170, 170], [200, 130], [150, 175]] },
+                { color: '#0ea5e9', label: 'Vehicles',    points: [[480, 110], [510, 140], [460, 165], [530, 130], [500, 180], [475, 145]] },
                 { color: '#059669', label: 'Programming', points: [[280, 280], [320, 300], [260, 310], [310, 270], [340, 295]] },
-                { color: '#dc2626', label: 'Food',      points: [[600, 290], [630, 270], [580, 310], [640, 305], [610, 320]] }
+                { color: '#dc2626', label: 'Food',        points: [[600, 290], [630, 270], [580, 310], [640, 305], [610, 320]] }
             ];
             const labels = ['cat', 'dog', 'rabbit', 'horse', 'cow', 'sheep', 'car', 'truck', 'bike', 'bus', 'plane', 'boat', 'python', 'javascript', 'rust', 'go', 'java', 'pizza', 'sushi', 'curry', 'pasta', 'tacos'];
             let li = 0;
-            const dots = clusters.map(c => c.points.map(p => {
-                const lbl = labels[li++] || '';
-                return `<g><circle cx="${p[0]}" cy="${p[1]}" r="6" fill="${c.color}" opacity="0.85"/><text x="${p[0] + 10}" y="${p[1] + 4}" fill="#1f2937" font-size="11">${lbl}</text></g>`;
-            }).join('')).join('');
+            // Wrap each cluster in its own data-step group so Step controls highlight one cluster at a time.
+            const dots = clusters.map((c, i) => {
+                const inner = c.points.map(p => {
+                    const lbl = labels[li++] || '';
+                    return `<circle cx="${p[0]}" cy="${p[1]}" r="6" fill="${c.color}" opacity="0.85"/><text x="${p[0] + 10}" y="${p[1] + 4}" fill="#1f2937" font-size="11">${lbl}</text>`;
+                }).join('');
+                return `<g data-step="${i + 1}" class="step-highlight">${inner}</g>`;
+            }).join('');
 
-            // Highlighted query point + nearest neighbour line
+            // Highlighted query point + nearest neighbour line (step 5)
             const query = { x: 200, y: 145 };
             const nearest = { x: 180, y: 140 };
+            const queryGroup = `<g data-step="5" class="step-highlight">
+                <circle cx="${query.x}" cy="${query.y}" r="10" fill="none" stroke="#dc2626" stroke-width="2"/>
+                <text x="${query.x + 14}" y="${query.y - 8}" fill="#dc2626" font-size="11" font-weight="700">query: "kitten"</text>
+                <line x1="${query.x}" y1="${query.y}" x2="${nearest.x + 6}" y2="${nearest.y + 2}" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ah-dc2626)" stroke-dasharray="4"/>
+            </g>`;
+
             return `<svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
                 <defs>${this.arrowDefs(['#dc2626'])}</defs>
                 <rect x="40" y="60" width="720" height="300" rx="8" fill="#fafafa" stroke="#d1d5db"/>
                 <text x="400" y="40" text-anchor="middle" fill="#4c1d95" font-size="16" font-weight="700">Embedding space (2-D projection of 1536-D vectors)</text>
                 ${dots}
-                <circle cx="${query.x}" cy="${query.y}" r="10" fill="none" stroke="#dc2626" stroke-width="2"/>
-                <text x="${query.x + 14}" y="${query.y - 8}" fill="#dc2626" font-size="11" font-weight="700">query: "kitten"</text>
-                <line x1="${query.x}" y1="${query.y}" x2="${nearest.x + 6}" y2="${nearest.y + 2}" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ah-dc2626)" stroke-dasharray="4"/>
+                ${queryGroup}
                 <text x="400" y="386" text-anchor="middle" fill="#4b5563" font-size="13">Similar concepts cluster together. Cosine similarity finds nearest neighbours.</text>
             </svg>`;
         },
