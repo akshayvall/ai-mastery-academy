@@ -24,6 +24,25 @@ Parent project context: [`../SESSION_CONTEXT.md`](../SESSION_CONTEXT.md).
 
 ## Log
 
+## 2026-07-08 — Builder Track (Level 400) integrated + site live on GitHub Pages
+**Goal:** Integrate the 7 ai-builder-academy builds into this academy, sibling-style
+(same engine, new level), per docs/PRD_Builder_Track.md.
+**Outcome:** Live at https://akshayvall.github.io/ai-mastery-academy/ (Pages newly
+enabled). New Level 400 "Builder Track" with 7 modules (41 total): Learn with pitfalls/
+checklists/key-terms, animated diagrams (6 new config-driven b-* builders in
+diagrams.js), Lab v2 steps, quizzes. Verified all 7 render + existing modules
+regression-free.
+**Decisions:**
+  - `js/modules-builder.js` is GENERATED — source of truth is
+    `AI_Engineer_Builds/site/js/modules.js`; regenerate via
+    `node AI_Engineer_Builds/site/tools/export-academy.js`. Never hand-edit.
+  - Diagram init made synchronous (rAF never fires in hidden/background tabs —
+    latent bug affecting all diagram tabs).
+  - Pre-existing uncommitted curriculum work committed as a separate checkpoint
+    (00d0197) before the integration commit (bb9ab2e).
+**Files touched:** js/modules-builder.js (new), js/diagrams.js, js/app.js, index.html,
+css/styles.css, docs/PRD_Builder_Track.md
+
 ## 2026-05-26 — Level 100 syntax stabilization after curriculum merge
 **Goal:** Unblock runtime after the 2026 curriculum pass by resolving a parse failure in `js/modules-100.js`.
 **Outcome:**
