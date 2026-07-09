@@ -15,11 +15,16 @@ const MODULES = [
     ...MODULES_300,
     ..._EXTRAS.filter(m => m.level === 300),
     ..._PM.filter(m => m.level === 300),
+    ...((typeof MODULES_BUILDER !== 'undefined') ? MODULES_BUILDER : []),
 ];
+
+// Cache parsed sections per module so we only parse HTML once
+const _sectionCache = {};
 
 const app = {
     currentModule: null,
     currentTab: 'learn',
+    _pendingSection: null, // section slug to scroll to after render
 
     init() {
         this.buildNavigation();
@@ -34,20 +39,219 @@ const app = {
         }
     },
 
+    // ─── SECTION PARSING ─────────────────────────
+    // Converts "The RAG Pipeline" → "the-rag-pipeline"
+    slugify(text) {
+        return text.toLowerCase().trim()
+            .replace(/&[^;]+;/g, '')       // strip HTML entities
+            .replace(/<[^>]+>/g, '')        // strip HTML tags
+            .replace(/[^\w\s-]/g, '')       // strip non-word chars
+            .replace(/\s+/g, '-')           // spaces → hyphens
+            .replace(/-+/g, '-')            // collapse consecutive hyphens
+            .replace(/^-|-$/g, '');         // trim leading/trailing hyphens
+    },
+
+    // Parse <h2> headings from a module's learn HTML and return
+    // an array of { slug, title } objects.
+    parseSections(mod) {
+        if (_sectionCache[mod.id]) return _sectionCache[mod.id];
+        if (!mod.learn) { _sectionCache[mod.id] = []; return []; }
+
+        const sections = [];
+        // Match <h2> tags, capturing inner text (handles attributes on the tag)
+        const h2Regex = /<h2[^>]*>([\s\S]*?)<\/h2>/gi;
+        let match;
+        while ((match = h2Regex.exec(mod.learn)) !== null) {
+            // Strip any nested tags to get plain text
+            const plainText = match[1].replace(/<[^>]+>/g, '').trim();
+            if (plainText) {
+                sections.push({ slug: this.slugify(plainText), title: plainText });
+            }
+        }
+        _sectionCache[mod.id] = sections;
+        return sections;
+    },
+
+    // ─── NAVIGATION ──────────────────────────────
     buildNavigation() {
-        const levels = { 100: 'nav-level-100', 200: 'nav-level-200', 300: 'nav-level-300' };
+        const levels = { 100: 'nav-level-100', 200: 'nav-level-200', 300: 'nav-level-300', 400: 'nav-level-400' };
         for (const [level, containerId] of Object.entries(levels)) {
             const container = document.getElementById(containerId);
             const levelModules = MODULES.filter(m => m.level === parseInt(level));
             container.innerHTML = levelModules.map(mod => {
+                const sections = this.parseSections(mod);
+                const allVisited = sections.length > 0 &&
+                    ProgressManager.areAllSectionsVisited(mod.id, sections.map(s => s.slug));
                 const status = ProgressManager.getModuleStatus(mod.id);
-                const classes = [status.completed ? 'completed' : ''].filter(Boolean).join(' ');
+                const completed = status.completed || allVisited;
+                const liClasses = ['nav-module', completed ? 'completed' : ''].filter(Boolean).join(' ');
                 const timeLabel = mod.estimatedTime ? `<span class="nav-time">⏱ ${mod.estimatedTime}</span>` : '';
-                return `<li class="${classes}" data-module="${mod.id}" onclick="app.loadModule('${mod.id}')">
-                    <span class="nav-title">${mod.icon} ${mod.title}</span>${timeLabel}
+                const checkMark = completed ? '<span class="module-check">✓</span>' : '';
+
+                // Build sub-section list
+                let sectionsHtml = '';
+                if (sections.length > 0) {
+                    const sectionItems = sections.map(sec => {
+                        const visited = ProgressManager.isSectionVisited(mod.id, sec.slug);
+                        return `<li><a class="${visited ? 'section-visited' : ''}" data-id="${mod.id}" data-section="${sec.slug}">${this.escapeHtml(sec.title)}</a></li>`;
+                    }).join('');
+                    sectionsHtml = `<ul class="module-sections collapsed">${sectionItems}</ul>`;
+                }
+
+                return `<li class="${liClasses}" data-module="${mod.id}">
+                    <a class="module-link" data-id="${mod.id}">
+                        <span class="module-icon">${mod.icon}</span>
+                        <span class="module-title">${this.escapeHtml(mod.title)}</span>
+                        ${checkMark}${timeLabel}
+                    </a>
+                    ${sectionsHtml}
                 </li>`;
             }).join('');
         }
+
+        // Bind click handlers for module links and section links
+        this._bindNavClicks();
+    },
+
+    // Wire up sidebar click events (called after buildNavigation)
+    _bindNavClicks() {
+        // Module-level link: toggle expand + load module
+        document.querySelectorAll('#sidebar .module-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const moduleId = link.dataset.id;
+                this.toggleModuleSections(moduleId);
+                this.loadModule(moduleId);
+            });
+        });
+
+        // Section sub-link: load module + scroll to section
+        document.querySelectorAll('#sidebar .module-sections a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const moduleId = link.dataset.id;
+                const section = link.dataset.section;
+                this.navigateToSection(moduleId, section);
+            });
+        });
+    },
+
+    // Expand/collapse the section list for a module
+    toggleModuleSections(moduleId) {
+        const navItem = document.querySelector(`#sidebar li.nav-module[data-module="${moduleId}"]`);
+        if (!navItem) return;
+        const sectionList = navItem.querySelector('.module-sections');
+        if (!sectionList) return;
+
+        const isExpanded = navItem.classList.contains('expanded');
+        if (isExpanded) {
+            navItem.classList.remove('expanded');
+            sectionList.classList.add('collapsed');
+        } else {
+            // Collapse all other modules first
+            document.querySelectorAll('#sidebar li.nav-module.expanded').forEach(li => {
+                li.classList.remove('expanded');
+                const ul = li.querySelector('.module-sections');
+                if (ul) ul.classList.add('collapsed');
+            });
+            navItem.classList.add('expanded');
+            sectionList.classList.remove('collapsed');
+        }
+    },
+
+    // Load a module's Learn tab and smooth-scroll to a specific section heading
+    navigateToSection(moduleId, sectionSlug) {
+        this._pendingSection = sectionSlug;
+
+        // If the module is already loaded, just switch tab & scroll
+        if (this.currentModule && this.currentModule.id === moduleId) {
+            this.switchTab('learn');
+            this._scrollToSection(sectionSlug);
+        } else {
+            this.loadModule(moduleId);
+            // loadModule will call _scrollToSection via _pendingSection
+        }
+    },
+
+    // Find the <h2> with matching id and smooth-scroll to it
+    _scrollToSection(sectionSlug) {
+        if (!sectionSlug) return;
+        const target = document.getElementById(`section-${sectionSlug}`);
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Mark section as visited
+            if (this.currentModule) {
+                ProgressManager.markSectionVisited(this.currentModule.id, sectionSlug);
+                this._refreshSectionVisited(this.currentModule.id);
+            }
+        }
+        this._pendingSection = null;
+    },
+
+    // Update visited CSS classes on sidebar section links (without full rebuild)
+    _refreshSectionVisited(moduleId) {
+        const navItem = document.querySelector(`#sidebar li.nav-module[data-module="${moduleId}"]`);
+        if (!navItem) return;
+        navItem.querySelectorAll('.module-sections a').forEach(a => {
+            const slug = a.dataset.section;
+            if (ProgressManager.isSectionVisited(moduleId, slug)) {
+                a.classList.add('section-visited');
+            }
+        });
+        // Check if all sections now visited → mark completed
+        const sections = this.parseSections(MODULES.find(m => m.id === moduleId));
+        if (sections.length > 0 && ProgressManager.areAllSectionsVisited(moduleId, sections.map(s => s.slug))) {
+            navItem.classList.add('completed');
+        }
+    },
+
+    // Inject id attributes on <h2> elements inside the Learn tab so we can scroll to them
+    _injectSectionIds(moduleId) {
+        const sections = this.parseSections(MODULES.find(m => m.id === moduleId));
+        if (!sections.length) return;
+
+        const learnEl = document.getElementById('tab-learn');
+        if (!learnEl) return;
+        const h2s = learnEl.querySelectorAll('h2');
+        let sectionIdx = 0;
+        h2s.forEach(h2 => {
+            const text = h2.textContent.trim();
+            const slug = this.slugify(text);
+            // Match against our parsed list
+            if (sectionIdx < sections.length && sections[sectionIdx].slug === slug) {
+                h2.id = `section-${slug}`;
+                sectionIdx++;
+            } else {
+                // Fallback: try to find any matching section
+                const found = sections.find(s => s.slug === slug);
+                if (found) h2.id = `section-${slug}`;
+            }
+        });
+    },
+
+    // Set up an IntersectionObserver on section headings to auto-mark visited
+    _observeSections(moduleId) {
+        if (this._sectionObserver) this._sectionObserver.disconnect();
+
+        const learnEl = document.getElementById('tab-learn');
+        if (!learnEl) return;
+
+        const contentEl = document.getElementById('content');
+        const root = contentEl || null;
+
+        this._sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && this.currentModule) {
+                    const slug = entry.target.id.replace('section-', '');
+                    ProgressManager.markSectionVisited(this.currentModule.id, slug);
+                    this._refreshSectionVisited(this.currentModule.id);
+                }
+            });
+        }, { root, rootMargin: '0px 0px -60% 0px', threshold: 0.1 });
+
+        learnEl.querySelectorAll('h2[id^="section-"]').forEach(h2 => {
+            this._sectionObserver.observe(h2);
+        });
     },
 
     bindEvents() {
@@ -179,7 +383,8 @@ const app = {
     showDashboard() {
         document.getElementById('dashboard').classList.add('active');
         document.getElementById('moduleView').classList.remove('active');
-        document.querySelectorAll('#sidebar li').forEach(li => li.classList.remove('active'));
+        // Clear active state on module links (not section links)
+        document.querySelectorAll('#sidebar li.nav-module').forEach(li => li.classList.remove('active'));
         window.location.hash = '';
         this.updateProgress();
     },
@@ -199,13 +404,17 @@ const app = {
         badge.textContent = `L${mod.level}`;
         badge.className = 'module-level-badge';
         badge.style.background = mod.level === 100 ? 'var(--l100-color)' :
-                                  mod.level === 200 ? 'var(--l200-color)' : 'var(--l300-color)';
+                                  mod.level === 200 ? 'var(--l200-color)' :
+                                  mod.level === 300 ? 'var(--l300-color)' : 'var(--l400-color)';
 
         const modIndex = MODULES.indexOf(mod);
         document.getElementById('moduleSectionProgress').textContent =
             `Module ${modIndex + 1} of ${MODULES.length}${mod.estimatedTime ? '  ·  ⏱ ~' + mod.estimatedTime : ''}`;
 
         document.getElementById('tab-learn').innerHTML = mod.learn || '<p>Content coming soon.</p>';
+
+        // Inject section ids on <h2> elements for scroll targeting
+        this._injectSectionIds(moduleId);
 
         // Diagrams tab
         if (typeof DiagramEngine !== 'undefined') {
@@ -232,9 +441,13 @@ const app = {
             LabEngine.init(mod.id, mod.lab);
         }
 
-        document.querySelectorAll('#sidebar li').forEach(li => {
+        // Highlight the active module in sidebar
+        document.querySelectorAll('#sidebar li.nav-module').forEach(li => {
             li.classList.toggle('active', li.dataset.module === moduleId);
         });
+
+        // Auto-expand this module's sections in sidebar
+        this.toggleModuleSections(moduleId);
 
         document.getElementById('prevModule').disabled = modIndex === 0;
         document.getElementById('nextModule').disabled = modIndex === MODULES.length - 1;
@@ -252,7 +465,17 @@ const app = {
         this.switchTab('learn');
         window.location.hash = moduleId;
         ProgressManager.setLastVisited(moduleId);
-        document.getElementById('content').scrollTop = 0;
+
+        // Set up section observation for auto-visit tracking
+        this._observeSections(moduleId);
+
+        // If there's a pending section scroll, do it after a short delay for render
+        if (this._pendingSection) {
+            const slug = this._pendingSection;
+            setTimeout(() => this._scrollToSection(slug), 120);
+        } else {
+            document.getElementById('content').scrollTop = 0;
+        }
 
         setTimeout(() => {
             document.querySelectorAll('.accordion-header').forEach(header => {
@@ -300,7 +523,7 @@ const app = {
         }
         this.buildNavigation();
         this.updateProgress();
-        document.querySelectorAll('#sidebar li').forEach(li => {
+        document.querySelectorAll('#sidebar li.nav-module').forEach(li => {
             li.classList.toggle('active', li.dataset.module === this.currentModule.id);
         });
         const newStatus = ProgressManager.getModuleStatus(this.currentModule.id);
@@ -327,7 +550,7 @@ const app = {
         document.getElementById('overallProgress').style.width = `${overallPct}%`;
         document.getElementById('overallProgressText').textContent = `${overallPct}% Complete`;
 
-        [100, 200, 300].forEach(level => {
+        [100, 200, 300, 400].forEach(level => {
             const levelModules = MODULES.filter(m => m.level === level);
             const p = ProgressManager.getProgress();
             const completed = levelModules.filter(m => p.completedModules.includes(m.id)).length;

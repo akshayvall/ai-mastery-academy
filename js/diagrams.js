@@ -32,7 +32,8 @@ const DiagramEngine = {
             return;
         }
         container.innerHTML = `<div class="diagrams-wrapper">${diagrams.map(d => this.renderDiagram(d)).join('')}</div>`;
-        requestAnimationFrame(() => diagrams.forEach(d => this.initDiagram(d)));
+        // Synchronous init — rAF is throttled indefinitely in hidden/background tabs
+        diagrams.forEach(d => this.initDiagram(d));
     },
 
     cleanup() {
@@ -128,9 +129,167 @@ const DiagramEngine = {
     },
 
     // ──────────────────────────────────────────────
+    // BUILDER-TRACK HELPERS (ported from ai-builder-academy,
+    // light-theme palette). Used by the b-* builders below.
+    // ──────────────────────────────────────────────
+    BC: {
+        purple: '#7c3aed', blue: '#0ea5e9', green: '#059669', amber: '#d97706',
+        red: '#dc2626', text: '#1f2937', sub: '#6b7280',
+        node: '#ffffff', nodeBorder: '#d1d5db'
+    },
+
+    bArrow(color) {
+        const id = 'ah-' + color.replace('#', '');
+        return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,1 L10,5 L0,9 Z" fill="${color}"/></marker>`;
+    },
+
+    bNode(n, fallback) {
+        const c = n.color || fallback;
+        const lines = (n.sub || '').split('\n');
+        return `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="10"
+                 fill="${this.BC.node}" stroke="${c}" stroke-width="2"/>
+            ${n.icon ? `<text x="${n.x + n.w / 2}" y="${n.y + 24}" text-anchor="middle" font-size="18">${n.icon}</text>` : ''}
+            <text x="${n.x + n.w / 2}" y="${n.y + (n.icon ? 44 : 24)}" text-anchor="middle" fill="${this.BC.text}" font-size="13" font-weight="700">${n.label}</text>
+            ${lines.map((s, i) => `<text x="${n.x + n.w / 2}" y="${n.y + (n.icon ? 60 : 40) + i * 14}" text-anchor="middle" fill="${this.BC.sub}" font-size="10.5">${s}</text>`).join('')}`;
+    },
+
+    bEdgePath(a, b) {
+        const ac = { x: a.x + a.w / 2, y: a.y + a.h / 2 }, bc = { x: b.x + b.w / 2, y: b.y + b.h / 2 };
+        if (Math.abs(ac.y - bc.y) < 10) {
+            const x1 = ac.x < bc.x ? a.x + a.w : a.x, x2 = ac.x < bc.x ? b.x : b.x + b.w;
+            return `M ${x1} ${ac.y} L ${x2} ${bc.y}`;
+        }
+        if (Math.abs(ac.x - bc.x) < 10) {
+            const y1 = ac.y < bc.y ? a.y + a.h : a.y, y2 = ac.y < bc.y ? b.y : b.y + b.h;
+            return `M ${ac.x} ${y1} L ${bc.x} ${y2}`;
+        }
+        const x1 = ac.x < bc.x ? a.x + a.w : a.x;
+        const y2 = ac.y < bc.y ? b.y : b.y + b.h;
+        return `M ${x1} ${ac.y} L ${bc.x} ${ac.y} L ${bc.x} ${y2}`;
+    },
+
+    // ──────────────────────────────────────────────
     // BUILDERS — one per diagram type
     // ──────────────────────────────────────────────
     builders: {
+
+        /* ── Builder Track (b-*): config-driven, data in modules-builder.js ── */
+
+        'b-pipeline'(d) {
+            const { nodes, edges, viewBox = '0 0 860 420' } = d.data;
+            const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
+            const colors = [...new Set(edges.map(e => e.color || this.BC.purple))];
+            const edgeSvg = edges.map(e => {
+                const p = this.bEdgePath(byId[e.from], byId[e.to]);
+                const c = e.color || this.BC.purple;
+                return `<g ${e.step ? `data-step="${e.step}" class="step-highlight"` : ''}>
+                    <path d="${p}" fill="none" stroke="${c}" stroke-width="2" ${e.dashed ? 'stroke-dasharray="6 5"' : ''} marker-end="url(#ah-${c.replace('#','')})"/>
+                    ${e.label ? `<text x="${(byId[e.from].x + byId[e.from].w / 2 + byId[e.to].x + byId[e.to].w / 2) / 2}" y="${(byId[e.from].y + byId[e.from].h / 2 + byId[e.to].y + byId[e.to].h / 2) / 2 - 8}" text-anchor="middle" fill="${this.BC.sub}" font-size="10.5" font-style="italic">${e.label}</text>` : ''}
+                    ${e.dot !== false ? `<circle r="4.5" fill="${c}" class="flow-dot"><animateMotion dur="${e.dur || 2.2}s" repeatCount="indefinite" path="${p}"/></circle>` : ''}
+                </g>`;
+            }).join('');
+            const nodeSvg = nodes.map(n =>
+                `<g ${n.step ? `data-step="${n.step}" class="step-highlight"` : ''}>${this.bNode(n, this.BC.purple)}</g>`).join('');
+            return `<svg viewBox="${viewBox}" preserveAspectRatio="xMidYMid meet">
+                <defs>${colors.map(c => this.bArrow(c)).join('')}</defs>${edgeSvg}${nodeSvg}</svg>`;
+        },
+
+        'b-layers'(d) {
+            const { layers, viewBox = '0 0 860 400' } = d.data;
+            const w = 640, x = 110, h = Math.min(58, 320 / layers.length - 10);
+            const rows = layers.map((l, i) => {
+                const y = 40 + i * (h + 14);
+                return `<g ${l.step ? `data-step="${l.step}" class="step-highlight"` : ''}>
+                    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${this.BC.node}" stroke="${l.color}" stroke-width="2"/>
+                    <text x="${x + 18}" y="${y + h / 2 - 4}" fill="${this.BC.text}" font-size="13.5" font-weight="700">${l.label}</text>
+                    <text x="${x + 18}" y="${y + h / 2 + 14}" fill="${this.BC.sub}" font-size="11">${l.sub || ''}</text>
+                    ${l.tag ? `<text x="${x + w - 16}" y="${y + h / 2 + 5}" text-anchor="end" fill="${l.color}" font-size="11.5" font-weight="700">${l.tag}</text>` : ''}
+                </g>
+                ${i < layers.length - 1 ? `<line x1="${x + w / 2}" y1="${y + h}" x2="${x + w / 2}" y2="${y + h + 14}" stroke="${this.BC.nodeBorder}" stroke-width="2"/>` : ''}`;
+            }).join('');
+            return `<svg viewBox="${viewBox}" preserveAspectRatio="xMidYMid meet">${rows}</svg>`;
+        },
+
+        'b-bars'(d) {
+            const { bars, series, viewBox = '0 0 860 420' } = d.data;
+            const x0 = 250, wMax = 480, rowH = series ? 52 : 42;
+            const rows = bars.map((b, i) => {
+                const y = 70 + i * rowH;
+                const w1 = b.value * wMax;
+                let out = `<g ${b.step ? `data-step="${b.step}" class="step-highlight"` : ''}>
+                    <text x="${x0 - 14}" y="${y + 15}" text-anchor="end" fill="${this.BC.text}" font-size="12.5" font-weight="600">${b.label}</text>
+                    <rect x="${x0}" y="${y}" width="${wMax}" height="18" rx="4" fill="#eef0f4"/>
+                    <rect x="${x0}" y="${y}" width="${w1}" height="18" rx="4" fill="${b.color || this.BC.purple}" class="bar-fill"/>
+                    <text x="${x0 + w1 + 10}" y="${y + 14}" fill="${b.color || this.BC.purple}" font-size="12" font-weight="700">${b.display}</text>`;
+                if (series && b.value2 !== undefined) {
+                    const w2 = b.value2 * wMax;
+                    out += `<rect x="${x0}" y="${y + 22}" width="${wMax}" height="18" rx="4" fill="#eef0f4"/>
+                    <rect x="${x0}" y="${y + 22}" width="${w2}" height="18" rx="4" fill="${b.color2 || this.BC.blue}" class="bar-fill"/>
+                    <text x="${x0 + w2 + 10}" y="${y + 36}" fill="${b.color2 || this.BC.blue}" font-size="12" font-weight="700">${b.display2}</text>`;
+                }
+                return out + '</g>';
+            }).join('');
+            const legend = series ? `
+                <rect x="${x0}" y="30" width="14" height="14" rx="3" fill="${this.BC.purple}"/><text x="${x0 + 20}" y="42" fill="${this.BC.sub}" font-size="12">${series[0]}</text>
+                <rect x="${x0 + 130}" y="30" width="14" height="14" rx="3" fill="${this.BC.blue}"/><text x="${x0 + 150}" y="42" fill="${this.BC.sub}" font-size="12">${series[1]}</text>` : '';
+            return `<svg viewBox="${viewBox}" preserveAspectRatio="xMidYMid meet">${legend}${rows}</svg>`;
+        },
+
+        'b-curves'(d) {
+            const { curves, xLabel, yLabel, viewBox = '0 0 860 420' } = d.data;
+            const ox = 90, oy = 340, w = 660, h = 260;
+            const toX = v => ox + v * w, toY = v => oy - v * h;
+            const paths = curves.map(c => {
+                const pts = c.points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${toX(p[0])} ${toY(p[1])}`).join(' ');
+                const last = c.points[c.points.length - 1];
+                return `<g ${c.step ? `data-step="${c.step}" class="step-highlight"` : ''}>
+                    <path d="${pts}" fill="none" stroke="${c.color}" stroke-width="2.5" class="curve-path"/>
+                    <text x="${toX(last[0]) + 8}" y="${toY(last[1]) + 4}" fill="${c.color}" font-size="12" font-weight="700">${c.label}</text>
+                </g>`;
+            }).join('');
+            return `<svg viewBox="${viewBox}" preserveAspectRatio="xMidYMid meet">
+                <line x1="${ox}" y1="${oy}" x2="${ox + w}" y2="${oy}" stroke="${this.BC.nodeBorder}" stroke-width="2"/>
+                <line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy - h}" stroke="${this.BC.nodeBorder}" stroke-width="2"/>
+                <text x="${ox + w / 2}" y="${oy + 34}" text-anchor="middle" fill="${this.BC.sub}" font-size="12">${xLabel}</text>
+                <text x="${ox - 40}" y="${oy - h / 2}" text-anchor="middle" fill="${this.BC.sub}" font-size="12" transform="rotate(-90 ${ox - 40} ${oy - h / 2})">${yLabel}</text>
+                ${paths}</svg>`;
+        },
+
+        'b-graph'(d) {
+            const { nodes, links, viewBox = '0 0 860 440' } = d.data;
+            const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
+            const linkSvg = links.map(l => {
+                const a = byId[l.from], b = byId[l.to];
+                return `<g ${l.step ? `data-step="${l.step}" class="step-highlight"` : ''}>
+                    <line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${l.hop ? this.BC.amber : this.BC.nodeBorder}" stroke-width="${l.hop ? 3 : 1.5}" class="${l.hop ? 'hop-edge' : ''}"/>
+                    <text x="${(a.x + b.x) / 2}" y="${(a.y + b.y) / 2 - 6}" text-anchor="middle" fill="${l.hop ? this.BC.amber : this.BC.sub}" font-size="9.5" font-style="italic">${l.label}</text>
+                </g>`;
+            }).join('');
+            const nodeSvg = nodes.map(n => `
+                <g ${n.step ? `data-step="${n.step}" class="step-highlight"` : ''}>
+                    <circle cx="${n.x}" cy="${n.y}" r="26" fill="${this.BC.node}" stroke="${n.color}" stroke-width="2.5" class="graph-node"/>
+                    <text x="${n.x}" y="${n.y - 2}" text-anchor="middle" fill="${this.BC.text}" font-size="10.5" font-weight="700">${n.label}</text>
+                    <text x="${n.x}" y="${n.y + 11}" text-anchor="middle" fill="${n.color}" font-size="8.5">${n.type}</text>
+                </g>`).join('');
+            return `<svg viewBox="${viewBox}" preserveAspectRatio="xMidYMid meet">${linkSvg}${nodeSvg}</svg>`;
+        },
+
+        'b-timeline'(d) {
+            const { events, viewBox = '0 0 860 480' } = d.data;
+            const x = 150, rowH = Math.min(62, 420 / events.length);
+            const rows = events.map((e, i) => {
+                const y = 36 + i * rowH;
+                return `<g ${e.step ? `data-step="${e.step}" class="step-highlight"` : ''}>
+                    <circle cx="${x}" cy="${y}" r="7" fill="${e.color}" class="timeline-dot"/>
+                    ${i < events.length - 1 ? `<line x1="${x}" y1="${y + 8}" x2="${x}" y2="${y + rowH - 8}" stroke="${this.BC.nodeBorder}" stroke-width="2"/>` : ''}
+                    <text x="${x - 20}" y="${y + 4}" text-anchor="end" fill="${e.color}" font-size="11.5" font-weight="700" font-family="ui-monospace,Consolas,monospace">${e.kind}</text>
+                    <rect x="${x + 22}" y="${y - 15}" width="600" height="32" rx="8" fill="${this.BC.node}" stroke="${this.BC.nodeBorder}"/>
+                    <text x="${x + 36}" y="${y - 1}" fill="${this.BC.text}" font-size="11">${e.text}</text>
+                    <text x="${x + 36}" y="${y + 12}" fill="${this.BC.sub}" font-size="9.5">actor: ${e.actor}</text>
+                </g>`;
+            }).join('');
+            return `<svg viewBox="${viewBox}" preserveAspectRatio="xMidYMid meet">${rows}</svg>`;
+        },
 
         // 1. The AI stack — concentric labelled boxes
         'ai-stack'(d) {
@@ -495,6 +654,80 @@ const DiagramEngine = {
             return `<svg viewBox="0 0 800 360" preserveAspectRatio="xMidYMid meet">
                 ${axes}${polyline}${annot}
                 <text x="400" y="340" text-anchor="middle" fill="#4b5563" font-size="12" font-style="italic">Mitigations: re-state critical info near the end · use RAG · chunk + summarise long inputs</text>
+            </svg>`;
+        },
+
+        'claude-code-workflow'(d) {
+            const colors = ['#7c3aed','#059669','#2563eb','#d97706','#dc2626'];
+            const defs = this.arrowDefs ? DiagramEngine.arrowDefs(colors) : '';
+            const boxes = [
+                { x: 50,  y: 30,  w: 130, h: 50, label: 'CLAUDE.md',       sub: 'Project context',     fill: '#ede9fe', stroke: '#7c3aed' },
+                { x: 50,  y: 110, w: 130, h: 50, label: 'User Prompt',     sub: '"Add auth to API"',    fill: '#ecfdf5', stroke: '#059669' },
+                { x: 250, y: 70,  w: 140, h: 50, label: '🧠 Claude Code',  sub: 'Plan & reason',        fill: '#f0f0ff', stroke: '#2563eb' },
+                { x: 460, y: 30,  w: 120, h: 44, label: 'Read Files',      sub: 'grep · glob · view',   fill: '#fefce8', stroke: '#d97706' },
+                { x: 460, y: 86,  w: 120, h: 44, label: 'Edit Code',       sub: 'create · edit',        fill: '#fefce8', stroke: '#d97706' },
+                { x: 460, y: 142, w: 120, h: 44, label: 'Run Commands',    sub: 'test · build · lint',  fill: '#fefce8', stroke: '#d97706' },
+                { x: 460, y: 198, w: 120, h: 44, label: 'MCP Tools',       sub: 'DB · API · search',    fill: '#fefce8', stroke: '#d97706' },
+                { x: 650, y: 100, w: 120, h: 50, label: 'Verify & Commit', sub: 'tests pass → git',     fill: '#ecfdf5', stroke: '#059669' }
+            ];
+            const arrows = [
+                { x1: 180, y1: 55,  x2: 248, y2: 85,  c: '#7c3aed' },
+                { x1: 180, y1: 135, x2: 248, y2: 105, c: '#059669' },
+                { x1: 390, y1: 95,  x2: 458, y2: 52,  c: '#2563eb' },
+                { x1: 390, y1: 95,  x2: 458, y2: 108, c: '#2563eb' },
+                { x1: 390, y1: 95,  x2: 458, y2: 164, c: '#2563eb' },
+                { x1: 390, y1: 95,  x2: 458, y2: 220, c: '#2563eb' },
+                { x1: 580, y1: 108, x2: 648, y2: 120, c: '#d97706' },
+                { x1: 580, y1: 164, x2: 648, y2: 130, c: '#d97706' }
+            ];
+            const rects = boxes.map(b => `
+                <g data-step="${boxes.indexOf(b) + 1}" class="step-highlight">
+                    <rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="8" fill="${b.fill}" stroke="${b.stroke}" stroke-width="1.5"/>
+                    <text x="${b.x + b.w/2}" y="${b.y + 20}" text-anchor="middle" fill="#1f2937" font-size="12" font-weight="700">${b.label}</text>
+                    <text x="${b.x + b.w/2}" y="${b.y + 36}" text-anchor="middle" fill="#6b7280" font-size="10">${b.sub}</text>
+                </g>`).join('');
+            const lines = arrows.map(a => `<line x1="${a.x1}" y1="${a.y1}" x2="${a.x2}" y2="${a.y2}" stroke="${a.c}" stroke-width="1.5" marker-end="url(#ah-${a.c.replace('#','')})"/>`).join('');
+            return `<svg viewBox="0 0 800 280" preserveAspectRatio="xMidYMid meet">
+                <defs>${defs}</defs>
+                <text x="400" y="18" text-anchor="middle" fill="#4c1d95" font-size="14" font-weight="700">Claude Code Agentic Workflow</text>
+                ${lines}${rects}
+                <text x="400" y="270" text-anchor="middle" fill="#4b5563" font-size="11" font-style="italic">Loop: read → plan → edit → test → verify → commit</text>
+            </svg>`;
+        },
+
+        'fullstack-deploy'(d) {
+            const colors = ['#7c3aed','#059669','#2563eb','#d97706','#dc2626'];
+            const defs = DiagramEngine.arrowDefs(colors);
+            const layers = [
+                { x: 20,  y: 40,  w: 160, h: 200, label: 'Frontend',       items: ['React / Next.js','Tailwind CSS','Vercel / Pages'], fill: '#ede9fe', stroke: '#7c3aed' },
+                { x: 210, y: 40,  w: 160, h: 200, label: 'Backend API',    items: ['FastAPI / Express','Auth middleware','Rate limiting'], fill: '#ecfdf5', stroke: '#059669' },
+                { x: 400, y: 40,  w: 160, h: 200, label: 'AI Layer',       items: ['LLM API calls','RAG pipeline','Agent orchestration'], fill: '#dbeafe', stroke: '#2563eb' },
+                { x: 590, y: 40,  w: 160, h: 200, label: 'Infrastructure', items: ['Vector DB','PostgreSQL','Redis cache'], fill: '#fefce8', stroke: '#d97706' }
+            ];
+            const layerSvg = layers.map((l, i) => {
+                const itemsHtml = l.items.map((item, j) =>
+                    `<text x="${l.x + l.w/2}" y="${l.y + 75 + j * 28}" text-anchor="middle" fill="#374151" font-size="11">• ${item}</text>`
+                ).join('');
+                return `
+                <g data-step="${i + 1}" class="step-highlight">
+                    <rect x="${l.x}" y="${l.y}" width="${l.w}" height="${l.h}" rx="10" fill="${l.fill}" stroke="${l.stroke}" stroke-width="1.5"/>
+                    <text x="${l.x + l.w/2}" y="${l.y + 24}" text-anchor="middle" fill="#1f2937" font-size="13" font-weight="700">${l.label}</text>
+                    <line x1="${l.x + 10}" y1="${l.y + 36}" x2="${l.x + l.w - 10}" y2="${l.y + 36}" stroke="${l.stroke}" stroke-width="0.5"/>
+                    ${itemsHtml}
+                </g>`;
+            }).join('');
+            const arrows = [
+                `<line x1="180" y1="140" x2="208" y2="140" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#ah-7c3aed)"/>`,
+                `<line x1="370" y1="140" x2="398" y2="140" stroke="#059669" stroke-width="1.5" marker-end="url(#ah-059669)"/>`,
+                `<line x1="560" y1="140" x2="588" y2="140" stroke="#2563eb" stroke-width="1.5" marker-end="url(#ah-2563eb)"/>`
+            ].join('');
+            const cicd = `
+                <rect x="20" y="265" width="730" height="40" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1"/>
+                <text x="385" y="290" text-anchor="middle" fill="#dc2626" font-size="12" font-weight="700">CI/CD Pipeline: GitHub Actions → Build → Test → Deploy → Monitor</text>`;
+            return `<svg viewBox="0 0 780 320" preserveAspectRatio="xMidYMid meet">
+                <defs>${defs}</defs>
+                <text x="390" y="24" text-anchor="middle" fill="#4c1d95" font-size="14" font-weight="700">Full-Stack AI Application Architecture</text>
+                ${layerSvg}${arrows}${cicd}
             </svg>`;
         },
 

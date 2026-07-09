@@ -435,9 +435,81 @@ html, body {
 .animating .anim-line { stroke-dasharray: 6 6; animation: flow-dash 1.2s linear infinite; }
 .no-content { text-align: center; color: var(--text-secondary); padding: 40px 20px; font-style: italic; }
 
+/* ============ COLLAPSIBLE MODULE SECTIONS ============ */
+.module-sections { list-style: none; padding-left: 2rem; margin: 0; }
+.module-sections.collapsed { display: none; }
+.module-sections li { margin: 0 !important; padding: 0 !important; border: none !important; }
+.module-sections li a {
+    display: block; padding: 0.25rem 0.5rem; font-size: 0.8rem;
+    color: #9ca3af; cursor: pointer; border-radius: 4px;
+    text-decoration: none; transition: color 0.15s, background 0.15s;
+}
+.module-sections li a:hover { color: #e5e7eb; background: rgba(255,255,255,0.05); }
+.module-sections li a.section-visited { color: #a78bfa; }
+
+/* Module link with expand arrow */
+.nav-module > a.module-link {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px; cursor: pointer; font-size: 13.5px;
+    line-height: 1.3; color: var(--text-sidebar);
+    border-radius: 4px; margin: 1px 8px; transition: background 0.15s;
+    position: relative; text-decoration: none;
+}
+.nav-module > a.module-link:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.nav-module.active > a.module-link { background: var(--ai-purple); color: #fff; }
+.nav-module.completed > a.module-link .module-title::before { content: '✓ '; color: var(--success); font-weight: 700; }
+.nav-module.completed.active > a.module-link .module-title::before { color: #c4f5d6; }
+.module-check { color: var(--success); font-weight: 700; font-size: 12px; margin-left: 4px; }
+.module-icon { flex-shrink: 0; }
+
+/* Expand/collapse arrow indicator */
+.nav-module > a.module-link::after {
+    content: '▸'; position: absolute; right: 0.5rem; top: 50%;
+    transform: translateY(-50%); font-size: 0.7rem; color: #6b7280;
+    transition: transform 0.2s;
+}
+.nav-module.expanded > a.module-link::after { transform: translateY(-50%) rotate(90deg); }
+
+/* Override generic sidebar li rules for nav-module so they don't conflict */
+#sidebar li.nav-module { display: block; padding: 0; margin: 0; border: none; }
+
 /* Print styles for cheat-sheet (browser print of Learn tab) */
 @media print {
     #sidebar, .module-tabs, .module-navigation, .mobile-nav-toggle, .skip-link, #toast, .search-palette { display: none !important; }
     #content { padding: 0; }
 }
 
+
+/* ============================================
+   BUILDER TRACK (Level 400) — added with the
+   ai-builder-academy integration
+   ============================================ */
+:root { --l400-color: #b45309; }
+.nav-level.level-400 { color: var(--l400-color); }
+.level-badge.l400 { background: var(--l400-color); }
+.level-400-card { border-top: 4px solid var(--l400-color); }
+
+/* Learn-content extras used by Builder Track modules */
+.pitfall-list li { margin-bottom: 8px; }
+.keyterms-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+.keyterms-table th { text-align: left; color: var(--l400-color); padding: 8px 12px; border-bottom: 2px solid #e5e7eb; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+.keyterms-table td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+.keyterms-table td:first-child { font-weight: 600; white-space: nowrap; color: #111827; }
+.checklist { list-style: none; margin: 10px 0; padding-left: 0; }
+.checklist li { padding-left: 26px; position: relative; margin-bottom: 8px; }
+.checklist li::before { content: "\2611"; position: absolute; left: 0; color: #059669; }
+.arch-diagram { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; overflow-x: auto; margin: 14px 0; }
+.arch-diagram pre { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; line-height: 1.5; color: #374151; margin: 0; }
+
+/* Builder-track diagram animations (b-* builders) */
+.diagram-canvas .flow-dot { opacity: 0; }
+.diagram-canvas.animating .flow-dot { opacity: 1; }
+.diagram-canvas.animating .curve-path { stroke-dasharray: 1200; stroke-dashoffset: 1200; animation: bt-drawCurve 2.2s ease forwards; }
+@keyframes bt-drawCurve { to { stroke-dashoffset: 0; } }
+.diagram-canvas.animating .graph-node { animation: bt-nodePulse 1.6s ease infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes bt-nodePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+.diagram-canvas.animating .hop-edge { stroke-dasharray: 10 6; animation: bt-hopFlow 1s linear infinite; }
+@keyframes bt-hopFlow { to { stroke-dashoffset: -16; } }
+.diagram-canvas.animating .timeline-dot { animation: bt-nodePulse 1.4s ease infinite; transform-origin: center; transform-box: fill-box; }
+.diagram-canvas.animating .bar-fill { animation: bt-barGrow 1.2s ease; transform-origin: left center; transform-box: fill-box; }
+@keyframes bt-barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }

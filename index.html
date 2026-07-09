@@ -42,6 +42,10 @@
                 <h3 class="nav-level level-300">⬡ Level 300 — Advanced</h3>
                 <ul id="nav-level-300"></ul>
             </div>
+            <div class="nav-section">
+                <h3 class="nav-level level-400">🛠 Builder Track — Ship It</h3>
+                <ul id="nav-level-400"></ul>
+            </div>
 
             <div class="sidebar-footer">
                 <button id="openSearch" class="btn-search" title="Search (Ctrl+K)" aria-label="Search modules and topics">🔍 Search (Ctrl+K)</button>
@@ -67,10 +71,10 @@
                             <span class="level-badge l100">L100</span>
                             <h2>Foundations</h2>
                         </div>
-                        <p>Phase 0–3: AI orientation, prompt engineering, platform mastery (ChatGPT/Claude/Gemini), calling AI from code. Portfolio: journal, prompts, Custom GPT, CLI assistant.</p>
+                        <p>Phase 0–3: AI orientation, prompt engineering, platform mastery (ChatGPT/Claude/Gemini), calling AI from code, plus a 2026 systems landscape flagship and Zero to Claude command-line companion track. Portfolio: journal, prompts, Custom GPT, CLI assistant.</p>
                         <div class="level-card-progress">
                             <div class="progress-bar-container"><div class="progress-bar" id="l100Progress"></div></div>
-                            <span id="l100ProgressText">0/4 modules</span>
+                            <span id="l100ProgressText">0/6 modules</span>
                         </div>
                         <button class="btn-primary" onclick="app.startLevel(100)">Start Foundations →</button>
                     </div>
@@ -80,7 +84,7 @@
                             <span class="level-badge l200">L200</span>
                             <h2>Intermediate</h2>
                         </div>
-                        <p>Phase 4–8: RAG & memory, tool use, agent loops, Claude Code deep dive (.claude/ folder, hooks, skills, MCP, GitHub), multi-agent systems.</p>
+                        <p>Phase 4–8: context engineering + RAG, schema-first tool use, agent loops with governance, Claude Code deep dive (.claude/ folder, hooks, skills, MCP, managed agents), and multi-agent orchestration.</p>
                         <div class="level-card-progress">
                             <div class="progress-bar-container"><div class="progress-bar" id="l200Progress"></div></div>
                             <span id="l200ProgressText">0/5 modules</span>
@@ -99,6 +103,19 @@
                             <span id="l300ProgressText">0/4 modules</span>
                         </div>
                         <button class="btn-primary" onclick="app.startLevel(300)">Start Advanced →</button>
+                    </div>
+
+                    <div class="level-card level-400-card">
+                        <div class="level-card-header">
+                            <span class="level-badge l400">BUILD</span>
+                            <h2>Builder Track</h2>
+                        </div>
+                        <p>Seven portfolio-grade builds with step-by-step labs, animated diagrams, and quizzes: MCP assistant, multi-agent orchestration, eval pipeline, RAG security guardrails, audit-log agent, fine-tuning, and knowledge graphs. Theory above; shipping here.</p>
+                        <div class="level-card-progress">
+                            <div class="progress-bar-container"><div class="progress-bar" id="l400Progress"></div></div>
+                            <span id="l400ProgressText">0/7 modules</span>
+                        </div>
+                        <button class="btn-primary" onclick="app.startLevel(400)">Start Building →</button>
                     </div>
                 </div>
 
@@ -180,6 +197,7 @@
     <script src="js/modules-300.js"></script>
     <script src="js/modules-extras.js"></script>
     <script src="js/modules-pm.js"></script>
+    <script src="js/modules-builder.js"></script>
     <script src="js/quiz-engine.js"></script>
     <script src="js/interactive.js"></script>
     <script src="js/lab-engine.js"></script>
