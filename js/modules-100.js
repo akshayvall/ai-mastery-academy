@@ -15,7 +15,7 @@ const MODULES_100 = [
     id: 'phase0-orientation',
     level: 100,
     title: 'Phase 0: AI Orientation',
-    subtitle: 'What LLMs really are, how they work under the hood, the 2026 landscape, and your learning roadmap',
+    subtitle: 'What LLMs really are, how they work under the hood, how the 2026 model stack changed, and where AI systems are heading',
     icon: '🧭',
     estimatedTime: '45m',
     diagrams: [
@@ -244,6 +244,15 @@ const MODULES_100 = [
     2. Take Claude Code 101 when you reach Phase 7.<br>
     3. Take Building with the Claude API alongside Phases 3-9 (each section maps to a phase).<br>
     4. Explore Cowork tutorials after Phase 8 for the managed autonomous agent perspective.</p></div>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://www.youtube.com/watch?v=zjkBMFhNj_g" target="_blank" rel="noopener">Andrej Karpathy — Intro to Large Language Models</a> — 1-hour visual explainer of how LLMs actually work under the hood</li>
+            <li>📄 <a href="https://platform.openai.com/tokenizer" target="_blank" rel="noopener">OpenAI Tokenizer</a> — Interactive tool to see how text is split into tokens</li>
+            <li>📄 <a href="https://docs.anthropic.com/en/docs/initial-setup" target="_blank" rel="noopener">Anthropic — Getting Started with Claude</a> — Foundational overview of Claude and core LLM concepts</li>
+            <li>📄 <a href="https://writings.stephenwolfram.com/2023/02/what-is-chatgpt-doing-and-why-does-it-work/" target="_blank" rel="noopener">Stephen Wolfram — What Is ChatGPT Doing…</a> — Deep technical explainer of token prediction and neural nets</li>
+        </ul>
+    </div>
 </div>
 `,
     quiz: [
@@ -451,6 +460,15 @@ Note: "mike says db is slow, customers complaining"</div>
         <h4>💡 Iterative Refinement</h4>
         <p>Never expect perfection on try #1. Follow up: "More concise." "Add depth to section 3." "Make it more professional." Great prompting is a conversation, not a single shot.</p>
     </div>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://platform.openai.com/docs/guides/prompt-engineering" target="_blank" rel="noopener">OpenAI — Prompt Engineering Guide</a> — Official techniques and strategies for effective prompting</li>
+            <li>📄 <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank" rel="noopener">Anthropic — Prompt Engineering Overview</a> — Claude-specific prompting best practices and patterns</li>
+            <li>📄 <a href="https://ai.google.dev/gemini-api/docs/prompting-strategies" target="_blank" rel="noopener">Google — Prompting Strategies</a> — Gemini prompting techniques including few-shot and chain-of-thought</li>
+            <li>📄 <a href="https://github.com/brexhq/prompt-engineering" target="_blank" rel="noopener">Brex — Prompt Engineering Guide (GitHub)</a> — Production-grade prompt patterns from a real engineering team</li>
+        </ul>
+    </div>
 </div>
 `,
     quiz: [
@@ -568,6 +586,15 @@ Note: "mike says db is slow, customers complaining"</div>
         <h4>💡 NotebookLM vs Claude Projects</h4>
         <p><strong>NotebookLM:</strong> Pure research — source-only answers, citations, Audio Overviews. <strong>Claude Projects:</strong> Action — code, artifacts, complex instructions. Use NotebookLM for trust and research. Claude for creation and execution.</p>
     </div>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://help.openai.com/en/articles/8554397-creating-a-gpt" target="_blank" rel="noopener">OpenAI — Creating a Custom GPT</a> — Build specialised bots with instructions, knowledge, and API actions</li>
+            <li>📄 <a href="https://docs.anthropic.com/en/docs/build-with-claude/projects" target="_blank" rel="noopener">Anthropic — Claude Projects</a> — Persistent workspaces with shared files and instructions across conversations</li>
+            <li>📄 <a href="https://notebooklm.google/" target="_blank" rel="noopener">Google — NotebookLM</a> — Source-grounded research assistant with inline citations and Audio Overviews</li>
+            <li>📄 <a href="https://support.google.com/notebooklm/answer/14276468" target="_blank" rel="noopener">NotebookLM Help Centre</a> — Official guide to uploading sources and generating summaries</li>
+        </ul>
+    </div>
 </div>
 `,
     quiz: [
@@ -672,7 +699,7 @@ Note: "mike says db is slow, customers complaining"</div>
     id: 'phase3-ai-from-code',
     level: 100,
     title: 'Phase 3: Calling AI from Code',
-    subtitle: 'The inflection point — APIs, tokens, cost, the Claude developer journey, and building a CLI assistant with Claude Code',
+    subtitle: 'The inflection point — APIs, structured outputs, tools, realtime runtimes, provider tradeoffs, and building your first AI app loop',
     icon: '💻',
     estimatedTime: '90m',
     diagrams: [
@@ -693,6 +720,19 @@ Note: "mike says db is slow, customers complaining"</div>
     ],
     learn: `
 <div class="learn-section">
+    <h2>2026 Upgrade: From API Calls to AI Runtime Design</h2>
+    <p>In 2024-2025, most beginner education focused on making one model call and printing text. In 2026, production systems are built around <strong>runtime choices</strong>: model routing, structured outputs, tool boundaries, cache strategy, and migration resilience when model versions change.</p>
+    <table class="content-table">
+        <tr><th>Then</th><th>Now</th><th>Skill you need</th></tr>
+        <tr><td>Pick one model and hardcode it</td><td>Route by workload and latency/cost target</td><td>Model portfolio and routing policy</td></tr>
+        <tr><td>Free-form text output</td><td>Schema-first outputs and tool contracts</td><td>Structured output and validation</td></tr>
+        <tr><td>Manual experimentation</td><td>Automated evals and regression gates</td><td>Evaluation discipline</td></tr>
+        <tr><td>Stable model assumptions</td><td>Frequent deprecations and replacements</td><td>Migration playbooks</td></tr>
+    </table>
+    <div class="warning-box"><h4>What to optimize now</h4><p>Do not optimize only for one-shot answer quality. Optimize for repeatability, cost predictability, and failure handling under real workloads.</p></div>
+</div>
+
+<div class="learn-section">
     <h2>From Chat → Code: The Inflection Point</h2>
     <p>This is where you stop being an AI <em>user</em> and start being an AI <em>builder</em>. APIs let you automate, build apps, and process thousands of requests.</p>
     <table class="content-table">
@@ -702,6 +742,20 @@ Note: "mike says db is slow, customers complaining"</div>
         <tr><td>Fixed UI</td><td>Full control</td></tr>
         <tr><td>Limited to pre-built features</td><td>Build anything</td></tr>
     </table>
+</div>
+
+<div class="learn-section">
+    <h2>The 2026 Runtime Stack You Actually Need</h2>
+    <p>In 2024, teaching "call the model and print the answer" was enough. In 2026, that is only the first rung. Real AI applications are now built from a small stack of runtime primitives:</p>
+    <table class="content-table">
+        <tr><th>Primitive</th><th>Why it matters</th><th>Examples</th></tr>
+        <tr><td><strong>Structured outputs</strong></td><td>Turn the model from a chat partner into a typed component</td><td>JSON schema outputs, validated tool arguments, extraction pipelines</td></tr>
+        <tr><td><strong>Tool use</strong></td><td>Lets the model act instead of only talk</td><td>Web search, file search, code execution, database calls</td></tr>
+        <tr><td><strong>Context engineering</strong></td><td>Controls what the model sees, remembers, and reuses</td><td>Prompt caching, compaction, memory, retrieval, long-context routing</td></tr>
+        <tr><td><strong>Streaming and realtime</strong></td><td>Required for voice, copilots, and live interactive products</td><td>Native audio, low-latency TTS, websocket/live APIs</td></tr>
+        <tr><td><strong>Agent harnesses</strong></td><td>Wrap models in loops, tools, sandboxes, and approvals</td><td>Claude Managed Agents, Deep Research, computer use, coding agents</td></tr>
+    </table>
+    <div class="concept-box"><h4>🧠 Senior-level mental model</h4><p>Stop thinking of a model as a single feature. Think of it as a probabilistic runtime inside a larger system with contracts, memory boundaries, tool permissions, and operating costs.</p></div>
 </div>
 
 <div class="learn-section">
@@ -780,6 +834,15 @@ r = model.generate_content("What is Kubernetes?")</div>
         <tr><td>Agents and Workflows</td><td>11 — Parallel execution, chaining, routing, debugging</td><td>Phases 6-8 (Agents)</td></tr>
     </table>
     <div class="warning-box"><h4>💡 Study Strategy</h4><p>Take Section 1 (Getting Started) right now alongside this phase. Then take each subsequent section as you reach the matching phase in this academy. By the end you will have completed both courses in parallel.</p></div>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://docs.anthropic.com/en/api/messages" target="_blank" rel="noopener">Anthropic — Messages API Reference</a> — Official docs for building with Claude's API</li>
+            <li>📄 <a href="https://platform.openai.com/docs/api-reference/chat" target="_blank" rel="noopener">OpenAI — Chat Completions API</a> — API reference for the messages array pattern and parameters</li>
+            <li>📄 <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching" target="_blank" rel="noopener">Anthropic — Prompt Caching</a> — Reduce costs and latency by caching repeated context</li>
+            <li>📄 <a href="https://github.com/anthropics/anthropic-cookbook" target="_blank" rel="noopener">Anthropic Cookbook (GitHub)</a> — Practical code examples for API integration patterns</li>
+        </ul>
+    </div>
 </div>
 `,
     quiz: [
@@ -873,6 +936,276 @@ r = model.generate_content("What is Kubernetes?")</div>
                     { type: 'heading', text: 'Push to GitHub' },
                     { type: 'command', cmd: 'git init\ngit add .\ngit commit -m "feat: CLI AI assistant with conversation memory"\ngit remote add origin https://github.com/YOUR_USERNAME/cli-ai-assistant.git\ngit push -u origin main' },
                     { type: 'verify', text: 'GitHub repo has README with setup instructions. A visitor could clone, get an API key, and run the chatbot in under 5 minutes. Portfolio project #2 done.' }
+                ]
+            }
+        ]
+    }
+},
+
+{
+    id: 'landscape-2026-ai-systems',
+    level: 100,
+    title: '2026 Landscape: AI Systems, Not Just Prompts',
+    subtitle: 'The latest release shifts across OpenAI, Anthropic, and Google - and what they change in your learning plan',
+    icon: '🌐',
+    estimatedTime: '40m',
+    learn: `
+<div class="learn-section">
+    <h2>The strategic shift in 2026</h2>
+    <p>The center of gravity moved from "how to prompt one model" to "how to operate an AI runtime system." You now need competency in model routing, context engineering, tool orchestration, and migration under constant provider updates.</p>
+    <table class="content-table">
+        <tr><th>Layer</th><th>2024 mindset</th><th>2026 mindset</th></tr>
+        <tr><td>Model use</td><td>One model per app</td><td>Portfolio of models per workload</td></tr>
+        <tr><td>Prompting</td><td>Main optimization lever</td><td>One lever among many</td></tr>
+        <tr><td>Agents</td><td>Experimental pattern</td><td>Managed production primitive</td></tr>
+        <tr><td>Tooling</td><td>Custom integrations</td><td>MCP interoperability and dynamic tool discovery</td></tr>
+        <tr><td>Reliability</td><td>Manual QA</td><td>Schema contracts, evals, and trace-based debugging</td></tr>
+    </table>
+</div>
+
+<div class="learn-section">
+    <h2>Provider shifts that matter for builders</h2>
+    <h3>OpenAI</h3>
+    <ul>
+        <li>Rapid model retirement and replacement cycles in ChatGPT tiers increased migration pressure.</li>
+        <li>Reasoning and coding have converged into stronger agentic coding surfaces.</li>
+        <li>Model behavior and safety policies are increasingly explicit for agent scope and side effects.</li>
+    </ul>
+    <h3>Anthropic</h3>
+    <ul>
+        <li>Managed agents, multiagent sessions, memory, outcomes, and webhooks are now operational capabilities.</li>
+        <li>MCP connectivity evolved with connector and tunnels patterns, including private network access.</li>
+        <li>Context window, caching, compaction, and diagnostic tooling became core engineering concerns.</li>
+    </ul>
+    <h3>Google Gemini</h3>
+    <ul>
+        <li>Model family expanded across text, realtime audio, image, video, music, agents, and multimodal embeddings.</li>
+        <li>Tool and agent model lineup introduced managed research and computer-use style primitives.</li>
+        <li>Versioning patterns (stable/preview/latest/experimental) require explicit production governance.</li>
+    </ul>
+</div>
+
+<div class="learn-section">
+    <h2>How this changes your learning sequence</h2>
+    <ol>
+        <li><strong>First:</strong> Learn model and prompt fundamentals (Phases 0-3).</li>
+        <li><strong>Second:</strong> Learn context and tool engineering (Phases 4-5).</li>
+        <li><strong>Third:</strong> Learn agent runtime design and governance (Phases 6-8).</li>
+        <li><strong>Fourth:</strong> Learn deployment, economics, reliability, and migration (Phases 9-12 + PM playbook).</li>
+    </ol>
+    <div class="tip-box"><h4>Career framing</h4><p>Think less like "prompt expert" and more like "AI systems architect." The most defensible skill is designing reliable systems under provider churn.</p></div>
+</div>
+
+<div class="learn-section">
+    <h2>Reference release streams</h2>
+    <ul class="references-list" style="list-style:none; padding:0;">
+        <li>📄 <a href="https://help.openai.com/en/articles/9624314-model-release-notes" target="_blank" rel="noopener">OpenAI model release notes</a></li>
+        <li>📄 <a href="https://platform.claude.com/docs/en/release-notes/api" target="_blank" rel="noopener">Claude platform API release notes</a></li>
+        <li>📄 <a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">Gemini models and versioning docs</a></li>
+    </ul>
+</div>
+`,
+    quiz: [
+        { question: 'What is the main curriculum shift in 2026?', options: ['Prompt tricks only', 'From single-model prompting to AI runtime systems design', 'Only multimodal UX', 'Only Python skills'], correct: 1, explanation: 'The biggest shift is architectural: routing, context, tools, agents, and operations.' },
+        { question: 'Why is model portfolio literacy now required?', options: ['Models never change', 'Providers deprecate and replace models quickly', 'APIs are gone', 'Because prompts stopped working'], correct: 1, explanation: 'Deprecation velocity means you need migration and routing skills.' },
+        { question: 'Which skill is now foundational for reliability?', options: ['Longer prompts', 'Schema contracts and evals', 'Random sampling', 'More emojis'], correct: 1, explanation: 'Structured outputs and evals are key to stable production behavior.' },
+        { question: 'What does MCP primarily improve?', options: ['Font rendering', 'Interoperable tool connectivity', 'GPU overclocking', 'Only UI automation'], correct: 1, explanation: 'MCP standardizes model-tool integration patterns.' },
+        { question: 'What is a practical risk in 2026 platform usage?', options: ['No docs exist', 'Model version churn and migration debt', 'No tool support', 'No realtime support'], correct: 1, explanation: 'Fast provider change creates migration and compatibility risk.' },
+        { question: 'Best career framing for this era?', options: ['Prompt copywriter', 'AI systems architect', 'Spreadsheet only analyst', 'Model benchmark collector'], correct: 1, explanation: 'The valuable role is building and operating robust AI systems.' }
+    ],
+    interactive: [
+        { type: 'drag-drop', id: 'landscape-2026-mapping', title: 'Map capability to engineering layer', description: 'Match modern AI capabilities to the right runtime layer.', items: ['Model routing', 'Prompt caching', 'Tool schema contracts', 'Managed agents', 'Deprecation playbook'], targets: { 'Model operations': ['Model routing', 'Deprecation playbook'], 'Context engineering': ['Prompt caching'], 'Tooling and execution': ['Tool schema contracts', 'Managed agents'] } },
+        { type: 'flashcards', id: 'landscape-2026-cards', title: '2026 Systems Flashcards', cards: [
+            { front: 'Biggest 2026 shift?', back: 'From prompt-centric usage to AI runtime systems design.' },
+            { front: 'Why schema-first outputs?', back: 'They reduce brittle parsing and make integration reliable.' },
+            { front: 'What does routing optimize?', back: 'Task-model fit across quality, latency, and cost.' },
+            { front: 'Why track deprecations?', back: 'To avoid outages and regression surprises during model swaps.' },
+            { front: 'What skill compounds fastest?', back: 'Context engineering plus evaluation discipline.' }
+        ]}
+    ],
+    lab: {
+        title: 'Hands-On: Build a 2026 AI Runtime Strategy Sheet',
+        scenario: 'Create a simple architecture and operations sheet that maps one project to model routing, context policy, tool policy, and migration guardrails.',
+        duration: '25-35 minutes',
+        cost: 'Free',
+        difficulty: 'Intermediate',
+        prerequisites: ['Completed Phases 0-3', 'A markdown editor', 'Optional: your existing AI learning journal'],
+        steps: [
+            {
+                title: 'Create the strategy artifact',
+                subtitle: 'Capture runtime decisions in one page',
+                duration: '10 min',
+                instructions: [
+                    { type: 'command', cmd: 'mkdir -Force runtime 2>$null\ncode runtime/ai-runtime-strategy-2026.md' },
+                    { type: 'code', language: 'markdown', code: '# AI Runtime Strategy 2026\n\n## Workloads\n- Drafting\n- Coding\n- Research\n- Customer support\n\n## Routing policy\n- Fast tier model for drafts and high-volume support\n- Balanced model for coding and routine analysis\n- Frontier reasoning model for complex or high-risk tasks\n\n## Context policy\n- Use cached static prefix for policy and product docs\n- Retrieve top-k chunks via embeddings for dynamic questions\n- Compact or summarize long sessions above threshold\n\n## Tool policy\n- Enforce schema-validated tool inputs\n- Separate read-only and mutating tools\n- Human approval required for destructive actions\n\n## Migration policy\n- Track model deprecations monthly\n- Maintain fallback model per workload\n- Run eval suite before each model switch' },
+                    { type: 'verify', text: 'You now have a one-page runtime strategy with routing, context, tooling, and migration sections.' }
+                ]
+            },
+            {
+                title: 'Add a minimum evaluation gate',
+                subtitle: 'Prevent silent quality regressions during model changes',
+                duration: '8 min',
+                instructions: [
+                    'Add a section named "Evaluation Gate" to your strategy file.',
+                    { type: 'list', items: [
+                        '5 golden prompts for your highest-value workflow',
+                        '1 expected schema output test',
+                        '1 tool-calling correctness test',
+                        '1 refusal/safety boundary test',
+                        'Pass threshold before rollout: 90%+'
+                    ]},
+                    { type: 'verify', text: 'Your strategy now includes concrete pre-release checks.' }
+                ]
+            },
+            {
+                title: 'Create a deprecation watch routine',
+                subtitle: 'Operationalize release-note scanning into your workflow',
+                duration: '7 min',
+                instructions: [
+                    'Add a recurring calendar task: "AI platform release review" every 2 weeks.',
+                    'Track three URLs: OpenAI model notes, Claude platform notes, Gemini model docs.',
+                    'For each review, record: models added, models deprecated, breaking changes, required migrations.',
+                    { type: 'verify', text: 'You now have a repeatable process to keep your architecture current.' }
+                ]
+            }
+        ]
+    }
+},
+
+{
+    id: 'zero-to-claude-companion',
+    level: 100,
+    title: 'Companion Track: Zero to Claude Code',
+    subtitle: 'A 14-level command-line and Claude Code syllabus mapped into this academy',
+    icon: '🧭',
+    estimatedTime: '35m',
+    learn: `
+<div class="learn-section">
+    <h2>Why this syllabus belongs here</h2>
+    <p><a href="https://zero2claude.dev/" target="_blank" rel="noopener">Zero to Claude Code</a> is a strong external companion because it teaches the muscle memory this academy assumes but does not drill deeply enough: terminal fluency, Git habits, HTTP/API intuition, and practical Claude Code workflow.</p>
+    <p>As of May 2026, the public syllabus shows <strong>147 free lessons across 14 levels</strong>. You do <strong>not</strong> need to log in to inspect the syllabus. A Google login is only useful if you want your progress synced on their site.</p>
+    <div class="tip-box"><h4>How to use it well</h4><p>Think of this as the execution layer. AI Mastery Academy explains the concepts and product patterns; Zero to Claude Code gives you a disciplined shell-first practice track so you can actually ship.</p></div>
+</div>
+
+<div class="learn-section">
+    <h2>Syllabus snapshot</h2>
+    <table class="content-table">
+        <tr><th>Level</th><th>Theme</th><th>Lessons</th><th>Best paired with</th></tr>
+        <tr><td><strong>1</strong></td><td>Computers Are Not Magic</td><td>6</td><td>Phase 0 - AI Orientation</td></tr>
+        <tr><td><strong>2</strong></td><td>Your First 30 Minutes in the Terminal</td><td>13</td><td>Phase 0 - AI Orientation</td></tr>
+        <tr><td><strong>3</strong></td><td>Reading and Writing Files</td><td>13</td><td>Phase 0 - AI Orientation</td></tr>
+        <tr><td><strong>4</strong></td><td>Your Code Has a History</td><td>17</td><td>Phase 0 + portfolio labs</td></tr>
+        <tr><td><strong>5</strong></td><td>How Software Actually Works</td><td>14</td><td>Phase 0 - AI Orientation</td></tr>
+        <tr><td><strong>6</strong></td><td>Talk to the Internet</td><td>12</td><td>Phase 3 - Calling AI from Code</td></tr>
+        <tr><td><strong>7</strong></td><td>Building With Real Tools</td><td>15</td><td>Phase 3 - Calling AI from Code</td></tr>
+        <tr><td><strong>8</strong></td><td>Claude Code - Your AI Pair Programmer</td><td>16</td><td>Phase 7 - Claude Code Mastery</td></tr>
+        <tr><td><strong>9</strong></td><td>Claude Skills</td><td>5</td><td>Phase 7 - Claude Code Mastery</td></tr>
+        <tr><td><strong>10</strong></td><td>MCP - Connect Claude to Everything</td><td>5</td><td>Phase 9 - MCP & Tool Ecosystems</td></tr>
+        <tr><td><strong>11</strong></td><td>Context Is Everything</td><td>5</td><td>Phase 7 + Phase 8</td></tr>
+        <tr><td><strong>12</strong></td><td>Claude Code Advanced</td><td>5</td><td>Phase 8 + Phase 12</td></tr>
+        <tr><td><strong>13</strong></td><td>Junior Developer Patterns</td><td>12</td><td>Phase 10 - Full-Stack AI + Deploy</td></tr>
+        <tr><td><strong>14</strong></td><td>The Project - Build a Real Game</td><td>10</td><td>Phase 10 + capstone practice</td></tr>
+    </table>
+</div>
+
+<div class="learn-section">
+    <h2>What each block teaches you</h2>
+    <h3>Levels 1-5: operating system literacy</h3>
+    <p>This block removes the beginner fog around files, folders, paths, shells, version control, and how software actually reaches users. That matters because Claude Code amplifies your existing terminal habits; it does not replace them.</p>
+
+    <h3>Levels 6-7: API and runtime literacy</h3>
+    <p>These levels make HTTP, curl, JSON, Node.js, npm, localhost, and simple servers feel normal. That gives you the foundation for Phase 3 and later app-building labs.</p>
+
+    <h3>Levels 8-12: the Claude Code stack</h3>
+    <p>This is the most direct overlap with AI Mastery Academy: Claude Code workflow, reusable skills, MCP servers, context management, subagents, hooks, and cost-aware usage.</p>
+
+    <h3>Levels 13-14: junior developer execution</h3>
+    <p>The course ends where many AI learners usually stall: debugging, deployment, secrets, custom domains, and shipping a real multiplayer app. That is the difference between "I watched tutorials" and "I can build and publish."</p>
+</div>
+
+<div class="learn-section">
+    <h2>Recommended study order with this academy</h2>
+    <ol>
+        <li><strong>Before or during Phases 0-3:</strong> finish Levels 1-7 so command-line, Git, HTTP, and Node stop feeling foreign.</li>
+        <li><strong>When you reach Phase 7:</strong> do Levels 8-9 immediately. The terminology and workflow will click faster.</li>
+        <li><strong>When you reach Phases 8-9:</strong> use Levels 10-12 as your operational reference for MCP, context, subagents, and advanced Claude Code usage.</li>
+        <li><strong>After Phase 10:</strong> use Levels 13-14 as your shipping discipline track and capstone warm-up.</li>
+    </ol>
+    <div class="warning-box"><h4>Do not treat it as replacement curriculum</h4><p>Zero to Claude Code is strongest at workflows and developer habits. This academy is stronger on AI concepts, product thinking, RAG, agent patterns, PM judgment, and architecture tradeoffs. The combination is what gives you both understanding and execution.</p></div>
+</div>
+
+<div class="learn-section">
+    <h2>Direct links</h2>
+    <ul class="references-list" style="list-style:none; padding:0;">
+        <li>📄 <a href="https://zero2claude.dev/" target="_blank" rel="noopener">Zero to Claude Code</a> — public syllabus and free course home page</li>
+        <li>📄 <a href="https://zero2claude.dev/login" target="_blank" rel="noopener">Log in</a> — optional if you want progress tracking</li>
+        <li>📄 <a href="https://zero2claude.dev/register" target="_blank" rel="noopener">Create account</a> — optional if you want to save progress or join the forum</li>
+    </ul>
+</div>
+`,
+    quiz: [
+        { question: 'How many public levels does Zero to Claude Code currently expose?', options: ['8', '10', '12', '14'], correct: 3, explanation: 'The current public syllabus shows 14 levels.' },
+        { question: 'Which Zero to Claude block most directly supports Phase 7 in this academy?', options: ['Levels 1-2', 'Levels 6-7', 'Levels 8-9', 'Levels 13-14'], correct: 2, explanation: 'Levels 8-9 cover Claude Code and Skills, which map directly into Phase 7.' },
+        { question: 'What is the main job of Levels 1-5?', options: ['Teach product strategy', 'Build operating system and developer workflow literacy', 'Teach fine-tuning', 'Replace this academy entirely'], correct: 1, explanation: 'Those early levels build shell, file, Git, and software-system intuition.' },
+        { question: 'Do you need an account to inspect the syllabus?', options: ['Yes, always', 'Only with a paid plan', 'No, the syllabus is public', 'Only on mobile'], correct: 2, explanation: 'The syllabus is visible publicly; login is only needed if you want saved progress.' },
+        { question: 'Which level introduces MCP directly?', options: ['Level 6', 'Level 8', 'Level 10', 'Level 12'], correct: 2, explanation: 'Level 10 is MCP - Connect Claude to Everything.' },
+        { question: 'Why pair this course with AI Mastery Academy instead of replacing it?', options: ['Because one is paid and one is free', 'Because both teach identical material', 'Because one emphasizes workflow execution while the other emphasizes concepts, architecture, and product judgment', 'Because this academy has no labs'], correct: 2, explanation: 'The pair is useful because their strengths are complementary, not redundant.' }
+    ],
+    interactive: [
+        { type: 'drag-drop', id: 'zero-to-claude-mapping', title: 'Match the syllabus block to the academy phase', description: 'Map each Zero to Claude block to where it is most useful here.', items: ['Levels 1-5', 'Levels 6-7', 'Levels 8-9', 'Levels 10-12', 'Levels 13-14'], targets: { 'Phase 0 - foundations': ['Levels 1-5'], 'Phase 3 - calling AI from code': ['Levels 6-7'], 'Phase 7 - Claude Code mastery': ['Levels 8-9'], 'Phase 8-12 - MCP, context, advanced operations': ['Levels 10-12'], 'Phase 10 + capstone shipping': ['Levels 13-14'] } },
+        { type: 'flashcards', id: 'zero-to-claude-cards', title: 'Zero to Claude Companion Cards', cards: [
+            { front: '147 lessons across how many levels?', back: '147 lessons across 14 levels.' },
+            { front: 'Which Zero to Claude levels should I finish before deep Claude Code work?', back: 'Levels 1-7 give you enough terminal, Git, HTTP, and Node fluency to get real value from Claude Code.' },
+            { front: 'Which level introduces skills?', back: 'Level 9: Claude Skills - Teach Claude Your Workflow.' },
+            { front: 'Where does MCP appear?', back: 'Level 10, then reinforced by Levels 11-12 when context and advanced operations show up.' },
+            { front: 'Why is Level 14 important?', back: 'It forces you to turn concepts into a real shipped multiplayer project, which exposes debugging and deployment gaps fast.' }
+        ]}
+    ],
+    lab: {
+        title: 'Hands-On: Build Your Zero to Claude Companion Plan',
+        scenario: 'Turn the public syllabus into a personal execution plan that fits this academy, your current skill level, and your available time each week.',
+        duration: '20-30 minutes',
+        cost: 'Free',
+        difficulty: 'Beginner',
+        prerequisites: ['A browser', 'Optional: Google account if you want to save progress on zero2claude.dev', 'Your AI learning journal repo from Phase 0'],
+        steps: [
+            {
+                title: 'Open the course and inspect the roadmap',
+                subtitle: 'Confirm the current public syllabus on the live site',
+                duration: '5 min',
+                instructions: [
+                    'Open <a href="https://zero2claude.dev/" target="_blank">zero2claude.dev</a>.',
+                    'Scroll the syllabus list and verify the 14 levels line up with this companion module.',
+                    'If you want synced progress, click Log in or Sign Up and use your Google account. If you only want the syllabus, skip login.',
+                    { type: 'verify', text: 'You can see all 14 levels and their lesson counts. If you chose to log in, your account is active. If not, you still have the full roadmap.' }
+                ]
+            },
+            {
+                title: 'Write your pairing plan',
+                subtitle: 'Translate the external syllabus into your academy roadmap',
+                duration: '10 min',
+                instructions: [
+                    { type: 'heading', text: 'Create a new markdown note in your journal repo' },
+                    { type: 'command', cmd: 'cd ai-learning-journal\nmkdir -Force plans 2>$null\ncode plans/zero-to-claude-companion.md' },
+                    'Paste this template and fill it in:',
+                    { type: 'code', language: 'markdown', code: '# Zero to Claude Companion Plan\n\n## Goal\nUse Zero to Claude Code to reinforce AI Mastery Academy with terminal, Git, API, and Claude Code muscle memory.\n\n## My Weekly Time Budget\n- Hours per week: [fill in]\n- Preferred days: [fill in]\n\n## Pairing Plan\n- Weeks 1-2: Levels 1-3 alongside Phase 0\n- Weeks 3-4: Levels 4-7 alongside Phases 0-3\n- Weeks 5-6: Levels 8-9 alongside Phase 7\n- Weeks 7-8: Levels 10-12 alongside Phases 8-12\n- Weeks 9-10: Levels 13-14 as ship-it practice\n\n## My Risks\n- [ ] Terminal still feels slow\n- [ ] Git still feels risky\n- [ ] APIs still feel abstract\n- [ ] Debugging still feels random\n\n## Success Signal\nBy the end, I can use Claude Code to build, debug, and ship a small real project without feeling lost in the terminal.' },
+                    { type: 'verify', text: 'You now have a written pairing plan with a time budget, sequence, and success signal.' }
+                ]
+            },
+            {
+                title: 'Choose your starting point honestly',
+                subtitle: 'Skip ego, optimize for the fastest real learning',
+                duration: '5 min',
+                instructions: [
+                    'Answer these three questions in your new note:',
+                    { type: 'list', items: [
+                        '<strong>Terminal:</strong> Can you navigate, create files, inspect text, and move around without guessing?',
+                        '<strong>Git:</strong> Can you confidently init, add, commit, branch, merge, and recover from a mistake?',
+                        '<strong>APIs:</strong> Can you read API docs and turn them into a working curl request?' 
+                    ]},
+                    'If any answer is no, start earlier in the Zero to Claude track. If all three are yes, start at Levels 8-9.',
+                    { type: 'tip', text: 'The right starting point is the one that removes friction fastest, not the one that sounds most advanced.' },
+                    { type: 'verify', text: 'You picked a concrete entry point: Levels 1-3, 4-7, or 8-9.' }
                 ]
             }
         ]

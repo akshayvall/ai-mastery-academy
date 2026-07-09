@@ -24,6 +24,67 @@ Parent project context: [`../SESSION_CONTEXT.md`](../SESSION_CONTEXT.md).
 
 ## Log
 
+## 2026-05-26 — Level 100 syntax stabilization after curriculum merge
+**Goal:** Unblock runtime after the 2026 curriculum pass by resolving a parse failure in `js/modules-100.js`.
+**Outcome:**
+- Restored the missing top-level `const MODULES_100 = [` declaration at the start of `js/modules-100.js`.
+- Removed the orphaned top-level `subtitle` line that was left outside any module object.
+- Re-ran `node --check` on both `js/modules-100.js` and `js/modules-200.js`; both pass.
+**Decisions:**
+- Kept all new module content intact (2026 landscape + Zero to Claude companion) and applied the smallest structural fix only.
+**Open threads:**
+- [ ] Optional: add a lightweight CI syntax check (`node --check js/modules-*.js`) to prevent future merge-time regressions.
+**Files touched:** js/modules-100.js, SESSION_CONTEXT.md
+
+## 2026-05-26 — 2026 systems curriculum pass (brief + implementation)
+**Goal:** Execute a full refresh pass that combines strategic curriculum redesign with concrete implementation in Levels 100 and 200.
+**Outcome:**
+- Added `docs/curriculum-refresh-2026.md` with foundational and senior-level outcomes, updated learning spine, and next-pass recommendations.
+- Added a new Level 100 flagship module, `2026 Landscape: AI Systems, Not Just Prompts`, to ground learners in current platform shifts across OpenAI, Anthropic, and Google.
+- Updated Phase 3 framing to emphasize runtime design, schema contracts, routing, and migration-safe thinking.
+- Updated Level 200 phase framing and content intros (Phases 4-8) toward context engineering, managed agent governance, and orchestration operations.
+- Updated dashboard and README counts for Level 100 and total sidebar modules.
+**Decisions:**
+- Preserved existing phase IDs and module IDs to avoid breaking localStorage progress.
+- Chose additive updates over deep refactors so the academy improves immediately while remaining stable.
+**Open threads:**
+- [ ] Next pass: add dedicated multimodal realtime module and model-routing lab with eval gates.
+- [ ] Next pass: add explicit migration engineering module for model deprecations and fallback policy testing.
+**Files touched:** js/modules-100.js, js/modules-200.js, index.html, README.md, docs/curriculum-refresh-2026.md, docs/alignment-plan.md, CHANGELOG.md, SESSION_CONTEXT.md
+
+## 2026-05-26 — Zero to Claude companion syllabus added
+**Goal:** Incorporate the public `zero2claude.dev` syllabus into the academy without forking the site structure or adding a separate app surface.
+**Outcome:**
+- Added a new Level 100 module, `Companion Track: Zero to Claude Code`, with a 14-level syllabus snapshot, academy phase mapping, direct links, quiz, interactive mapping exercise, flashcards, and a study-plan lab.
+- Updated dashboard and README counts so Foundations now reflects the extra companion module.
+**Decisions:**
+- Kept the integration as a single companion module instead of exploding the 14 external levels into 14 internal modules — that preserves the academy's own curriculum spine while still making the syllabus actionable.
+- Did not require login integration because the syllabus is public; Google login remains optional for progress sync on the external site.
+**Open threads:**
+- [ ] If useful later, add a dedicated dashboard card or search tag for third-party companion tracks beyond Anthropic + Zero to Claude.
+**Files touched:** js/modules-100.js, index.html, README.md, CHANGELOG.md, SESSION_CONTEXT.md
+
+## 2026-05-06 — Major content deepening + diagrams + references
+**Goal:** Bring Phases 4-8 to parity with the Networking Academy's content depth. Add missing diagrams and references across all modules.
+**Outcome:**
+- Phase 4 (RAG): 2.5KB → ~35KB — full RAG pipeline, vector DB comparison, chunking strategies, advanced patterns (HyDE, GraphRAG, CRAG)
+- Phase 5 (Prompt Engineering): 1.5KB → ~39KB — techniques taxonomy, structured output, injection defense, model-specific tips
+- Phase 6 (Agents): deepened with ReAct pattern, tool calling across providers, framework comparison, memory tiers, safety patterns
+- Phase 7 (Claude Code): deepened with CLAUDE.md, hooks, MCP, skills, subagents, security model
+- Phase 8 (MCP): deepened with architecture, transport layers, primitives, server building in Node+Python
+- Added 2 new diagram builders: `claude-code-workflow` and `fullstack-deploy`
+- Added Further Reading & References section to all modules (100, 300, PM)
+- Networking Academy: added SESSION_CONTEXT.md, last-updated date in hero
+- Shared components documented at `_shared/academy-engines/README.md`
+**Decisions:**
+- Shared component extraction deferred to Phase 2 (when a 3rd academy starts) — engines have diverged 30-50%
+**Open threads:**
+- [ ] Granular module split (monolithic phases → 3-5 sub-modules each)
+- [ ] Capstone project module
+- [ ] Make repo public + enable GitHub Pages
+- [ ] Ingest both academies into wiki/
+**Files touched:** js/modules-200.js, js/modules-100.js, js/modules-300.js, js/modules-pm.js, js/diagrams.js
+
 ## 2026-04-28 — PM Playbook (8 modules) added
 **Goal:** Address the gap that the engineering Phases 0–12 leave for PMs working on AI products in 2026 — evals, unit economics, build/buy/wait, discovery, trust & safety, analytics, roadmap, exec comms.
 **Outcome:**

@@ -2,7 +2,9 @@
 
 **Goal:** Bring `ai-academy/` to structural and pedagogical parity with [`../../azure-networking-academy/`](../../azure-networking-academy/), which is the more mature sibling.
 
-**Status of this doc:** Drafted 2026-04-28. Phases 0–1 complete. Phases 2–5 pending decision.
+**Status of this doc:** Drafted 2026-04-28. Phases 0–1 complete. Phases 2–5 pending decision. 2026 refresh strategy added in `docs/curriculum-refresh-2026.md`.
+
+> 2026 curriculum note: the maturity target is no longer just parity with the networking academy layout. It is parity with modern AI systems practice: model routing, context engineering, schema-first tool use, managed agents, and migration-safe operations.
 
 ---
 

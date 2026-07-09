@@ -151,6 +151,15 @@ RESPONSE TO EVALUATE: {output}</div>
         <li>Eugene Yan — "Evaluating LLMs as judges"</li>
         <li>LangSmith / Braintrust / Promptfoo — managed eval platforms</li>
     </ul>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://hamel.dev/blog/posts/evals/" target="_blank" rel="noopener">Hamel Husain — Your AI Product Needs Evals</a> — The industry-standard playbook for building eval systems</li>
+            <li>📄 <a href="https://docs.anthropic.com/en/docs/build-with-claude/develop-tests" target="_blank" rel="noopener">Anthropic — Building Evaluations</a> — Official guide to developing and running evals for Claude</li>
+            <li>📄 <a href="https://www.braintrust.dev/docs" target="_blank" rel="noopener">Braintrust AI — Documentation</a> — End-to-end platform for LLM eval, logging, and prompt management</li>
+            <li>📄 <a href="https://github.com/openai/evals" target="_blank" rel="noopener">OpenAI Evals (GitHub)</a> — Open-source framework for evaluating LLM performance on tasks</li>
+        </ul>
+    </div>
 </div>
 `,
     quiz: [
@@ -299,6 +308,15 @@ $1.40 leaves plenty of room. Healthy.</div>
         <h4>⚠️ The 1% who can ruin you</h4>
         <p>AI usage is heavy-tailed. The top 1% of users will do 50× the median's usage. Without per-tier rate limits, your unit economics are decided by your power users, not your average user. Always model the 99th percentile.</p>
     </div>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://a16z.com/who-owns-the-generative-ai-platform/" target="_blank" rel="noopener">a16z — Who Owns the Generative AI Platform?</a> — Analysis of value capture and cost dynamics in the AI stack</li>
+            <li>📄 <a href="https://openai.com/api/pricing/" target="_blank" rel="noopener">OpenAI — API Pricing</a> — Current token pricing for all GPT models, including input/output splits</li>
+            <li>📄 <a href="https://www.anthropic.com/pricing" target="_blank" rel="noopener">Anthropic — API Pricing</a> — Claude model pricing with prompt caching and batch discounts</li>
+            <li>📄 <a href="https://a16z.com/navigating-the-high-cost-of-ai-compute/" target="_blank" rel="noopener">a16z — Navigating the High Cost of AI Compute</a> — Strategies for managing AI infrastructure costs at scale</li>
+        </ul>
+    </div>
 </div>
 `,
     quiz: [
@@ -436,6 +454,15 @@ Do not invest in a custom model or fine-tune.</div>
         <h4>⚠️ The wrapper objection</h4>
         <p>"That's just a wrapper around GPT" is only an insult if the wrapper does nothing. The five items above are real product work and they take real PM craft.</p>
     </div>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://www.sequoiacap.com/article/ai-50-2024/" target="_blank" rel="noopener">Sequoia — AI 50</a> — Profiles of the most promising AI companies and their build-vs-buy decisions</li>
+            <li>📄 <a href="https://a16z.com/emerging-architectures-for-llm-applications/" target="_blank" rel="noopener">a16z — Emerging Architectures for LLM Applications</a> — Reference architecture for the modern AI application stack</li>
+            <li>📄 <a href="https://github.com/modelcontextprotocol/servers" target="_blank" rel="noopener">MCP Servers Registry (GitHub)</a> — Check what already exists before building custom integrations</li>
+            <li>📄 <a href="https://www.mattshumer.com/blog/the-complete-guide-to-building-ai-products" target="_blank" rel="noopener">Matt Shumer — Guide to Building AI Products</a> — Practical build-vs-buy framework for AI features</li>
+        </ul>
+    </div>
 </div>
 `,
     quiz: [
@@ -546,6 +573,15 @@ Do not invest in a custom model or fine-tune.</div>
         <li><strong>Telemetry:</strong> opt-in feedback widget, eval scores on sampled outputs, latency, cost, error rate, refusal rate.</li>
         <li><strong>Pre-defined exit criteria:</strong> what numbers move you to 25%, what numbers trigger a roll-back. Write them down before launch.</li>
     </ul>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://www.svpg.com/inspired-how-to-create-tech-products-customers-love/" target="_blank" rel="noopener">Marty Cagan — Inspired</a> — The definitive guide to product discovery and delivery, applicable to AI features</li>
+            <li>📄 <a href="https://www.lennysnewsletter.com/p/what-ai-pms-do-differently" target="_blank" rel="noopener">Lenny's Newsletter — What AI PMs Do Differently</a> — How the discovery→ship cycle changes with stochastic AI outputs</li>
+            <li>📄 <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank" rel="noopener">Anthropic — Getting Good at Claude</a> — Prototype rapidly with Claude to validate demand before building</li>
+            <li>📄 <a href="https://www.reforge.com/artificial-intelligence" target="_blank" rel="noopener">Reforge — AI Product Course</a> — Structured frameworks for shipping AI products at scale</li>
+        </ul>
+    </div>
 </div>
 `,
     quiz: [
@@ -658,6 +694,16 @@ Do not invest in a custom model or fine-tune.</div>
 | Risk analysis | Outputs PII in summary | Low | High | PII redactor on input + output filter | Privacy | 2026-Q3 |
 | Meeting prep agent | Calendar misuse via injection | Med | High | Read-only calendar tool; human approval to send | PM | 2026-Q3 |</div>
     <p>If your team can\'t produce this register on demand, you don\'t actually know your risk surface.</p>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://airc.nist.gov/AI_RMF_Playbook" target="_blank" rel="noopener">NIST — AI Risk Management Framework Playbook</a> — US federal framework for identifying and managing AI risks</li>
+            <li>📄 <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/" target="_blank" rel="noopener">OWASP — Top 10 for LLM Applications</a> — Critical security risks specific to LLM-powered products</li>
+            <li>📄 <a href="https://www.microsoft.com/en-us/ai/responsible-ai" target="_blank" rel="noopener">Microsoft — Responsible AI Standard</a> — Principles and practices for trustworthy AI deployment</li>
+            <li>📄 <a href="https://www.anthropic.com/research/core-views-on-ai-safety" target="_blank" rel="noopener">Anthropic — Core Views on AI Safety</a> — Safety-first design philosophy and concrete mitigation strategies</li>
+            <li>📄 <a href="https://artificialintelligenceact.eu/" target="_blank" rel="noopener">EU AI Act — Summary</a> — Overview of the European regulatory framework for AI systems</li>
+        </ul>
+    </div>
 </div>
 `,
     quiz: [
@@ -767,6 +813,15 @@ Do not invest in a custom model or fine-tune.</div>
         <tr><td>Free-text feedback</td><td>Optional text box on 👎</td><td>Goldmine for failure-mode discovery</td></tr>
     </table>
     <p>Plumb the edit-diff signal into the data team\'s pipeline. It\'s the single best source of organic improvements.</p>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://docs.smith.langchain.com/" target="_blank" rel="noopener">LangSmith — LLM Observability Platform</a> — Trace, monitor, and evaluate LLM applications in production</li>
+            <li>📄 <a href="https://www.braintrust.dev/docs" target="_blank" rel="noopener">Braintrust AI — Logging &amp; Analytics</a> — Real-time observability for AI output quality and cost tracking</li>
+            <li>📄 <a href="https://www.emerging.tech/" target="_blank" rel="noopener">Emerging Tech Brew</a> — Daily newsletter covering AI product trends and competitive intelligence</li>
+            <li>📄 <a href="https://eugeneyan.com/writing/llm-patterns/" target="_blank" rel="noopener">Eugene Yan — Patterns for Building LLM-based Systems</a> — Practical patterns for evaluation, guardrails, and observability</li>
+        </ul>
+    </div>
 </div>
 `,
     quiz: [
@@ -858,6 +913,15 @@ Do not invest in a custom model or fine-tune.</div>
     <div class="tip-box">
         <h4>💡 Your strongest 2026 PM advantage</h4>
         <p>You will not out-research the labs. You will out-<em>integrate</em> them: be the team that takes new capabilities into production fastest, with evals and trust scaffolding in place. Roadmap planning is the upstream end of that.</p>
+    </div>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://coda.io/@shreyas/pre-mortem-how-to-preempt-project-failures" target="_blank" rel="noopener">Shreyas Doshi — Pre-mortem Framework</a> — Anticipate and prevent project failures before they happen</li>
+            <li>📄 <a href="https://www.stateof.ai/" target="_blank" rel="noopener">State of AI Report</a> — Annual deep-dive into AI capabilities, industry trends, and what ships next</li>
+            <li>📄 <a href="https://landing.ai/ai-transformation-playbook/" target="_blank" rel="noopener">Andrew Ng — AI Transformation Playbook</a> — Step-by-step guide for leading AI adoption in organisations</li>
+            <li>📄 <a href="https://www.reforge.com/artificial-intelligence" target="_blank" rel="noopener">Reforge — AI Product Course</a> — Frameworks for roadmapping under model uncertainty</li>
+        </ul>
     </div>
 </div>
 `,
@@ -964,6 +1028,15 @@ If those tradeoffs work, I can put it on the next quarterly review.
 If we want it sooner, I\'d cut scope to just E — same capability, ~10×
 cheaper and lower risk. Happy to spike that next sprint."</div>
     <p>This is harder than "no" but it almost always lands well — you\'ve given them numbers, options, and a path forward.</p>
+    <div class="learn-section">
+        <h2>📚 Further Reading &amp; References</h2>
+        <ul class="references-list" style="list-style:none; padding:0;">
+            <li>📄 <a href="https://landing.ai/ai-transformation-playbook/" target="_blank" rel="noopener">Andrew Ng — AI Transformation Playbook</a> — How to communicate AI strategy and capabilities to leadership</li>
+            <li>📄 <a href="https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai" target="_blank" rel="noopener">McKinsey — The State of AI</a> — Executive-level survey of AI adoption, impact, and organisational readiness</li>
+            <li>📄 <a href="https://stratechery.com/" target="_blank" rel="noopener">Ben Thompson — Stratechery</a> — Strategic analysis of AI's impact on technology and business</li>
+            <li>📄 <a href="https://www.lennysnewsletter.com/" target="_blank" rel="noopener">Lenny's Newsletter</a> — Product leadership insights including AI product management and exec communication</li>
+        </ul>
+    </div>
 </div>
 `,
     quiz: [

@@ -137,5 +137,36 @@ const ProgressManager = {
         const levelModules = allModules.filter(m => m.level === level);
         const completed = levelModules.filter(m => progress.completedModules.includes(m.id));
         return { completed: completed.length, total: levelModules.length };
+    },
+
+    // ─── SECTION-LEVEL VISIT TRACKING ────────────
+    // Stores visited sections as { "moduleId": ["slug1", "slug2", ...] }
+    markSectionVisited(moduleId, sectionSlug) {
+        const progress = this.getProgress();
+        if (!progress.visitedSections) progress.visitedSections = {};
+        if (!progress.visitedSections[moduleId]) progress.visitedSections[moduleId] = [];
+        if (!progress.visitedSections[moduleId].includes(sectionSlug)) {
+            progress.visitedSections[moduleId].push(sectionSlug);
+        }
+        this.saveProgress(progress);
+    },
+
+    isSectionVisited(moduleId, sectionSlug) {
+        const progress = this.getProgress();
+        if (!progress.visitedSections) return false;
+        const visited = progress.visitedSections[moduleId];
+        return visited ? visited.includes(sectionSlug) : false;
+    },
+
+    getSectionVisits(moduleId) {
+        const progress = this.getProgress();
+        if (!progress.visitedSections) return [];
+        return progress.visitedSections[moduleId] || [];
+    },
+
+    areAllSectionsVisited(moduleId, sectionSlugs) {
+        if (!sectionSlugs || sectionSlugs.length === 0) return false;
+        const visited = this.getSectionVisits(moduleId);
+        return sectionSlugs.every(slug => visited.includes(slug));
     }
 };

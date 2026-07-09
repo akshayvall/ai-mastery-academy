@@ -20,7 +20,7 @@ Progress is saved in your browser's `localStorage` and can be exported / importe
 
 ## 🗺️ Curriculum
 
-13 phases across 3 levels + a cross-cutting **PM Playbook** (8 modules) and 10 standalone diagram drills. **31 sidebar modules in total.**
+13 phases across 3 levels + a cross-cutting **PM Playbook** (8 modules), a 2026 landscape flagship, a Zero to Claude companion module, and 10 standalone diagram drills. **33 sidebar modules in total.**
 
 ### ⬡ Level 100 — Foundations (Phases 0–3)
 | # | Module | Covers |
@@ -29,6 +29,8 @@ Progress is saved in your browser's `localStorage` and can be exported / importe
 | 2 | Phase 1 — Prompt Engineering | RTCC framework, few-shot, chain-of-thought, XML, meta-prompting |
 | 3 | Phase 2 — Platform Mastery | ChatGPT (GPTs/Canvas/Codex), Claude (Projects/Artifacts), Gemini (NotebookLM/AI Studio) |
 | 4 | Phase 3 — Calling AI from Code | OpenAI / Anthropic / Gemini SDKs, building a CLI assistant |
+| 5 | Flagship — 2026 AI Systems Landscape | Runtime architecture view: model routing, context engineering, managed agents, multimodal operations, and migration literacy |
+| 6 | Companion Track — Zero to Claude Code | 14-level external syllabus for terminal, Git, APIs, Claude Code, MCP, context, and ship-ready developer habits |
 
 ### ⬡ Level 200 — Intermediate (Phases 4–8 + PM Playbook)
 | # | Module | Covers |
@@ -145,6 +147,6 @@ Headline gaps to close:
 
 ## 🔗 Related
 
-- Sibling: [`../azure-networking-academy`](../azure-networking-academy/) — same engine pattern, AZ-104 aligned.
+- Sibling: [`../azure-networking-academy`](../azure-networking-academy/) — same engine pattern, real-world Azure networking focus.
 - Parent project: [`../`](../README.md) (`Idea_Gen`).
 - Workspace conventions: [`../../../.ai/instructions.md`](../../../.ai/instructions.md).
