@@ -513,3 +513,7 @@ html, body {
 .diagram-canvas.animating .timeline-dot { animation: bt-nodePulse 1.4s ease infinite; transform-origin: center; transform-box: fill-box; }
 .diagram-canvas.animating .bar-fill { animation: bt-barGrow 1.2s ease; transform-origin: left center; transform-box: fill-box; }
 @keyframes bt-barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Lab step undo button (per-step persistence port) */
+.lab-undo-btn { border-color: #d1d5db !important; color: #6b7280 !important; background: none; }
+.lab-undo-btn:hover { border-color: #9ca3af !important; color: #374151 !important; }

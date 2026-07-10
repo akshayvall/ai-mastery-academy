@@ -61,6 +61,24 @@ const ProgressManager = {
         return progress;
     },
 
+    // ─── PER-STEP LAB PERSISTENCE ────────────────
+    // Ported from ai-builder-academy: lab checklists survive reloads.
+    // Stored as { "moduleId": [true, null, true, ...] }
+    getLabSteps(moduleId, total) {
+        const progress = this.getProgress();
+        const saved = (progress.labSteps && progress.labSteps[moduleId]) || [];
+        const arr = new Array(total).fill(null);
+        saved.forEach((v, i) => { if (i < total) arr[i] = v; });
+        return arr;
+    },
+
+    saveLabSteps(moduleId, stepResults) {
+        const progress = this.getProgress();
+        if (!progress.labSteps) progress.labSteps = {};
+        progress.labSteps[moduleId] = stepResults;
+        this.saveProgress(progress);
+    },
+
     completeInteractive(exerciseId) {
         const progress = this.getProgress();
         if (!progress.interactiveCompleted.includes(exerciseId)) progress.interactiveCompleted.push(exerciseId);

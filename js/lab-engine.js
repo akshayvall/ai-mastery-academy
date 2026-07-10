@@ -32,7 +32,8 @@ const LabEngine = {
         }
         this.currentLab = moduleId;
         this.lab = lab;
-        this.stepResults = new Array(lab.steps.length).fill(null);
+        // Restore any previously saved checklist state (ported from ai-builder-academy)
+        this.stepResults = ProgressManager.getLabSteps(moduleId, lab.steps.length);
         this.render();
     },
 
@@ -133,7 +134,10 @@ const LabEngine = {
                     ${!isCompleted ? `
                     <button class="lab-done-btn" onclick="LabEngine.markDone(${index})">
                         ✅ I've completed this step
-                    </button>` : ''}
+                    </button>` : `
+                    <button class="lab-done-btn lab-undo-btn" onclick="LabEngine.markUndone(${index})">
+                        ↺ Mark as not done
+                    </button>`}
                 </div>
             </div>`;
     },
@@ -152,7 +156,10 @@ const LabEngine = {
                     ${!isCompleted ? `
                     <button class="lab-done-btn" onclick="LabEngine.markDone(${index})">
                         ✅ I've completed this step
-                    </button>` : ''}
+                    </button>` : `
+                    <button class="lab-done-btn lab-undo-btn" onclick="LabEngine.markUndone(${index})">
+                        ↺ Mark as not done
+                    </button>`}
                 </div>
             </div>`;
     },
@@ -164,6 +171,7 @@ const LabEngine = {
 
     markDone(index) {
         this.stepResults[index] = true;
+        ProgressManager.saveLabSteps(this.currentLab, this.stepResults);
         if (this.stepResults.every(r => r === true)) {
             ProgressManager.completeLab(this.currentLab);
             app.updateProgress();
@@ -172,6 +180,12 @@ const LabEngine = {
         this.render();
         const next = document.getElementById(`lab-step-${index + 1}`);
         if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
+
+    markUndone(index) {
+        this.stepResults[index] = null;
+        ProgressManager.saveLabSteps(this.currentLab, this.stepResults);
+        this.render();
     },
 
     escapeHtml(text) {
