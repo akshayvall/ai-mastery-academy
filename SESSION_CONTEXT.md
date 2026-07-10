@@ -24,6 +24,16 @@ Parent project context: [`../SESSION_CONTEXT.md`](../SESSION_CONTEXT.md).
 
 ## Log
 
+## 2026-07-09 — Lab persistence port; academy is now the single Builder home
+**Goal:** Consolidate the two learning sites onto this academy.
+**Outcome:** Per-step lab checklist persistence + undo ported from ai-builder-academy
+(labSteps in localStorage; benefits ALL labs, not just Builder Track). The standalone
+ai-builder-academy repo is now archived as a frozen portfolio showcase; its Pages
+snapshot stays live but is never updated.
+**Decisions:**
+  - This academy is the single maintained learning surface going forward.
+**Files touched:** js/lab-engine.js, js/progress.js, css/styles.css
+
 ## 2026-07-08 — Builder Track (Level 400) integrated + site live on GitHub Pages
 **Goal:** Integrate the 7 ai-builder-academy builds into this academy, sibling-style
 (same engine, new level), per docs/PRD_Builder_Track.md.
