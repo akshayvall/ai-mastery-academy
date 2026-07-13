@@ -24,6 +24,19 @@ Parent project context: [`../SESSION_CONTEXT.md`](../SESSION_CONTEXT.md).
 
 ## Log
 
+## 2026-07-10 — Content audit: outdated material catalogued (fixes pending)
+**Goal:** Audit all 41 modules for stale content; validate against current sources.
+**Outcome:** Full findings in `docs/content-audit-2026-07.md`. Headlines: 2 CRITICAL
+(claude-sonnet-4-20250514 retired 6/15 → code 404s at modules-200.js:919/:1634; prefill
+taught but 400s on modern Claude — 12 refs), 5 HIGH (Claude lineup 2 gens behind — Fable
+5/Opus 4.8/Sonnet 5 current; PM pricing table off 3-5×; "200K" ctx now 1M; Gemini 3.5
+out; thinking API changed), 3 MEDIUM (gpt-4o-mini capstone stack, temperature scoping,
+gemma-2→Gemma 3). Builder Track otherwise validated current.
+**Open threads:**
+  - [ ] Apply Critical+High fixes (~2h); Builder fixes via source→converter flow.
+  - [ ] Add "Last verified" stamps + extract landscape claims into one data file.
+**Files touched:** docs/content-audit-2026-07.md (new)
+
 ## 2026-07-09 — Lab persistence port; academy is now the single Builder home
 **Goal:** Consolidate the two learning sites onto this academy.
 **Outcome:** Per-step lab checklist persistence + undo ported from ai-builder-academy
