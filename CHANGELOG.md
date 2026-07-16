@@ -5,10 +5,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 
 ## [Unreleased]
 ### Fixed
+- Completed the July 2026 content audit: replaced retired model IDs, rewrote obsolete Claude prefill guidance around structured outputs, refreshed model/pricing/context claims, updated adaptive-thinking guidance, and corrected temperature determinism claims.
+- Updated the Level 300 capstone from `gpt-4o-mini` to `gpt-5.4-mini` and regenerated the Builder Track after correcting the MCP date and Gemma 3 prerequisite in its source project.
 - `js/modules-100.js` parse error (`Unexpected token ']'`) caused by a missing `const MODULES_100 = [` declaration and an orphaned top-level `subtitle` line after curriculum merge.
 - Re-validated syntax with `node --check` for both `js/modules-100.js` and `js/modules-200.js`.
 
 ### Added
+- `js/landscape.js` as the single source for volatile model names, prices, context limits, and the curriculum verification date.
+- A centrally rendered `Last verified: YYYY-MM` stamp on every Learn view.
 - `docs/curriculum-refresh-2026.md` - strategic curriculum brief to shift the academy from prompt-centric learning to AI systems architecture.
 - **New Level 100 flagship module**: `2026 Landscape: AI Systems, Not Just Prompts` with release-driven guidance across OpenAI, Anthropic, and Google.
 - **Zero to Claude companion module** in Level 100 — a curated 14-level syllabus map for `zero2claude.dev`, including lesson-count overview, phase mapping, quiz, flashcards, and a companion study-plan lab.

@@ -61,7 +61,7 @@ Map every Phase to a topic cluster of 5–8 atomic modules.
 |---|---|---|
 | `llm-fundamentals` | learn | "What is an LLM" + "Intern Mental Model" sections |
 | `ai-stack-layers` | diagram | The AI / ML / DL / GenAI / LLM stack table → animated SVG |
-| `landscape-2026` | learn | Current model landscape (GPT-5.4, Claude Opus 4.6, Gemini 3.1) |
+| `landscape-2026` | learn | Current model landscape (GPT-5.6, Claude 5/4.8, Gemini 3.5) |
 | `roadmap-quiz` | quiz | Existing Phase 0 quiz |
 | `platform-products` | drag-drop | Existing `platform-products` interactive |
 | `orientation-cards` | flashcards | Existing `orientation-cards` interactive |

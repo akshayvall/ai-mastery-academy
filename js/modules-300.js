@@ -591,7 +591,7 @@ OPENAI_API_KEY=sk-your-key-here
 # Or use Anthropic instead:
 # ANTHROPIC_API_KEY=sk-ant-your-key-here
 EMBEDDING_MODEL=text-embedding-3-small
-LLM_MODEL=gpt-4o-mini
+LLM_MODEL=gpt-5.4-mini
 CHUNK_SIZE=500
 CHUNK_OVERLAP=50
 TOP_K=5
@@ -609,7 +609,7 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     anthropic_api_key: str = ""
     embedding_model: str = "text-embedding-3-small"
-    llm_model: str = "gpt-4o-mini"
+    llm_model: str = "gpt-5.4-mini"
     chunk_size: int = 500       # tokens per chunk
     chunk_overlap: int = 50     # overlap between chunks
     top_k: int = 5              # number of chunks to retrieve
@@ -720,7 +720,7 @@ def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[dict
     Returns a list of dicts with 'text' and 'metadata' (page number
     if available, character offset for citation tracking).
     """
-    encoder = tiktoken.encoding_for_model("gpt-4o-mini")
+    encoder = tiktoken.get_encoding("o200k_base")
     separators = ["\\n\\n", "\\n", ". ", " "]
     chunks = []
     current_page = 1
@@ -1306,7 +1306,7 @@ Score 1.0 = every claim in the answer is directly supported by context
 Return ONLY a JSON object: {{"score": 0.0, "reasoning": "brief explanation"}}"""
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-5.4-mini",
         messages=[{"role": "user", "content": eval_prompt}],
         temperature=0.0
     )
@@ -1330,7 +1330,7 @@ Score 1.0 = most/all chunks directly address the question
 Return ONLY a JSON object: {{"score": 0.0, "reasoning": "brief explanation"}}"""
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-5.4-mini",
         messages=[{"role": "user", "content": eval_prompt}],
         temperature=0.0
     )
@@ -1407,7 +1407,7 @@ if __name__ == "__main__":
         <ul>
             <li>The judge sees <strong>both the context and the answer</strong>, so it can check if claims are supported</li>
             <li>Judging is <strong>easier than generating</strong> — like how grading an essay is easier than writing one</li>
-            <li>At <code>temperature=0.0</code>, the judge is deterministic (same input → same score)</li>
+            <li>A low <code>temperature</code> reduces score variance on models that support it, but repeated runs can still differ</li>
             <li>It scales — you can evaluate thousands of answers automatically, which humans cannot do</li>
         </ul>
         <p>In production, you combine LLM-as-judge with periodic human spot-checks. Neither alone is sufficient.</p>
@@ -1631,16 +1631,16 @@ async def health_check():
 
     <h3>Environment Variables in Production</h3>
     <div class="code-block"># Railway
-railway variables set OPENAI_API_KEY=sk-... LLM_MODEL=gpt-4o-mini
+railway variables set OPENAI_API_KEY=sk-... LLM_MODEL=gpt-5.4-mini
 
 # Render: Dashboard → Environment → Add Secret
 
 # Fly.io
-fly secrets set OPENAI_API_KEY=sk-... LLM_MODEL=gpt-4o-mini
+fly secrets set OPENAI_API_KEY=sk-... LLM_MODEL=gpt-5.4-mini
 
 # Azure
 az webapp config appsettings set --name myapp --resource-group mygroup \\
-    --settings OPENAI_API_KEY=sk-... LLM_MODEL=gpt-4o-mini</div>
+    --settings OPENAI_API_KEY=sk-... LLM_MODEL=gpt-5.4-mini</div>
 
     <div class="key-takeaway">
         <h4>💡 Key Takeaway</h4>
@@ -1802,7 +1802,7 @@ async def ask_question(body: QueryRequest, session_id: str = "default"):
                 'It reduces the number of tokens generated, saving money'
             ],
             correct: 2,
-            explanation: 'Temperature controls randomness. For factual document Q&A, you want deterministic, consistent answers. A user asking "What is the contract value?" should get "$2.4M" every time, not creative rephrasing. Creative writing uses high temperature; factual grounding uses low temperature.'
+            explanation: 'Temperature controls sampling randomness on models that expose it. For factual document Q&A, a lower value can improve consistency, but it does not guarantee identical output. Grounding, citations, and evals provide the real reliability controls.'
         },
         {
             question: 'The Dockerfile includes "USER appuser" and a HEALTHCHECK. Why are BOTH important for production?',
@@ -1828,7 +1828,7 @@ async def ask_question(body: QueryRequest, session_id: str = "default"):
                 'Create requirements.txt with all dependencies:',
                 { type: 'code', language: 'text', code: 'fastapi==0.115.0\nuvicorn==0.32.0\npython-multipart==0.0.12\nopenai==1.55.0\nchromadb==0.5.23\npython-dotenv==1.0.1\npypdf==5.1.0\npython-docx==1.1.2\ntiktoken==0.8.0\npydantic-settings==2.6.0\nslowapi==0.1.9\npytest==8.3.0\nhttpx==0.28.0' },
                 'Create .env.example (commit this) and .env (never commit):',
-                { type: 'code', language: 'bash', code: 'echo "OPENAI_API_KEY=sk-your-key-here\nEMBEDDING_MODEL=text-embedding-3-small\nLLM_MODEL=gpt-4o-mini" > .env.example\ncp .env.example .env\n# Edit .env with your real API key' },
+                { type: 'code', language: 'bash', code: 'echo "OPENAI_API_KEY=sk-your-key-here\nEMBEDDING_MODEL=text-embedding-3-small\nLLM_MODEL=gpt-5.4-mini" > .env.example\ncp .env.example .env\n# Edit .env with your real API key' },
                 'Create .gitignore:',
                 { type: 'code', language: 'text', code: '.env\n__pycache__/\nchroma_data/\n*.pyc\n.pytest_cache/' },
                 { type: 'command', cmd: 'pip install -r requirements.txt' },
@@ -1943,7 +1943,7 @@ async def ask_question(body: QueryRequest, session_id: str = "default"):
             title: 'Capstone Key Concepts',
             cards: [
                 { front: 'What are the two RAG pipelines?', back: 'Ingestion (once per doc): extract → chunk → embed → store. Query (every question): embed question → retrieve → augment prompt → generate answer.' },
-                { front: 'Why temperature=0.1 for document Q&A?', back: 'Factual Q&A needs consistency. Same question = same answer. Low temperature reduces randomness. High temperature is for creative tasks.' },
+                { front: 'Why use low temperature for document Q&A?', back: 'On models that support it, low temperature reduces sampling variance. It does not guarantee identical answers; grounding and evals remain necessary.' },
                 { front: 'What does faithfulness measure?', back: 'Whether the answer ONLY contains information from the retrieved context. Low faithfulness = the LLM is hallucinating (adding facts not in your documents).' },
                 { front: 'Why return source citations?', back: 'Trust: users can verify. Debug: developers can see if retrieval failed. Compliance: auditors can trace answers to source documents.' },
                 { front: 'Name 4 layers of prompt injection defense.', back: '1) Input sanitisation (regex). 2) Architectural separation (data ≠ instructions). 3) Output validation. 4) Least privilege (LLM has no extra capabilities).' },

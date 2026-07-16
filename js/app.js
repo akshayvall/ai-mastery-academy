@@ -17,6 +17,7 @@ const MODULES = [
     ..._PM.filter(m => m.level === 300),
     ...((typeof MODULES_BUILDER !== 'undefined') ? MODULES_BUILDER : []),
 ];
+const CONTENT_LAST_VERIFIED = MODEL_LANDSCAPE.verified;
 
 // Cache parsed sections per module so we only parse HTML once
 const _sectionCache = {};
@@ -30,13 +31,11 @@ const app = {
         this.buildNavigation();
         this.updateProgress();
         this.bindEvents();
-        this.showDashboard();
 
         const hash = window.location.hash.slice(1);
-        if (hash) {
-            const mod = MODULES.find(m => m.id === hash);
-            if (mod) this.loadModule(mod.id);
-        }
+        const mod = hash ? MODULES.find(m => m.id === hash) : null;
+        if (mod) this.loadModule(mod.id);
+        else this.showDashboard();
     },
 
     // ─── SECTION PARSING ─────────────────────────
@@ -411,7 +410,9 @@ const app = {
         document.getElementById('moduleSectionProgress').textContent =
             `Module ${modIndex + 1} of ${MODULES.length}${mod.estimatedTime ? '  ·  ⏱ ~' + mod.estimatedTime : ''}`;
 
-        document.getElementById('tab-learn').innerHTML = mod.learn || '<p>Content coming soon.</p>';
+        const learnContent = mod.learn || '<p>Content coming soon.</p>';
+        document.getElementById('tab-learn').innerHTML =
+            `<p class="content-verification">Last verified: ${CONTENT_LAST_VERIFIED}</p>${learnContent}`;
 
         // Inject section ids on <h2> elements for scroll targeting
         this._injectSectionIds(moduleId);

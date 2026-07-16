@@ -380,7 +380,7 @@ const DiagramEngine = {
                 <text x="400" y="68" text-anchor="middle" fill="#6b7280" font-size="13">Model assigns a probability to every token in its vocabulary</text>
                 <text x="400" y="92" text-anchor="middle" fill="#6b7280" font-size="12" font-style="italic">Top candidates shown · sampling picks one according to temperature</text>
                 ${bars}
-                <text x="400" y="395" text-anchor="middle" fill="#4c1d95" font-size="13">temperature=0 → always "sat" · temperature=1 → samples weighted by probability</text>
+                <text x="400" y="395" text-anchor="middle" fill="#4c1d95" font-size="13">lower temperature favors "sat" · higher temperature spreads probability across candidates</text>
             </svg>`;
         },
 

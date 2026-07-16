@@ -694,7 +694,7 @@ answer = llm.generate(f"Context:\\n{context}\\n\\nQuestion: {query}\\nAnswer:")<
         <tr><th>Role</th><th>Purpose</th><th>When Set</th><th>Example</th></tr>
         <tr><td><strong>system</strong></td><td>Sets persona, rules, and constraints for the entire conversation</td><td>Once at the start (by the developer)</td><td>"You are a senior Python developer. Always include type hints."</td></tr>
         <tr><td><strong>user</strong></td><td>The human's input — questions, instructions, data</td><td>Every turn (by the end user)</td><td>"Write a function to validate email addresses."</td></tr>
-        <tr><td><strong>assistant</strong></td><td>The model's responses — OR a prefill to steer the output</td><td>Previous responses, or developer prefill</td><td>"Here is a Python function with type hints:..."</td></tr>
+        <tr><td><strong>assistant</strong></td><td>The model's responses</td><td>Added after each completed model turn</td><td>"Here is a Python function with type hints:..."</td></tr>
     </table>
 
     <div class="code-block"># Full message structure — this is what every API call looks like
@@ -710,33 +710,40 @@ messages = [
     {
         "role": "user",
         "content": "Load sales.csv and find the top 5 products by revenue"
-    },
-    {
-        "role": "assistant",
-        "content": "\\u0060\\u0060\\u0060python\\nimport pandas as pd\\n"
-        # This is "assistant prefill" — forces the model to continue
-        #   in a specific format. Very powerful technique.
     }
 ]</div>
 
-    <h3>Assistant Prefill — The Steering Hack</h3>
-    <p>You can start the assistant's response for it. The model will then <em>continue</em> from where you left off. This is one of the most powerful and underused techniques:</p>
-    <div class="code-block"># Without prefill:
-user: "Extract the person's name and age from this text: 'John is 32 years old'"
-assistant: "The person's name is John and they are 32 years old."  # Free-form text
-
-# With prefill (add a partial assistant message):
-user: "Extract the person's name and age from this text: 'John is 32 years old'"
-assistant: '{"name": "'   # ← You provide this partial JSON
-# Model continues:  'John", "age": 32}'  # ← Model completes the JSON
-
-# The prefill FORCES structured output by making the model continue your format</div>
+    <h3>Structured Outputs — Enforce the Contract</h3>
+    <p>When software needs to consume a response, define a JSON schema instead of trying to steer the model with a partial assistant message. The API validates the response shape, so your application receives predictable fields and types:</p>
+    <div class="code-block">response = client.messages.create(
+    model="claude-sonnet-5",
+    max_tokens=256,
+    messages=[{
+        "role": "user",
+        "content": "Extract the person's name and age: John is 32 years old"
+    }],
+    output_config={
+        "format": {
+            "type": "json_schema",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "age": {"type": "integer"}
+                },
+                "required": ["name", "age"],
+                "additionalProperties": False
+            }
+        }
+    }
+)
+# Parse response.content[0].text as {"name": "John", "age": 32}</div>
 
     <div class="warning-box">
-        <h4>⚠️ Prefill Support Varies by Provider</h4>
-        <p><strong>Claude:</strong> Full prefill support — highly recommended for structured output.<br>
-        <strong>GPT:</strong> No direct prefill in the API, but you can simulate it with system instructions or JSON mode.<br>
-        <strong>Gemini:</strong> Limited prefill support via the last assistant turn.</p>
+        <h4>Use Each Provider's Structured Output API</h4>
+        <p><strong>Claude:</strong> Use <code>output_config.format</code>; current models reject partial assistant messages.<br>
+        <strong>GPT:</strong> Use Structured Outputs or JSON mode.<br>
+        <strong>Gemini:</strong> Use response schemas for JSON output.</p>
     </div>
 </div>
 
@@ -798,7 +805,7 @@ Think step by step."""
     <div class="concept-box">
         <h4>🧠 Why CoT Works — The Scratch Pad Theory</h4>
         <p>LLMs generate tokens left-to-right. Without CoT, the model must jump directly from question to answer in one "thought." With CoT, the intermediate reasoning tokens act as working memory — each step's output becomes input for the next step. This is why longer, more detailed reasoning chains produce better answers for complex problems.</p>
-        <p>In 2026, frontier models (Claude, GPT-5.x) include <strong>extended thinking</strong> — they automatically do internal CoT before responding, spending more compute on harder problems. But explicit CoT in your prompt still helps for complex domain-specific reasoning.</p>
+        <p>Current reasoning models can allocate extra compute before answering. Claude uses <strong>adaptive thinking</strong>: the model chooses the reasoning depth, while the <code>effort</code> parameter controls how much compute it may spend. Older fixed <code>budget_tokens</code> examples and sampling parameters do not apply to current Claude models.</p>
     </div>
 
     <h3>Comparison: When to Use Each</h3>
@@ -916,7 +923,7 @@ response = client.chat.completions.create(
 
 # Claude structured output — tool_choice forces structured response
 response = client.messages.create(
-    model="claude-sonnet-4-20250514",
+    model="claude-sonnet-5",
     tools=[{
         "name": "extract_entities",
         "description": "Extract entities from text",
@@ -1215,13 +1222,13 @@ Provide scores as JSON:
 
     <table class="content-table">
         <tr><th>Model Family</th><th>Strengths</th><th>Prompting Tips</th><th>Gotchas</th></tr>
-        <tr><td><strong>Claude (Anthropic)</strong></td><td>Instruction following, long context, safety, code</td><td>Use XML tags for structure. Use extended thinking for complex reasoning. Assistant prefill for structured output.</td><td>Can be overly cautious. May refuse borderline requests.</td></tr>
-        <tr><td><strong>GPT-5.x (OpenAI)</strong></td><td>Function calling, JSON mode, broad knowledge</td><td>Use JSON mode for structured output. Use function calling for tool use. Clear system prompts.</td><td>No prefill support. Can be verbose.</td></tr>
+        <tr><td><strong>Claude (Anthropic)</strong></td><td>Instruction following, long context, safety, code</td><td>Use XML tags for structure. Use adaptive thinking for complex reasoning. Use <code>output_config.format</code> for structured output.</td><td>Can be overly cautious. May refuse borderline requests.</td></tr>
+        <tr><td><strong>GPT-5.x (OpenAI)</strong></td><td>Function calling, structured output, broad knowledge</td><td>Use Structured Outputs or JSON mode. Use function calling for tool use. Give clear system prompts.</td><td>Can be verbose.</td></tr>
         <tr><td><strong>Gemini (Google)</strong></td><td>Multimodal (images, video, audio), large context</td><td>Leverage multimodal inputs. Use for tasks involving images/video. Generous free tier.</td><td>Instruction following less precise than Claude/GPT.</td></tr>
         <tr><td><strong>Open Source (Llama, Mistral)</strong></td><td>Privacy, cost control, customisation</td><td>May need more explicit formatting instructions. Fine-tuning is an option.</td><td>Generally lower quality than frontier models. More prompt-sensitive.</td></tr>
     </table>
 
-    <div class="code-block"># Claude-specific: XML tags + extended thinking
+    <div class="code-block"># Claude-specific: XML tags + adaptive thinking
 messages = [{"role": "user", "content": """
 Analyse this code for security vulnerabilities.
 
@@ -1240,7 +1247,14 @@ For each vulnerability found:
 </vulnerability>
 </output_format>
 """}]
-# Claude follows XML tags with very high reliability
+# Current Claude models choose the reasoning depth; effort controls compute.
+response = client.messages.create(
+    model="claude-sonnet-5",
+    max_tokens=4096,
+    thinking={"type": "adaptive"},
+    output_config={"effort": "high"},
+    messages=messages
+)
 
 # GPT-specific: JSON mode + function calling
 response = openai.chat.completions.create(
@@ -1603,7 +1617,7 @@ tools = [{
 }]
 
 response = openai.chat.completions.create(
-    model="gpt-4o",
+    model="gpt-5.4-mini",
     messages=messages,
     tools=tools,
     tool_choice="auto"  # Let model decide when to call tools
@@ -1631,7 +1645,7 @@ tools = [{
 }]
 
 response = anthropic.messages.create(
-    model="claude-sonnet-4-20250514",
+    model="claude-sonnet-5",
     messages=messages,
     tools=tools,
     max_tokens=1024
@@ -1745,7 +1759,7 @@ def search_docs(query: str) -&gt; str:
 
 # Create the agent with tools
 agent = Agent(
-    model="openai:gpt-4o",
+    model="openai:gpt-5.4-mini",
     system_prompt="You are a helpful assistant that answers questions using internal docs.",
     tools=[Tool(search_docs)]
 )
@@ -1777,7 +1791,7 @@ researcher = Agent(
     role="Senior Research Analyst",
     goal="Find comprehensive, accurate data on the given topic",
     tools=[search_web, read_webpage, search_arxiv],
-    model="gpt-4o"
+    model="gpt-5.4-mini"
 )
 
 writer = Agent(
@@ -1860,7 +1874,7 @@ class AgentMemory:
 
     <div class="tip-box">
         <h4>💡 Context Window Management</h4>
-        <p>Every LLM has a maximum context window (e.g., 128K tokens for GPT-4o, 200K for Claude). As the agent runs more steps, the conversation history grows. If it overflows, you lose information. Common strategies: <strong>(1)</strong> Summarize older messages, <strong>(2)</strong> Use a sliding window that keeps only the last N messages, <strong>(3)</strong> Store detailed results in long-term memory and keep only summaries in context.</p>
+        <p>Every LLM has a maximum context window; current Claude models support up to 1M tokens. As the agent runs more steps, the conversation history grows. If it overflows, you lose information. Common strategies: <strong>(1)</strong> Summarize older messages, <strong>(2)</strong> Use a sliding window that keeps only the last N messages, <strong>(3)</strong> Store detailed results in long-term memory and keep only summaries in context. Always check the selected model's current limit instead of hardcoding a provider-wide assumption.</p>
     </div>
 
     <!-- ============================================================ -->
@@ -2115,7 +2129,7 @@ print(result)
         <tr><th>Model</th><th>Innovation</th><th>How It Thinks</th><th>Best For</th></tr>
         <tr><td><strong>OpenAI o-series (o1, o3, o4-mini)</strong></td><td>Hidden chain-of-thought reasoning</td><td>Model internally generates a long reasoning trace before answering; you see only the final result</td><td>Math, coding, complex analysis</td></tr>
         <tr><td><strong>DeepSeek-R1</strong></td><td>Open-source reasoning via reinforcement learning</td><td>Trained with RL to develop reasoning behaviors; open weights available</td><td>Research, open-source deployments</td></tr>
-        <tr><td><strong>Claude Extended Thinking</strong></td><td>Visible thinking with adaptive depth</td><td>Model shows its reasoning process; adjusts thinking depth based on problem complexity</td><td>Agents, transparent reasoning tasks</td></tr>
+        <tr><td><strong>Claude Adaptive Thinking</strong></td><td>Model-selected reasoning depth</td><td>The model adjusts reasoning depth; the <code>effort</code> parameter controls compute</td><td>Agents and complex reasoning tasks</td></tr>
     </table>
 
     <div class="key-takeaway">
@@ -2804,7 +2818,7 @@ coverage/
 
     <h3>Managing with the ant CLI</h3>
     <div class="code-block"># Create an agent with a specific model
-ant beta:agents create --name "CodeReviewer" --model "{id: claude-sonnet-4-6}"
+ant beta:agents create --name "CodeReviewer" --model "{id: claude-sonnet-5}"
 
 # Create an environment for the agent to run in
 ant beta:environments create --name "review-env"
@@ -2923,7 +2937,7 @@ git commit -m "refactor: migrate entire API from JavaScript to TypeScript
         <tr><td>What is Claude Managed Agents?</td><td>Fully autonomous cloud agents — deploy, monitor, event history</td><td><a href="https://claude.com/resources/tutorials/what-is-claude-managed-agents" target="_blank">Open</a></td></tr>
         <tr><td>Getting Good at Claude: Research-Backed Curriculum</td><td>Official learning path with research-validated techniques</td><td><a href="https://claude.com/resources/tutorials/getting-good-at-claude-a-research-backed-curriculum" target="_blank">Open</a></td></tr>
         <tr><td>Choosing the Right Claude Model</td><td>Haiku vs Sonnet vs Opus — when to use each, cost tradeoffs</td><td><a href="https://claude.com/resources/tutorials/choosing-the-right-claude-model" target="_blank">Open</a></td></tr>
-        <tr><td>Get the Most from Claude Opus 4.6</td><td>Advanced prompting for the flagship model, 1M context strategies</td><td><a href="https://claude.com/resources/tutorials/get-the-most-from-claude-opus-4-6" target="_blank">Open</a></td></tr>
+        <tr><td>Claude models overview</td><td>Current model capabilities, context limits, and selection guidance</td><td><a href="https://platform.claude.com/docs/en/about-claude/models/overview" target="_blank">Open</a></td></tr>
     </table>
 
     <div class="warning-box">

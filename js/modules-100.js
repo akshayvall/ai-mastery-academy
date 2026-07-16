@@ -82,7 +82,7 @@ const MODULES_100 = [
         <tr><td><strong>Machine Learning</strong></td><td>AI that learns patterns from data</td><td>Netflix recommendations, fraud detection</td></tr>
         <tr><td><strong>Deep Learning</strong></td><td>ML using layered neural networks</td><td>Image recognition, speech-to-text</td></tr>
         <tr><td><strong>Generative AI</strong></td><td>DL that creates new content</td><td>ChatGPT, Midjourney, Sora, Claude</td></tr>
-        <tr><td><strong>Large Language Models</strong></td><td>GenAI for text understanding and generation</td><td>GPT-5.4, Claude Opus 4.6, Gemini 3.1</td></tr>
+        <tr><td><strong>Large Language Models</strong></td><td>GenAI for text understanding and generation</td><td>${MODEL_LANDSCAPE.openai.balanced}, ${MODEL_LANDSCAPE.anthropic.balanced}, ${MODEL_LANDSCAPE.google.frontier}</td></tr>
     </table>
 </div>
 
@@ -104,11 +104,11 @@ const MODULES_100 = [
     <table class="content-table">
         <tr><th>Concept</th><th>What It Means</th><th>Why You Care</th></tr>
         <tr><td><strong>Tokens</strong></td><td>Text units of ~3-4 characters. 1,000 tokens ≈ 750 words.</td><td>All pricing and context limits are in tokens.</td></tr>
-        <tr><td><strong>Context Window</strong></td><td>Max tokens visible at once (input + output combined)</td><td>Claude 4.6: 1M · GPT-5.4: 270K · Gemini 3.1: 1M+</td></tr>
-        <tr><td><strong>Temperature</strong></td><td>Controls randomness. 0 = deterministic. 1 = creative.</td><td>Low for facts, high for brainstorming.</td></tr>
+        <tr><td><strong>Context Window</strong></td><td>Max tokens visible at once (input + output combined)</td><td>Current Claude models: ${MODEL_LANDSCAPE.anthropic.context} · ${MODEL_LANDSCAPE.google.frontier}: ${MODEL_LANDSCAPE.google.context} · limits vary by model</td></tr>
+        <tr><td><strong>Temperature</strong></td><td>Controls sampling randomness on models that expose it</td><td>Lower can improve consistency; it does not guarantee identical output. Current Claude models use adaptive thinking and reject sampling parameters.</td></tr>
         <tr><td><strong>System Prompt</strong></td><td>Hidden instructions defining AI behaviour</td><td>The single most powerful lever for controlling output.</td></tr>
         <tr><td><strong>Hallucination</strong></td><td>Generating plausible but factually wrong text</td><td>Always verify critical facts. The model is sometimes confidently wrong.</td></tr>
-        <tr><td><strong>Extended Thinking</strong></td><td>Models show step-by-step reasoning before answering</td><td>Dramatically improves accuracy on complex problems. Available in Claude 4.6 and GPT-5.4.</td></tr>
+        <tr><td><strong>Adaptive Thinking</strong></td><td>The model allocates reasoning effort before answering</td><td>Improves difficult reasoning tasks. Current Claude models pair adaptive thinking with an <code>effort</code> control.</td></tr>
     </table>
 
     <h3>Generation Strategies</h3>
@@ -133,13 +133,13 @@ const MODULES_100 = [
 </div>
 
 <div class="learn-section">
-    <h2>The Big Three Platforms — April 2026</h2>
+    <h2>The Big Three Platforms — July 2026</h2>
     <div class="comparison-grid">
         <div class="comparison-card">
             <h4>🟢 OpenAI / ChatGPT</h4>
             <ul>
-                <li><strong>Models:</strong> GPT-5.4 ($2.50/1M), mini ($0.75), nano ($0.20)</li>
-                <li><strong>Context:</strong> 270K tokens</li>
+                <li><strong>Models:</strong> ${MODEL_LANDSCAPE.openai.frontier} (${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output} per MTok), ${MODEL_LANDSCAPE.openai.balanced} (${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}), ${MODEL_LANDSCAPE.openai.small} (${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output})</li>
+                <li><strong>Context:</strong> Varies by model; verify the model card before designing the prompt budget</li>
                 <li><strong>Products:</strong> Custom GPTs, Canvas, Codex (cloud agent), Sora (video), GPT-image-1.5</li>
                 <li><strong>Best at:</strong> General purpose, images, video, consumer UX</li>
                 <li><strong>Plans:</strong> Free / Plus $20 / Pro $200</li>
@@ -148,8 +148,8 @@ const MODULES_100 = [
         <div class="comparison-card">
             <h4>🟣 Anthropic / Claude</h4>
             <ul>
-                <li><strong>Models:</strong> Opus 4.6 ($5/1M), Sonnet 4.6 ($3), Haiku 4.5 ($1)</li>
-                <li><strong>Context:</strong> 1M tokens (Opus & Sonnet)</li>
+                <li><strong>Models:</strong> ${MODEL_LANDSCAPE.anthropic.frontier} (${MODEL_LANDSCAPE.anthropic.frontierPrice.input}/${MODEL_LANDSCAPE.anthropic.frontierPrice.output} per MTok), ${MODEL_LANDSCAPE.anthropic.reasoning} (${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}/${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}), ${MODEL_LANDSCAPE.anthropic.balanced} (${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output}), ${MODEL_LANDSCAPE.anthropic.small} (${MODEL_LANDSCAPE.anthropic.smallPrice.input}/${MODEL_LANDSCAPE.anthropic.smallPrice.output})</li>
+                <li><strong>Context:</strong> ${MODEL_LANDSCAPE.anthropic.context} tokens on current models</li>
                 <li><strong>Products:</strong> Claude Code, Cowork, Projects, Artifacts, Managed Agents, MCP</li>
                 <li><strong>Best at:</strong> Coding, agents, complex instructions, long documents</li>
                 <li><strong>Plans:</strong> Free / Pro $20 / Max $100</li>
@@ -158,8 +158,8 @@ const MODULES_100 = [
         <div class="comparison-card">
             <h4>🔵 Google / Gemini</h4>
             <ul>
-                <li><strong>Models:</strong> Gemini 3.1 Pro, 3 Flash, 2.5 Pro/Flash</li>
-                <li><strong>Context:</strong> 1M+ tokens</li>
+                <li><strong>Models:</strong> ${MODEL_LANDSCAPE.google.frontier}, ${MODEL_LANDSCAPE.google.small}</li>
+                <li><strong>Context:</strong> Up to ${MODEL_LANDSCAPE.google.context} tokens on ${MODEL_LANDSCAPE.google.frontier}</li>
                 <li><strong>Products:</strong> NotebookLM, Deep Research, AI Studio (free), Veo 3.1, Computer Use</li>
                 <li><strong>Best at:</strong> Research, multimodal, huge documents, Google Workspace</li>
                 <li><strong>Plans:</strong> Free / Advanced $20</li>
@@ -228,7 +228,7 @@ const MODULES_100 = [
         <tr><td><strong>Getting Started</strong></td><td>Getting Good at Claude: A Research-Backed Curriculum</td><td><a href="https://claude.com/resources/tutorials/getting-good-at-claude-a-research-backed-curriculum" target="_blank">Open</a></td></tr>
         <tr><td><strong>Getting Started</strong></td><td>Navigating the Claude Desktop App: Chat, Cowork, Claude Code</td><td><a href="https://claude.com/resources/tutorials/navigating-the-claude-desktop-app" target="_blank">Open</a></td></tr>
         <tr><td><strong>Models</strong></td><td>Choosing the Right Claude Model: Haiku, Sonnet, Opus</td><td><a href="https://claude.com/resources/tutorials/choosing-the-right-claude-model" target="_blank">Open</a></td></tr>
-        <tr><td><strong>Models</strong></td><td>Get the Most from Claude Opus 4.6</td><td><a href="https://claude.com/resources/tutorials/get-the-most-from-claude-opus-4-6" target="_blank">Open</a></td></tr>
+        <tr><td><strong>Models</strong></td><td>Claude models overview</td><td><a href="https://platform.claude.com/docs/en/about-claude/models/overview" target="_blank">Open</a></td></tr>
         <tr><td><strong>Claude Code</strong></td><td>What Are Skills?</td><td><a href="https://claude.com/resources/tutorials/what-are-skills" target="_blank">Open</a></td></tr>
         <tr><td><strong>Claude Code</strong></td><td>How Skills Compare to Other Claude Code Features</td><td><a href="https://claude.com/resources/tutorials/how-skills-compare-to-other-claude-code-features" target="_blank">Open</a></td></tr>
         <tr><td><strong>Claude Code</strong></td><td>Using Claude Code Remote Control</td><td><a href="https://claude.com/resources/tutorials/using-claude-code-remote-control" target="_blank">Open</a></td></tr>
@@ -259,8 +259,8 @@ const MODULES_100 = [
         { question: 'What does an LLM do technically?', options: ['Searches a database of facts', 'Predicts the next most likely token based on training patterns', 'Runs logical rules', 'Stores and retrieves memories'], correct: 1, explanation: 'LLMs are token-prediction engines. One token at a time. Plausible ≠ correct.' },
         { question: 'What is the "intern mental model"?', options: ['Perfect memory', 'Smart but no memory, confidently wrong, needs clear instructions', 'Always correct', 'A search engine'], correct: 1, explanation: 'Knows a lot, forgets between conversations, can fabricate. Give clear instructions.' },
         { question: 'What is BPE tokenisation?', options: ['Word splitting', 'Iteratively merging frequent character pairs into tokens', 'Sentence splitting', 'Random chunking'], correct: 1, explanation: 'Start with characters, merge frequent pairs. Creates efficient vocabulary.' },
-        { question: 'Which platform has 1M+ context?', options: ['GPT-5.4 only', 'Claude Opus 4.6 and Gemini 3.1', 'All are equal', 'None above 100K'], correct: 1, explanation: 'Claude Opus/Sonnet 4.6: 1M. Gemini 3.1: 1M+. GPT-5.4: 270K.' },
-        { question: 'What does temperature control?', options: ['Response speed', 'Randomness — 0 = precise, 1 = creative', 'Cost', 'Context size'], correct: 1, explanation: 'Temperature 0 = always most probable token. 1 = sample from distribution.' },
+        { question: 'Which current platform model offers a 2M-token context window?', options: ['GPT-5.6 Luna', 'Gemini 3.5 Pro', 'Claude Haiku 4.5', 'All models'], correct: 1, explanation: 'Gemini 3.5 Pro offers up to 2M tokens. Context limits are model-specific, so verify the current model card.' },
+        { question: 'What does temperature control?', options: ['Response speed', 'Sampling randomness on models that support it', 'Cost', 'Context size'], correct: 1, explanation: 'Lower temperature can improve consistency but does not guarantee identical output. Some current models reject sampling parameters entirely.' },
         { question: 'What is hallucination?', options: ['A visual bug', 'Generating confident but factually wrong output', 'When AI refuses', 'A model type'], correct: 1, explanation: 'Plausible ≠ correct. Always verify critical outputs.' },
         { question: 'Adaptation hierarchy order?', options: ['Fine-tune first', 'Prompt Eng → RAG → LoRA → Fine-Tune', 'RAG first always', 'Random'], correct: 1, explanation: 'Try cheapest first. Most problems solved by prompting or RAG.' },
         { question: 'What makes agents different from chatbots?', options: ['Faster', 'They take real actions (edit files, run code, browse web)', 'Cheaper', 'No difference'], correct: 1, explanation: 'Chatbots: text in/out. Agents: plan, use tools, execute, iterate until done.' }
@@ -270,7 +270,7 @@ const MODULES_100 = [
         { type: 'flashcards', id: 'orientation-cards', title: 'Core Concepts Flashcards', cards: [
             { front: 'LLM mental model?', back: 'Smart intern: read the internet, no memory, confidently wrong, needs clear instructions. Verify critical outputs.' },
             { front: 'What is a token?', back: '~3-4 characters. 1000 tokens ≈ 750 words. All pricing and context limits are measured in tokens.' },
-            { front: 'Context windows 2026?', back: 'Claude 4.6: 1M. Gemini 3.1: 1M+. GPT-5.4: 270K. Larger = process longer documents.' },
+            { front: 'Context windows in July 2026?', back: 'Current Claude models: 1M. Gemini 3.5 Pro: up to 2M. Limits are model-specific, so check the model card before designing around them.' },
             { front: 'Adaptation hierarchy?', back: 'Prompt Engineering → RAG → LoRA/PEFT → Fine-Tuning. Always try cheapest first.' },
             { front: 'AI project structure?', back: 'CLAUDE.md + README + product-brief.md + .env.example + .gitignore + src/ + tests/ + docs/ + output/' }
         ]}
@@ -775,12 +775,12 @@ Note: "mike says db is slow, customers complaining"</div>
     <div class="code-block"># OpenAI: pip install openai
 from openai import OpenAI
 client = OpenAI()  # reads OPENAI_API_KEY env var
-r = client.chat.completions.create(model="gpt-5.4-nano", messages=[...])
+r = client.chat.completions.create(model="${MODEL_LANDSCAPE.openai.smallId}", messages=[...])
 
 # Anthropic: pip install anthropic
 import anthropic
 client = anthropic.Anthropic()
-msg = client.messages.create(model="claude-sonnet-4-6", max_tokens=1024, messages=[...])
+msg = client.messages.create(model="claude-sonnet-5", max_tokens=1024, messages=[...])
 
 # Google Gemini (FREE): pip install google-generativeai
 import google.generativeai as genai
@@ -793,9 +793,9 @@ r = model.generate_content("What is Kubernetes?")</div>
     <h2>Tokens & Cost</h2>
     <table class="content-table">
         <tr><th>Model</th><th>Input $/1M</th><th>Output $/1M</th><th>Best For</th></tr>
-        <tr><td>GPT-5.4 nano</td><td>$0.20</td><td>$1.25</td><td>High-volume simple tasks</td></tr>
+        <tr><td>${MODEL_LANDSCAPE.openai.small}</td><td>${MODEL_LANDSCAPE.openai.smallPrice.input}</td><td>${MODEL_LANDSCAPE.openai.smallPrice.output}</td><td>High-volume simple tasks</td></tr>
         <tr><td>Gemini 2.5 Flash</td><td>~$0.15</td><td>~$0.60</td><td>Cheapest option</td></tr>
-        <tr><td>Claude Haiku 4.5</td><td>$1.00</td><td>$5.00</td><td>Fast + reliable</td></tr>
+        <tr><td>${MODEL_LANDSCAPE.anthropic.small}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.output}</td><td>Fast + reliable</td></tr>
         <tr><td>Google AI Studio</td><td>FREE</td><td>FREE</td><td>Prototyping</td></tr>
     </table>
     <div class="warning-box"><h4>⚠️ NEVER hardcode API keys</h4><p>Use environment variables or .env files. Add .env to .gitignore. Leaked keys = massive bills within hours.</p></div>
@@ -849,7 +849,7 @@ r = model.generate_content("What is Kubernetes?")</div>
         { question: 'Why APIs over chat?', options: ['Worse models', 'Automation, build apps, thousands of requests', 'More expensive', 'No difference'], correct: 1, explanation: 'APIs let you automate and build products.' },
         { question: 'Messages array?', options: ['Errors', 'Conversation history = the memory', 'SMS', 'Logs'], correct: 1, explanation: 'AI has zero memory. Your code sends the full history.' },
         { question: 'API key storage?', options: ['In code', 'Environment variables — NEVER in source', 'README', 'Comments'], correct: 1, explanation: 'Leaked keys = massive bills.' },
-        { question: 'Cheapest prototyping?', options: ['GPT-5.4', 'Opus', 'Google AI Studio (free) or nano ($0.20/1M)', 'GPT-realtime'], correct: 2, explanation: 'AI Studio is free. Nano is cheap.' },
+        { question: 'Cheapest prototyping?', options: ['GPT-5.6 Sol', 'Opus', 'Google AI Studio free tier or a small model such as Luna', 'GPT-realtime'], correct: 2, explanation: 'Use a free tier or the smallest model that passes your evals.' },
         { question: 'max_tokens?', options: ['Cost', 'Maximum output length', 'Model', 'Temperature'], correct: 1, explanation: 'Caps response. Does not affect quality.' },
         { question: 'How chatbots remember?', options: ['Model stores', 'Your code stores & re-sends messages', 'Auto DB', 'Cannot'], correct: 1, explanation: 'You manage the messages array.' },
         { question: 'Message roles?', options: ['Input, Output', 'system, user, assistant', 'Header, Body', 'Req, Res'], correct: 1, explanation: 'system: instructions. user: human. assistant: AI.' },
@@ -859,7 +859,7 @@ r = model.generate_content("What is Kubernetes?")</div>
         { type: 'flashcards', id: 'api-cards', title: 'API Fundamentals', cards: [
             { front: 'API pattern?', back: 'Send: model + messages + temperature + max_tokens. Get: generated text.' },
             { front: 'Messages = memory?', back: 'AI has ZERO memory. Your code stores and re-sends. Messages array IS the memory.' },
-            { front: 'Cheapest?', back: 'Google AI Studio: FREE. GPT-5.4 nano: $0.20/1M. Gemini Flash: ~$0.15/1M.' }
+            { front: 'Cheapest?', back: 'Start with a provider free tier or a small model such as GPT-5.6 Luna ($1/$6 per MTok), then confirm quality with evals.' }
         ]}
     ],
     lab: {

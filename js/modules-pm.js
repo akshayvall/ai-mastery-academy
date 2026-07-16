@@ -245,11 +245,12 @@ RESPONSE TO EVALUATE: {output}</div>
     <h2>Token math 101</h2>
     <p>API pricing is "per million tokens", split between <strong>input</strong> (your prompt + context) and <strong>output</strong> (model response). Output is typically 3–5× the price of input.</p>
     <table class="content-table">
-        <tr><th>Model class (illustrative 2026 pricing)</th><th>Input $/M</th><th>Output $/M</th><th>Sweet spot</th></tr>
-        <tr><td>Frontier (Opus / GPT-5 / Gemini 3 Pro)</td><td>$15</td><td>$75</td><td>Hard reasoning, judge model</td></tr>
-        <tr><td>Workhorse (Sonnet / GPT-5-mini / Gemini 3 Flash)</td><td>$3</td><td>$15</td><td>Most production traffic</td></tr>
-        <tr><td>Cheap & fast (Haiku / GPT-5-nano / Gemini 3 Flash-Lite)</td><td>$0.25</td><td>$1.25</td><td>Classification, extraction, routing</td></tr>
+        <tr><th>Representative model (verified July 2026)</th><th>Input $/M</th><th>Output $/M</th><th>Sweet spot</th></tr>
+        <tr><td>Frontier: ${MODEL_LANDSCAPE.anthropic.reasoning}</td><td>${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}</td><td>Hard reasoning, judge model</td></tr>
+        <tr><td>Workhorse: ${MODEL_LANDSCAPE.anthropic.balanced}</td><td>${MODEL_LANDSCAPE.anthropic.balancedPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.balancedPrice.output}</td><td>Most production traffic</td></tr>
+        <tr><td>Small and fast: ${MODEL_LANDSCAPE.anthropic.small}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.output}</td><td>Classification, extraction, routing</td></tr>
     </table>
+    <p>Prices change frequently and differ by provider. Re-check the official pricing page before approving a business case.</p>
     <p>1 token ≈ 4 English characters ≈ 0.75 words. A 1000-word answer is ~1300 output tokens.</p>
 
     <h3>Example: cost-per-query worked out</h3>

@@ -4,11 +4,12 @@
 
 const ProgressManager = {
     STORAGE_KEY: 'ai-mastery-academy-progress',
+    MAX_IMPORT_BYTES: 1024 * 1024,
 
     getProgress() {
         try {
             const data = localStorage.getItem(this.STORAGE_KEY);
-            return data ? JSON.parse(data) : this.defaultProgress();
+            return data ? this.normalizeProgress(JSON.parse(data)) : this.defaultProgress();
         } catch { return this.defaultProgress(); }
     },
 
@@ -23,7 +24,46 @@ const ProgressManager = {
             streak: { count: 0, lastDate: null },
             startDate: new Date().toISOString(),
             totalTimeMinutes: 0,
-            notes: {}
+            notes: {},
+            labSteps: {},
+            visitedSections: {}
+        };
+    },
+
+    normalizeProgress(data) {
+        const defaults = this.defaultProgress();
+        const isRecord = value => value && typeof value === 'object' && !Array.isArray(value);
+        const stringArray = value => Array.isArray(value) ? value.filter(item => typeof item === 'string') : [];
+        const quizScores = isRecord(data.quizScores)
+            ? Object.fromEntries(Object.entries(data.quizScores).filter(([, score]) =>
+                isRecord(score) && Number.isFinite(score.score) && Number.isFinite(score.total) &&
+                score.score >= 0 && score.total > 0 && score.score <= score.total))
+            : {};
+        const labSteps = isRecord(data.labSteps)
+            ? Object.fromEntries(Object.entries(data.labSteps)
+                .filter(([, steps]) => Array.isArray(steps))
+                .map(([moduleId, steps]) => [moduleId, steps.map(step => step === true ? true : null)]))
+            : {};
+        const visitedSections = isRecord(data.visitedSections)
+            ? Object.fromEntries(Object.entries(data.visitedSections)
+                .map(([moduleId, sections]) => [moduleId, stringArray(sections)]))
+            : {};
+
+        return {
+            completedModules: stringArray(data.completedModules),
+            quizScores,
+            completedLabs: stringArray(data.completedLabs),
+            flashcardsReviewed: stringArray(data.flashcardsReviewed),
+            interactiveCompleted: stringArray(data.interactiveCompleted),
+            lastVisited: typeof data.lastVisited === 'string' ? data.lastVisited : null,
+            streak: isRecord(data.streak) && Number.isFinite(data.streak.count)
+                ? { count: Math.max(0, data.streak.count), lastDate: typeof data.streak.lastDate === 'string' ? data.streak.lastDate : null }
+                : defaults.streak,
+            startDate: typeof data.startDate === 'string' ? data.startDate : defaults.startDate,
+            totalTimeMinutes: Number.isFinite(data.totalTimeMinutes) && data.totalTimeMinutes >= 0 ? data.totalTimeMinutes : 0,
+            notes: isRecord(data.notes) ? data.notes : {},
+            labSteps,
+            visitedSections
         };
     },
 
@@ -136,12 +176,25 @@ const ProgressManager = {
 
     importProgress(file) {
         return new Promise((resolve, reject) => {
+            if (!file.name.toLowerCase().endsWith('.json')) {
+                reject(new Error('Progress file must be JSON'));
+                return;
+            }
+            if (file.size > this.MAX_IMPORT_BYTES) {
+                reject(new Error('Progress file is too large'));
+                return;
+            }
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (data.completedModules && data.quizScores) { this.saveProgress(data); resolve(data); }
-                    else { reject(new Error('Invalid progress file format')); }
+                    const validRoot = data && typeof data === 'object' && !Array.isArray(data);
+                    const validRequiredFields = validRoot && Array.isArray(data.completedModules) &&
+                        data.quizScores && typeof data.quizScores === 'object' && !Array.isArray(data.quizScores);
+                    if (!validRequiredFields) throw new Error('Invalid progress file format');
+                    const normalized = this.normalizeProgress(data);
+                    this.saveProgress(normalized);
+                    resolve(normalized);
                 } catch (err) { reject(err); }
             };
             reader.onerror = reject;

@@ -20,7 +20,7 @@ Progress is saved in your browser's `localStorage` and can be exported / importe
 
 ## 🗺️ Curriculum
 
-13 phases across 3 levels + a cross-cutting **PM Playbook** (8 modules), a 2026 landscape flagship, a Zero to Claude companion module, and 10 standalone diagram drills. **33 sidebar modules in total.**
+13 phases across 3 levels + a cross-cutting **PM Playbook** (8 modules), a 2026 landscape flagship, a Zero to Claude companion module, 10 standalone diagram drills, and the 7-module Builder Track. **41 sidebar modules in total.**
 
 ### ⬡ Level 100 — Foundations (Phases 0–3)
 | # | Module | Covers |

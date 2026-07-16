@@ -24,6 +24,22 @@ Parent project context: [`../SESSION_CONTEXT.md`](../SESSION_CONTEXT.md).
 
 ## Log
 
+## 2026-07-13 — July content audit fixes completed
+**Goal:** Apply the Critical, High, and Medium findings from the July 2026 content audit.
+**Outcome:** Replaced retired model IDs and stale defaults, rewrote Claude prefill guidance
+around structured outputs, refreshed model/pricing/context claims, updated adaptive-thinking
+and temperature guidance, corrected both Builder source findings, and regenerated the Builder
+Track. Added `js/landscape.js` plus a central Last verified stamp. Full completion record and
+validation sites are in `docs/content-audit-2026-07.md`.
+**Decisions:**
+  - Keep volatile model facts in `js/landscape.js`; keep explanatory prose in module files.
+  - Retain `text-embedding-3-small` because the audit found no required migration.
+**Open threads:**
+  - [ ] Run the next quarterly content audit in October 2026.
+**Files touched:** js/landscape.js, js/modules-100.js, js/modules-200.js,
+js/modules-300.js, js/modules-pm.js, js/modules-builder.js, js/diagrams.js, js/app.js,
+css/styles.css, index.html, README.md, CHANGELOG.md, docs/content-audit-2026-07.md
+
 ## 2026-07-10 — Content audit: outdated material catalogued (fixes pending)
 **Goal:** Audit all 41 modules for stale content; validate against current sources.
 **Outcome:** Full findings in `docs/content-audit-2026-07.md`. Headlines: 2 CRITICAL
