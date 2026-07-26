@@ -104,7 +104,7 @@ const MODULES_100 = [
     <table class="content-table">
         <tr><th>Concept</th><th>What It Means</th><th>Why You Care</th></tr>
         <tr><td><strong>Tokens</strong></td><td>Text units of ~3-4 characters. 1,000 tokens ≈ 750 words.</td><td>All pricing and context limits are in tokens.</td></tr>
-        <tr><td><strong>Context Window</strong></td><td>Max tokens visible at once (input + output combined)</td><td>Current Claude models: ${MODEL_LANDSCAPE.anthropic.context} · ${MODEL_LANDSCAPE.google.frontier}: ${MODEL_LANDSCAPE.google.context} · limits vary by model</td></tr>
+        <tr><td><strong>Context Window</strong></td><td>Maximum tokens a model can accept for one request</td><td>GPT-5.6 Sol/Terra/Luna: ${MODEL_LANDSCAPE.openai.context} · Claude Fable/Opus/Sonnet: ${MODEL_LANDSCAPE.anthropic.context}; Haiku 4.5: ${MODEL_LANDSCAPE.anthropic.smallContext} · listed Gemini models: ${MODEL_LANDSCAPE.google.context} input tokens</td></tr>
         <tr><td><strong>Temperature</strong></td><td>Controls sampling randomness on models that expose it</td><td>Lower can improve consistency; it does not guarantee identical output. Current Claude models use adaptive thinking and reject sampling parameters.</td></tr>
         <tr><td><strong>System Prompt</strong></td><td>Hidden instructions defining AI behaviour</td><td>The single most powerful lever for controlling output.</td></tr>
         <tr><td><strong>Hallucination</strong></td><td>Generating plausible but factually wrong text</td><td>Always verify critical facts. The model is sometimes confidently wrong.</td></tr>
@@ -139,7 +139,7 @@ const MODULES_100 = [
             <h4>🟢 OpenAI / ChatGPT</h4>
             <ul>
                 <li><strong>Models:</strong> ${MODEL_LANDSCAPE.openai.frontier} (${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output} per MTok), ${MODEL_LANDSCAPE.openai.balanced} (${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}), ${MODEL_LANDSCAPE.openai.small} (${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output})</li>
-                <li><strong>Context:</strong> Varies by model; verify the model card before designing the prompt budget</li>
+                <li><strong>Context:</strong> ${MODEL_LANDSCAPE.openai.context} tokens for the listed GPT-5.6 family</li>
                 <li><strong>Products:</strong> Custom GPTs, Canvas, Codex (cloud agent), Sora (video), GPT-image-1.5</li>
                 <li><strong>Best at:</strong> General purpose, images, video, consumer UX</li>
                 <li><strong>Plans:</strong> Free / Plus $20 / Pro $200</li>
@@ -149,7 +149,8 @@ const MODULES_100 = [
             <h4>🟣 Anthropic / Claude</h4>
             <ul>
                 <li><strong>Models:</strong> ${MODEL_LANDSCAPE.anthropic.frontier} (${MODEL_LANDSCAPE.anthropic.frontierPrice.input}/${MODEL_LANDSCAPE.anthropic.frontierPrice.output} per MTok), ${MODEL_LANDSCAPE.anthropic.reasoning} (${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}/${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}), ${MODEL_LANDSCAPE.anthropic.balanced} (${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output}), ${MODEL_LANDSCAPE.anthropic.small} (${MODEL_LANDSCAPE.anthropic.smallPrice.input}/${MODEL_LANDSCAPE.anthropic.smallPrice.output})</li>
-                <li><strong>Context:</strong> ${MODEL_LANDSCAPE.anthropic.context} tokens on current models</li>
+                <li><strong>Context:</strong> ${MODEL_LANDSCAPE.anthropic.context} for Fable 5, Opus 5, and Sonnet 5; ${MODEL_LANDSCAPE.anthropic.smallContext} for Haiku 4.5</li>
+                <li><strong>Sonnet 5 pricing:</strong> ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per MTok through ${MODEL_LANDSCAPE.anthropic.balancedIntroThrough}; then ${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.output}</li>
                 <li><strong>Products:</strong> Claude Code, Cowork, Projects, Artifacts, Managed Agents, MCP</li>
                 <li><strong>Best at:</strong> Coding, agents, complex instructions, long documents</li>
                 <li><strong>Plans:</strong> Free / Pro $20 / Max $100</li>
@@ -158,8 +159,9 @@ const MODULES_100 = [
         <div class="comparison-card">
             <h4>🔵 Google / Gemini</h4>
             <ul>
-                <li><strong>Models:</strong> ${MODEL_LANDSCAPE.google.frontier}, ${MODEL_LANDSCAPE.google.small}</li>
-                <li><strong>Context:</strong> Up to ${MODEL_LANDSCAPE.google.context} tokens on ${MODEL_LANDSCAPE.google.frontier}</li>
+                <li><strong>Stable models:</strong> ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>), ${MODEL_LANDSCAPE.google.small} (<code>${MODEL_LANDSCAPE.google.smallId}</code>)</li>
+                <li><strong>Current Pro:</strong> ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>), currently preview</li>
+                <li><strong>Context:</strong> ${MODEL_LANDSCAPE.google.context} input tokens for the listed models; Gemini 2.5 also remains supported</li>
                 <li><strong>Products:</strong> NotebookLM, Deep Research, AI Studio (free), Veo 3.1, Computer Use</li>
                 <li><strong>Best at:</strong> Research, multimodal, huge documents, Google Workspace</li>
                 <li><strong>Plans:</strong> Free / Advanced $20</li>
@@ -259,7 +261,7 @@ const MODULES_100 = [
         { question: 'What does an LLM do technically?', options: ['Searches a database of facts', 'Predicts the next most likely token based on training patterns', 'Runs logical rules', 'Stores and retrieves memories'], correct: 1, explanation: 'LLMs are token-prediction engines. One token at a time. Plausible ≠ correct.' },
         { question: 'What is the "intern mental model"?', options: ['Perfect memory', 'Smart but no memory, confidently wrong, needs clear instructions', 'Always correct', 'A search engine'], correct: 1, explanation: 'Knows a lot, forgets between conversations, can fabricate. Give clear instructions.' },
         { question: 'What is BPE tokenisation?', options: ['Word splitting', 'Iteratively merging frequent character pairs into tokens', 'Sentence splitting', 'Random chunking'], correct: 1, explanation: 'Start with characters, merge frequent pairs. Creates efficient vocabulary.' },
-        { question: 'Which current platform model offers a 2M-token context window?', options: ['GPT-5.6 Luna', 'Gemini 3.5 Pro', 'Claude Haiku 4.5', 'All models'], correct: 1, explanation: 'Gemini 3.5 Pro offers up to 2M tokens. Context limits are model-specific, so verify the current model card.' },
+        { question: 'Which model is Google\'s current Pro entry?', options: ['Gemini 2.5 Pro', 'Gemini 3.1 Pro Preview', 'Gemini 2.0 Pro', 'Gemini 3.6 Pro'], correct: 1, explanation: 'The current Pro model is gemini-3.1-pro-preview. Gemini 3.6 Flash and Gemini 3.5 Flash are stable models, while Gemini 2.5 remains supported.' },
         { question: 'What does temperature control?', options: ['Response speed', 'Sampling randomness on models that support it', 'Cost', 'Context size'], correct: 1, explanation: 'Lower temperature can improve consistency but does not guarantee identical output. Some current models reject sampling parameters entirely.' },
         { question: 'What is hallucination?', options: ['A visual bug', 'Generating confident but factually wrong output', 'When AI refuses', 'A model type'], correct: 1, explanation: 'Plausible ≠ correct. Always verify critical outputs.' },
         { question: 'Adaptation hierarchy order?', options: ['Fine-tune first', 'Prompt Eng → RAG → LoRA → Fine-Tune', 'RAG first always', 'Random'], correct: 1, explanation: 'Try cheapest first. Most problems solved by prompting or RAG.' },
@@ -270,7 +272,7 @@ const MODULES_100 = [
         { type: 'flashcards', id: 'orientation-cards', title: 'Core Concepts Flashcards', cards: [
             { front: 'LLM mental model?', back: 'Smart intern: read the internet, no memory, confidently wrong, needs clear instructions. Verify critical outputs.' },
             { front: 'What is a token?', back: '~3-4 characters. 1000 tokens ≈ 750 words. All pricing and context limits are measured in tokens.' },
-            { front: 'Context windows in July 2026?', back: 'Current Claude models: 1M. Gemini 3.5 Pro: up to 2M. Limits are model-specific, so check the model card before designing around them.' },
+            { front: 'Context windows verified July 26, 2026?', back: 'GPT-5.6 Sol/Terra/Luna: 1.05M. Claude Fable/Opus/Sonnet: 1M; Haiku 4.5: 200K. Listed Gemini text models: 1,048,576 input tokens.' },
             { front: 'Adaptation hierarchy?', back: 'Prompt Engineering → RAG → LoRA/PEFT → Fine-Tuning. Always try cheapest first.' },
             { front: 'AI project structure?', back: 'CLAUDE.md + README + product-brief.md + .env.example + .gitignore + src/ + tests/ + docs/ + output/' }
         ]}
@@ -760,6 +762,7 @@ Note: "mike says db is slow, customers complaining"</div>
 
 <div class="learn-section">
     <h2>The API Pattern</h2>
+    <p><strong>Conceptual pseudocode:</strong> this block shows the shared request shape, not a runnable provider SDK call.</p>
     <div class="code-block">response = client.generate(
     model = "model-name",
     messages = [
@@ -771,7 +774,8 @@ Note: "mike says db is slow, customers complaining"</div>
 )</div>
     <p><strong>The messages array IS the memory.</strong> AI has no persistent memory. You send the FULL conversation each request. Managing this array is how chatbots "remember."</p>
 
-    <h3>Code Examples (April 2026)</h3>
+    <h3>Provider Patterns (catalog verified July 26, 2026)</h3>
+    <p><strong>Abbreviated examples:</strong> install each SDK separately and replace ellipses with real message content before running.</p>
     <div class="code-block"># OpenAI: pip install openai
 from openai import OpenAI
 client = OpenAI()  # reads OPENAI_API_KEY env var
@@ -780,13 +784,15 @@ r = client.chat.completions.create(model="${MODEL_LANDSCAPE.openai.smallId}", me
 # Anthropic: pip install anthropic
 import anthropic
 client = anthropic.Anthropic()
-msg = client.messages.create(model="claude-sonnet-5", max_tokens=1024, messages=[...])
+msg = client.messages.create(model="${MODEL_LANDSCAPE.anthropic.balancedId}", max_tokens=1024, messages=[...])
 
-# Google Gemini (FREE): pip install google-generativeai
-import google.generativeai as genai
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-2.5-flash")
-r = model.generate_content("What is Kubernetes?")</div>
+# Google Gemini: pip install google-genai
+from google import genai
+client = genai.Client()  # reads GEMINI_API_KEY
+r = client.models.generate_content(
+    model="${MODEL_LANDSCAPE.google.stableId}",
+    contents="What is Kubernetes?"
+)</div>
 </div>
 
 <div class="learn-section">
@@ -794,7 +800,7 @@ r = model.generate_content("What is Kubernetes?")</div>
     <table class="content-table">
         <tr><th>Model</th><th>Input $/1M</th><th>Output $/1M</th><th>Best For</th></tr>
         <tr><td>${MODEL_LANDSCAPE.openai.small}</td><td>${MODEL_LANDSCAPE.openai.smallPrice.input}</td><td>${MODEL_LANDSCAPE.openai.smallPrice.output}</td><td>High-volume simple tasks</td></tr>
-        <tr><td>Gemini 2.5 Flash</td><td>~$0.15</td><td>~$0.60</td><td>Cheapest option</td></tr>
+        <tr><td>Gemini 2.5 Flash (supported)</td><td>~$0.15</td><td>~$0.60</td><td>Low-cost supported option</td></tr>
         <tr><td>${MODEL_LANDSCAPE.anthropic.small}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.output}</td><td>Fast + reliable</td></tr>
         <tr><td>Google AI Studio</td><td>FREE</td><td>FREE</td><td>Prototyping</td></tr>
     </table>
@@ -902,7 +908,7 @@ r = model.generate_content("What is Kubernetes?")</div>
                     { type: 'heading', text: 'Create the project' },
                     { type: 'command', cmd: 'mkdir cli-ai-assistant\ncd cli-ai-assistant\nclaude' },
                     'You are now in Claude Code. Paste this entire prompt:',
-                    { type: 'prompt', text: 'Build a Python CLI chatbot with these specs:\n\n1. DEPS: google-generativeai library. GEMINI_API_KEY from env var.\n2. LOOP: Print welcome message. Prompt "You: ". Send to Gemini 2.5 Flash. Print "AI: [response]". Loop until /quit.\n3. MEMORY: Store last 5 user+assistant exchanges. Include in each API call. Drop oldest when exceeding 5.\n4. COMMANDS: /quit (exit), /clear (reset memory), /history (show count), /cost (estimate tokens used)\n5. ERRORS: Missing API key → clear instructions. API failure → print error, continue.\n6. SYSTEM PROMPT: "You are a helpful AI assistant. Be concise and direct."\n7. FILES: main.py, requirements.txt, .gitignore, .env.example, README.md with setup + usage + example conversation.' },
+                    { type: 'prompt', text: 'Build a Python CLI chatbot with these specs:\n\n1. DEPS: google-genai library. GEMINI_API_KEY from env var. Use from google import genai and one genai.Client().\n2. LOOP: Print welcome message. Prompt "You: ". Send to gemini-3.6-flash with client.models.generate_content. Print "AI: [response]". Loop until /quit.\n3. MEMORY: Store last 5 user+assistant exchanges. Include in each API call. Drop oldest when exceeding 5.\n4. COMMANDS: /quit (exit), /clear (reset memory), /history (show count), /cost (estimate tokens used)\n5. ERRORS: Missing API key → clear instructions. API failure → print error, continue.\n6. SYSTEM PROMPT: "You are a helpful AI assistant. Be concise and direct."\n7. FILES: main.py, requirements.txt, .gitignore, .env.example, README.md with setup + usage + example conversation.' },
                     'Let Claude Code build, install, and test.',
                     { type: 'verify', text: 'After Claude Code finishes: ls shows main.py, requirements.txt, README.md. No import errors when running.' }
                 ]
@@ -982,6 +988,22 @@ r = model.generate_content("What is Kubernetes?")</div>
         <li>Model family expanded across text, realtime audio, image, video, music, agents, and multimodal embeddings.</li>
         <li>Tool and agent model lineup introduced managed research and computer-use style primitives.</li>
         <li>Versioning patterns (stable/preview/latest/experimental) require explicit production governance.</li>
+    </ul>
+</div>
+
+<div class="learn-section">
+    <h2>Current catalog snapshot</h2>
+    <p>Verified ${MODEL_LANDSCAPE.verifiedDate}. Keep model selection separate from durable architecture because names, prices, and lifecycle status change faster than system design.</p>
+    <table class="content-table">
+        <tr><th>Provider</th><th>Current entries</th><th>Context and pricing</th></tr>
+        <tr><td><strong>OpenAI</strong></td><td>${MODEL_LANDSCAPE.openai.frontier} (<code>${MODEL_LANDSCAPE.openai.frontierId}</code>)<br>${MODEL_LANDSCAPE.openai.balanced} (<code>${MODEL_LANDSCAPE.openai.balancedId}</code>)<br>${MODEL_LANDSCAPE.openai.small} (<code>${MODEL_LANDSCAPE.openai.smallId}</code>)</td><td>${MODEL_LANDSCAPE.openai.context} context. Per MTok: ${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output}, ${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}, ${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output}.</td></tr>
+        <tr><td><strong>Anthropic</strong></td><td>${MODEL_LANDSCAPE.anthropic.frontier} (<code>${MODEL_LANDSCAPE.anthropic.frontierId}</code>)<br>${MODEL_LANDSCAPE.anthropic.reasoning} (<code>${MODEL_LANDSCAPE.anthropic.reasoningId}</code>)<br>${MODEL_LANDSCAPE.anthropic.balanced} (<code>${MODEL_LANDSCAPE.anthropic.balancedId}</code>)<br>${MODEL_LANDSCAPE.anthropic.small} (<code>${MODEL_LANDSCAPE.anthropic.smallId}</code>)</td><td>Fable/Opus/Sonnet: ${MODEL_LANDSCAPE.anthropic.context}; Haiku: ${MODEL_LANDSCAPE.anthropic.smallContext}. Sonnet is ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} through ${MODEL_LANDSCAPE.anthropic.balancedIntroThrough}, then ${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.output}.</td></tr>
+        <tr><td><strong>Google</strong></td><td>Stable: ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>) and ${MODEL_LANDSCAPE.google.small} (<code>${MODEL_LANDSCAPE.google.smallId}</code>)<br>Pro preview: ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>)</td><td>${MODEL_LANDSCAPE.google.context} input tokens. Gemini 2.5 models remain supported.</td></tr>
+    </table>
+    <ul class="references-list" style="list-style:none; padding:0;">
+        <li>📄 <a href="${MODEL_LANDSCAPE.sources.openai.models}" target="_blank" rel="noopener">OpenAI model catalog</a> — verified ${MODEL_LANDSCAPE.sources.openai.verifiedDate}</li>
+        <li>📄 <a href="${MODEL_LANDSCAPE.sources.anthropic.models}" target="_blank" rel="noopener">Anthropic models</a> and <a href="${MODEL_LANDSCAPE.sources.anthropic.pricing}" target="_blank" rel="noopener">pricing</a> — verified ${MODEL_LANDSCAPE.sources.anthropic.verifiedDate}</li>
+        <li>📄 <a href="${MODEL_LANDSCAPE.sources.google.models}" target="_blank" rel="noopener">Gemini model catalog</a> — verified ${MODEL_LANDSCAPE.sources.google.verifiedDate}</li>
     </ul>
 </div>
 

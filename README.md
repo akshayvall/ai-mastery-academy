@@ -20,7 +20,7 @@ Progress is saved in your browser's `localStorage` and can be exported / importe
 
 ## 🗺️ Curriculum
 
-13 phases across 3 levels + a cross-cutting **PM Playbook** (8 modules), a 2026 landscape flagship, a Zero to Claude companion module, 10 standalone diagram drills, and the 7-module Builder Track. **41 sidebar modules in total.**
+13 phases across 3 levels + a cross-cutting **PM Playbook** (8 modules), a 2026 landscape flagship, a Zero to Claude companion module, and the 7-module Builder Track. The mastery system tracks **31 real modules**. Ten standalone diagram drills remain searchable review activities and no longer inflate mastery progress.
 
 ### ⬡ Level 100 — Foundations (Phases 0–3)
 | # | Module | Covers |
@@ -102,7 +102,9 @@ Then open http://localhost:8080.
 - **Multi-step labs** with copy-ready commands and verification checkpoints
 - **Progress tracking** — per module, per level, overall %, day streak
 - **Export / Import** progress as JSON
-- **Fully offline** — no external CDNs, no trackers
+- **Installable and offline after first load** — service-worker-cached app shell, no external CDNs, no trackers
+- **Honest mastery states** — Learned → Practiced → Demonstrated → Durable, with 80% retrieval checks, lab evidence, transfer rubrics, and spaced review
+- **Diagnostic learning route** — ten questions recommend the earliest competency worth practicing
 
 ---
 
@@ -117,6 +119,8 @@ css/
 js/
   app.js                # Router, view management, progress wiring
   progress.js           # localStorage-backed progress
+  mastery-content.js    # Outcomes, diagnostics, transfer challenges, rubrics
+  mastery-engine.js     # Mastery dashboard, evidence flow, review queue
   quiz-engine.js        # Quiz rendering & scoring
   lab-engine.js         # Step-by-step lab runner (v2)
   interactive.js        # Drag-drop, flashcards
@@ -126,22 +130,23 @@ js/
   modules-300.js        # L300 content (Phases 9–12)
   modules-extras.js     # 10 standalone diagram modules
   modules-pm.js         # 8 PM Playbook modules (cross-cutting)
+manifest.webmanifest    # Install metadata
+sw.js                   # Offline app-shell cache
+tests/                  # Node test contracts for curriculum, mastery, platform
 docs/
   alignment-plan.md     # Roadmap to mirror azure-networking-academy structure
 ```
 
 ---
 
-## 🔭 Roadmap
+## ✅ Validation
 
-This project is being aligned to match the conventions and learning density of [`azure-networking-academy`](../azure-networking-academy/). See [docs/alignment-plan.md](docs/alignment-plan.md) for the gap analysis and step-by-step plan.
+```bash
+node --test tests/*.test.js
+for file in js/*.js sw.js; do node --check "$file"; done
+```
 
-Headline gaps to close:
-1. **Granular module split** — break each "Phase" into 5–8 atomic modules (learn / diagram / quiz / match / flashcards), like the networking academy does.
-2. **Diagrams engine** — add `js/diagrams.js` with animated SVG/Canvas visualisations (transformer attention, RAG flow, agent loop, MCP handshake).
-3. **Search palette** (`Ctrl+K`).
-4. **Accessibility & security polish** — CSP, skip-link, ARIA, mobile nav toggle.
-5. **GitHub Pages deploy workflow.**
+GitHub Pages runs the same validation before deployment. The next product milestone is external review of capstone artifacts and calibration of the self-assessment rubric, not another module-count expansion.
 
 ---
 

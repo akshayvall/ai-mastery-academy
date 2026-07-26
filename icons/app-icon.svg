@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">AI Mastery Academy</title>
+  <desc id="description">A circuit-inspired letter A on a deep violet background.</desc>
+  <rect width="512" height="512" rx="96" fill="#44236f"/>
+  <path d="M142 382 238 128h36l96 254h-54l-22-64h-78l-21 64h-53Zm91-113h44l-22-68-22 68Z" fill="#fff"/>
+  <g fill="none" stroke="#59d6c7" stroke-linecap="round" stroke-width="14">
+    <path d="M109 154h62l24 25"/>
+    <path d="M341 179l24-25h38"/>
+    <path d="M106 356h53"/>
+    <path d="M353 356h53"/>
+  </g>
+  <g fill="#59d6c7">
+    <circle cx="96" cy="154" r="13"/>
+    <circle cx="416" cy="154" r="13"/>
+    <circle cx="93" cy="356" r="13"/>
+    <circle cx="419" cy="356" r="13"/>
+  </g>
+</svg>

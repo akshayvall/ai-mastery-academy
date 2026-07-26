@@ -4,13 +4,29 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- Versioned mastery progress (`schemaVersion: 2`) with Learned, Practiced, Demonstrated, and Durable states; existing completion data migrates as legacy evidence pending revalidation.
+- Ten-question diagnostic that recommends the earliest competency worth practicing.
+- Observable outcomes, prerequisites, independent transfer challenges, and four-part rubrics for all 31 real modules in `js/mastery-content.js`.
+- Local spaced-review scheduling at 1, 3, 7, 21, and 60 days, plus a dashboard review queue.
+- Installable PWA assets (`manifest.webmanifest`, `sw.js`, same-origin icon) with offline navigation after the first successful load.
+- Zero-dependency Node test suite and a GitHub Pages validation gate.
+
+### Changed
+- Mastery progress now excludes the 10 diagram-only review activities from the 31-module denominator.
+- Quiz passing now requires 80% and the critical concept question; due quiz retakes advance spaced review.
+- Keyboard and screen-reader support improved across quizzes, flashcards, matching exercises, diagrams, labs, sidebar navigation, and mobile layouts.
+- Current OpenAI, Anthropic, and Google catalogs, IDs, pricing notes, SDK patterns, and first-party source metadata were refreshed for July 26, 2026.
+- Deployment, SaaS, MCP, expert-review, and PM modules now include stronger production, security, reliability, cost, and evaluation guidance.
+- CSP now blocks inline scripts; runtime controls use delegated event handlers.
+
 ### Fixed
 - Completed the July 2026 content audit: replaced retired model IDs, rewrote obsolete Claude prefill guidance around structured outputs, refreshed model/pricing/context claims, updated adaptive-thinking guidance, and corrected temperature determinism claims.
 - Updated the Level 300 capstone from `gpt-4o-mini` to `gpt-5.4-mini` and regenerated the Builder Track after correcting the MCP date and Gemma 3 prerequisite in its source project.
 - `js/modules-100.js` parse error (`Unexpected token ']'`) caused by a missing `const MODULES_100 = [` declaration and an orphaned top-level `subtitle` line after curriculum merge.
 - Re-validated syntax with `node --check` for both `js/modules-100.js` and `js/modules-200.js`.
 
-### Added
+### Added (earlier work)
 - `js/landscape.js` as the single source for volatile model names, prices, context limits, and the curriculum verification date.
 - A centrally rendered `Last verified: YYYY-MM` stamp on every Learn view.
 - `docs/curriculum-refresh-2026.md` - strategic curriculum brief to shift the academy from prompt-centric learning to AI systems architecture.

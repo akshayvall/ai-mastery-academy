@@ -44,6 +44,15 @@ const server = new McpServer({name: "my-tools", version: "1.0.0"});
 server.tool("get_status", "Get project status. Use when user asks about progress.",
     {project: {type: "string"}},
     async ({project}) => ({content: [{type: "text", text: JSON.stringify({status: "on track"})}]}));</div>
+    <h3>Production MCP Review</h3>
+    <table class="content-table">
+        <tr><th>Control</th><th>Review question</th></tr>
+        <tr><td><strong>Identity + authorization</strong></td><td>How is the caller authenticated for this transport, and which tools, resources, tenants, and actions may that identity access?</td></tr>
+        <tr><td><strong>Trust boundaries</strong></td><td>Which client, server, tool result, resource, and downstream system inputs are untrusted? Validate schemas and require approval for destructive actions.</td></tr>
+        <tr><td><strong>Least privilege</strong></td><td>Can each tool use a read-only or narrowly scoped credential instead of inheriting broad host permissions?</td></tr>
+        <tr><td><strong>Observability</strong></td><td>Do traces record correlation ID, caller, tool, latency, status, and sanitized failure details without logging secrets or sensitive arguments?</td></tr>
+        <tr><td><strong>Recovery</strong></td><td>Are timeouts, bounded retries, idempotency, circuit breakers, and useful errors defined for downstream failures?</td></tr>
+    </table>
     <h3>A2A — Agent-to-Agent Protocol</h3>
     <p>MCP = AI→tools. A2A = agents→agents. AgentCards for capability discovery. The emerging ecosystem.</p>
     <h3>Evaluate → Ship → Operate</h3>
@@ -99,14 +108,14 @@ server.tool("get_status", "Get project status. Use when user asks about progress
         steps: [
             { title: 'Design and build the MCP server', subtitle: 'Create 3 tools with clear descriptions', duration: '15 min', instructions: [
                 { type: 'command', cmd: 'mkdir custom-mcp-server && cd custom-mcp-server && claude' },
-                { type: 'prompt', text: 'Build a TypeScript MCP server using @modelcontextprotocol/sdk:\n\n1. get_project_status(project_name) — mock data: {name, status, completion_pct, blockers}\n2. search_docs(query) — 15+ mock entries on onboarding, standards, deployment\n3. check_health(service) — mock: {service, status, latency_ms}\n\nEach tool needs a >20 word description. package.json with build+start scripts. Error handling for unknown inputs.' },
+                { type: 'prompt', text: 'Build a TypeScript MCP server using @modelcontextprotocol/sdk:\n\n1. get_project_status(project_name) — mock data: {name, status, completion_pct, blockers}\n2. search_docs(query) — 15+ mock entries on onboarding, standards, deployment\n3. check_health(service) — mock: {service, status, latency_ms}\n\nEach tool needs a >20 word description, a strict input schema, read-only behavior, and structured errors. Add correlation-ID logs for tool, latency, and status without logging argument values. Create SECURITY.md mapping client/server/downstream trust boundaries, local vs remote identity, per-tool authorization, least-privilege credentials, and approval requirements for any future write tool. Include package.json with build+start scripts.' },
                 { type: 'command', cmd: 'npm install && npm run build' },
                 { type: 'verify', text: 'Build succeeds. Each tool has a clear description in the code.' }
             ]},
             { title: 'Test the tools', subtitle: 'Verify all 3 tools work correctly', duration: '10 min', instructions: [
-                { type: 'prompt', text: 'Create a test script that:\n1. Calls get_project_status("Alpha") → valid JSON\n2. Calls get_project_status("NonExistent") → friendly error\n3. Calls search_docs("onboarding") → non-empty results\n4. Calls search_docs("xyznonexist") → empty results\n5. Calls check_health("api") → status field\n6. Calls check_health("unknown") → error\nPrint PASS/FAIL per test.' },
+                { type: 'prompt', text: 'Create a test script that:\n1. Calls get_project_status("Alpha") → valid JSON\n2. Calls get_project_status("NonExistent") → friendly error\n3. Calls search_docs("onboarding") → non-empty results\n4. Calls search_docs("xyznonexist") → empty results\n5. Calls check_health("api") → status field\n6. Calls check_health("unknown") → error\n7. Sends malformed input → schema validation error\n8. Verifies a correlation ID is logged without raw argument values\nPrint PASS/FAIL per test.' },
                 { type: 'command', cmd: 'npm test' },
-                { type: 'verify', text: 'All 6 tests pass. Good inputs → data. Bad inputs → friendly errors.' }
+                { type: 'verify', text: 'All 8 tests pass. Good inputs return data; bad inputs fail safely; logs support diagnosis without exposing arguments.' }
             ]},
             { title: 'Connect to Claude Code + create skill', subtitle: 'Add MCP server + auto-triggered skill', duration: '10 min', instructions: [
                 'Add to .claude/settings.json:',
@@ -151,6 +160,15 @@ server.tool("get_status", "Get project status. Use when user asks about progress
         <tr><td><strong>Cost tracking</strong></td><td>Log tokens + cost per run for billing.</td></tr>
         <tr><td><strong>Error handling</strong></td><td>Never expose stack traces to users.</td></tr>
     </table>
+    <h3>Deployment Controls</h3>
+    <table class="content-table">
+        <tr><th>Control</th><th>Production requirement</th></tr>
+        <tr><td><strong>Workload identity</strong></td><td>Authenticate users at the API and use managed identity or a narrowly scoped service identity for downstream Azure resources.</td></tr>
+        <tr><td><strong>Secrets</strong></td><td>Keep keys in a secret store or deployment environment. Never bake them into images, source, client bundles, or logs.</td></tr>
+        <tr><td><strong>Retries</strong></td><td>Retry only transient failures with a small limit, exponential backoff, and jitter. Make write operations idempotent first.</td></tr>
+        <tr><td><strong>Telemetry</strong></td><td>Trace request ID, model, latency, tokens, cost, retry count, status, and sanitized errors across the full request path.</td></tr>
+        <tr><td><strong>Rollout + rollback</strong></td><td>Use health/readiness checks, immutable versions, a canary or deployment slot, explicit failure thresholds, and a tested rollback command.</td></tr>
+    </table>
     <div class="warning-box"><h4>⚠️ Cost Bomb</h4><p>Real scenario: stuck agent × 10,000 iterations × $0.01 = $100 overnight. Always cap iterations + timeout + budget.</p></div>
 
     <div class="tip-box"><h4>🎯 For PMs — unit economics before deployment</h4><p>Before this endpoint goes near production, run the worksheet in <strong>PM Playbook: AI Unit Economics</strong>. You need cost-per-query, queries-per-user, gross margin per plan, and the 99th-percentile rate-limit — written down. Without those numbers your protections are educated guesses.</p></div>
@@ -194,17 +212,17 @@ server.tool("get_status", "Get project status. Use when user asks about progress
                 { type: 'verify', text: 'Swagger shows 4 endpoints. POST returns result + metadata. GET /runs shows the run.' }
             ]},
             { title: 'Add all protections', subtitle: 'Rate limiting, iteration cap, timeout, cost tracking', duration: '15 min', instructions: [
-                { type: 'prompt', text: 'Add protections:\n1. Rate limit: 10/min per IP (slowapi). 429 when exceeded.\n2. max_iterations > 10 → reject with 400\n3. Timeout: kill after 60 seconds → 408\n4. Cost tracking: compute from token count + model rate\n5. Error handling: clear JSON, never expose tracebacks\n6. Write 8+ pytest tests: success, rate limit, bad max_iter, invalid body, health' },
+                { type: 'prompt', text: 'Add protections:\n1. Authenticate callers; reject missing or invalid credentials\n2. Rate limit: 10/min per caller and IP (slowapi). 429 when exceeded.\n3. max_iterations > 10 → reject with 400\n4. Timeout: kill after 60 seconds → 408\n5. Retry transient model errors at most twice with exponential backoff + jitter; do not retry validation/auth errors\n6. Cost tracking: compute from token count + model rate\n7. Structured telemetry: request ID, model, latency, tokens, cost, retries, status; never log secrets or prompt contents\n8. Error handling: clear JSON, never expose tracebacks\n9. Write 10+ pytest tests covering auth, success, retry, rate limit, bad max_iter, invalid body, timeout, and health' },
                 { type: 'command', cmd: 'pytest -v' },
                 'Manual rate limit test:',
                 { type: 'command', cmd: 'for i in $(seq 1 15); do curl -s -o /dev/null -w "%{http_code} " -X POST http://localhost:8000/api/run-agent -H "Content-Type: application/json" -d \'{"task":"test"}\'; done' },
                 { type: 'verify', text: 'Tests pass. Rapid requests show 429 after 10. max_iterations=50 → 400.' }
             ]},
-            { title: 'Dockerise', subtitle: 'Container for consistent deployment', duration: '10 min', instructions: [
-                { type: 'prompt', text: 'Create:\n1. Dockerfile (python:3.12-slim, install deps, uvicorn)\n2. docker-compose.yml (port 8000, pass GEMINI_API_KEY)\n3. .dockerignore, .env.example' },
+            { title: 'Dockerise + plan the release', subtitle: 'Container, secrets, rollout, and rollback', duration: '10 min', instructions: [
+                { type: 'prompt', text: 'Create:\n1. Dockerfile (python:3.12-slim, non-root runtime, health check, pinned deps, uvicorn)\n2. docker-compose.yml (port 8000, inject GEMINI_API_KEY from the environment)\n3. .dockerignore and .env.example with placeholders only\n4. DEPLOYMENT.md covering Azure managed identity + secret store, health/readiness probes, immutable image versions, 10% canary or deployment slot, rollback thresholds for error rate/latency/cost, and the exact rollback command' },
                 { type: 'command', cmd: 'docker compose build && docker compose up -d' },
                 { type: 'command', cmd: 'curl http://localhost:8000/health' },
-                { type: 'verify', text: 'Docker starts. curl returns {status:ok}. Agent endpoint works from container.' }
+                { type: 'verify', text: 'Docker runs as non-root, health check passes, no secret is in the image, and DEPLOYMENT.md has measurable rollout and rollback gates.' }
             ]},
             { title: 'README + push', subtitle: 'Portfolio project #9', duration: '5 min', instructions: [
                 { type: 'prompt', text: 'README: problem statement, architecture diagram, all endpoints with curl, setup (local+Docker+Azure), cost estimate for 100 users.' },
@@ -241,6 +259,15 @@ server.tool("get_status", "Get project status. Use when user asks about progress
     <p>Status Report → Risk Analysis → Meeting Prep. Business: Free (5/mo) → Pro ($29) → Team ($19/user).</p>
     <h3>SaaS Stack</h3>
     <p>React frontend + FastAPI backend + Clerk/Azure AD auth + PostgreSQL + Stripe billing + AI + Azure deploy.</p>
+    <h3>SaaS Control Plane</h3>
+    <table class="content-table">
+        <tr><th>Control</th><th>What must be true before launch</th></tr>
+        <tr><td><strong>Tenant isolation</strong></td><td>Every record has a tenant boundary enforced server-side from the authenticated identity; never trust a tenant ID supplied in the request body.</td></tr>
+        <tr><td><strong>Entitlements + abuse</strong></td><td>Plans control features and quotas on the server. Apply per-user and per-tenant rate, token, tool, and spend limits.</td></tr>
+        <tr><td><strong>Cost attribution</strong></td><td>Track tokens and spend by tenant, user, feature, model, and request so pricing and gross margin use measured data.</td></tr>
+        <tr><td><strong>Evaluation gate</strong></td><td>Block prompt or model releases unless the versioned eval set meets quality, safety, latency, and cost thresholds.</td></tr>
+        <tr><td><strong>Support + incidents</strong></td><td>Define SLOs, alert ownership, tenant-safe diagnostics, escalation paths, rollback authority, and customer communication.</td></tr>
+    </table>
     <div class="learn-section">
         <h2>📚 Further Reading &amp; References</h2>
         <ul class="references-list" style="list-style:none; padding:0;">
@@ -286,16 +313,16 @@ server.tool("get_status", "Get project status. Use when user asks about progress
                 'Test ALL 3 at /docs with real inputs from your work.',
                 { type: 'verify', text: 'Status report has ## Highlights, ## Risks, ## Next Week. Risk analysis ranks by severity. Meeting prep has specific anticipated questions.' }
             ]},
-            { title: 'Add auth + usage limits', subtitle: 'API key auth, daily limits, 429 enforcement', duration: '20 min', instructions: [
-                { type: 'prompt', text: 'Add auth + limits:\n1. API key auth: X-API-Key header required. Store keys in SQLite.\n2. Key generation script: python generate_key.py\n3. Usage tracking per key per day in SQLite\n4. Free tier: max 5 generations/day. Exceeded → 429 with reset time.\n5. GET /api/usage → {daily_used, daily_limit, resets_at}\n6. Tests: no key→401, bad key→403, 6th request→429' },
+            { title: 'Add tenant-safe auth + limits', subtitle: 'Isolation, entitlements, abuse controls, and cost attribution', duration: '20 min', instructions: [
+                { type: 'prompt', text: 'Add tenant-safe auth + limits:\n1. X-API-Key auth; store only hashed keys tied to tenant_id, user_id, and plan\n2. Derive tenant/user from the authenticated key, never from request JSON\n3. Enforce tenant_id on every generation and usage query\n4. Server-side plan entitlements: Free max 5 generations/day; Pro has a higher configurable limit\n5. Apply per-user and per-tenant request, token, and spend limits; return 429 with reset time\n6. Track tokens and cost by tenant, user, feature, model, and request ID\n7. GET /api/usage returns the caller tenant only: {daily_used,daily_limit,cost_usd,resets_at}\n8. Audit auth failures and limit decisions without logging raw keys or prompts\n9. Tests: no key→401, bad key→403, cross-tenant lookup→404, 6th Free request→429, Pro entitlement succeeds' },
                 { type: 'command', cmd: 'python generate_key.py\npytest -v' },
-                { type: 'verify', text: 'No key → 401. Bad key → 403. 6th daily request → 429. GET /api/usage shows counts.' }
+                { type: 'verify', text: 'Auth tests pass, cross-tenant access returns no data, server-side entitlements hold, and usage reports tenant-level cost without exposing keys or prompts.' }
             ]},
             { title: 'Deploy + document + push', subtitle: 'Docker, README, capstone portfolio piece', duration: '20 min', instructions: [
-                { type: 'prompt', text: 'Create:\n1. Dockerfile + docker-compose.yml\n2. README: problem statement, user persona, features with curl examples, auth docs, architecture diagram, setup (local+Docker+Azure), cost estimate per 100 users, roadmap (v2: frontend, v3: Stripe)' },
+                { type: 'prompt', text: 'Create:\n1. Dockerfile + docker-compose.yml\n2. README: problem statement, user persona, features with curl examples, tenant/auth model, architecture diagram, setup (local+Docker+Azure), measured cost estimate per 100 users, roadmap (v2: frontend, v3: Stripe)\n3. EVAL_RELEASE_GATE.md with a versioned dataset and minimum quality, safety, p95 latency, and cost thresholds\n4. RUNBOOK.md with SLOs, alert owner, escalation, tenant-safe diagnostics, rollback authority, and customer communication steps' },
                 'Copy product-brief.md into the project.',
                 { type: 'command', cmd: 'git init && git add . && git commit -m "AI TPM Assistant MVP"\ngit remote add origin https://github.com/YOUR_USERNAME/ai-tpm-assistant.git\ngit push -u origin main' },
-                { type: 'verify', text: 'Repo: product-brief.md, main.py, Dockerfile, tests/, README with curl examples. Tests pass. docker compose up works. This is your capstone.' }
+                { type: 'verify', text: 'Repo includes the product brief, tenant-safe tests, release gate, and incident runbook. Docker starts and the current model/prompt passes every release threshold.' }
             ]}
         ]
     }
@@ -328,14 +355,23 @@ server.tool("get_status", "Get project status. Use when user asks about progress
     <h2>Expert Thinking: 3 Axes</h2>
     <table class="content-table">
         <tr><th>Axis</th><th>Question</th><th>Example</th></tr>
-        <tr><td><strong>Tradeoffs</strong></td><td>Cost vs Latency vs Quality</td><td>Nano: cheap+fast. Opus: expensive+best. 90% use nano.</td></tr>
+        <tr><td><strong>Tradeoffs</strong></td><td>Cost vs Latency vs Quality</td><td>Use a lower-cost model for validated routine work; escalate ambiguous or high-risk tasks.</td></tr>
         <tr><td><strong>Failures</strong></td><td>What goes wrong?</td><td>Hallucination, injection, infinite loops, cost explosion</td></tr>
         <tr><td><strong>Scaling</strong></td><td>What breaks at 1000x?</td><td>Rate limits, DB, cost, agents</td></tr>
     </table>
     <h3>Prompt Injection</h3>
     <p>Direct: "Ignore instructions." Indirect: hidden in data AI reads. <strong>No foolproof defense.</strong> Layer: input sanitise + output validate + separate data/instructions + least privilege.</p>
-    <h3>90/10 Cost Rule</h3>
-    <p>90% → cheap models ($0.20/1M). 10% → expensive ($5/1M). Saves 50-70%.</p>
+    <h3>Routing Hypothesis, Not a Universal 90/10 Rule</h3>
+    <p>Start with a measured task mix: route routine work to the lowest-cost model that passes the eval gate, then escalate uncertain or high-impact requests. Validate the quality, latency, and savings against your own traffic instead of assuming a fixed split.</p>
+    <h3>Expert Review Gates</h3>
+    <table class="content-table">
+        <tr><th>Review</th><th>Evidence required for a go decision</th></tr>
+        <tr><td><strong>Architecture</strong></td><td>System boundaries, data flows, dependencies, tenant model, failure domains, and the ADR explaining rejected options.</td></tr>
+        <tr><td><strong>Reliability</strong></td><td>SLOs, capacity assumptions, backpressure, graceful degradation, dependency failure tests, recovery targets, and rollback proof.</td></tr>
+        <tr><td><strong>Security</strong></td><td>Threat model, identity and authorization paths, data classification, secret handling, tool permissions, abuse controls, and audit evidence.</td></tr>
+        <tr><td><strong>Cost</strong></td><td>Workload forecast, unit economics, tenant attribution, budgets, sensitivity analysis, and alerts for spend anomalies.</td></tr>
+        <tr><td><strong>Migration</strong></td><td>Compatibility inventory, baseline evals, shadow/canary plan, data migration and reconciliation, rollback trigger, and decommission criteria.</td></tr>
+    </table>
     <h3>Production Stack</h3>
     <p>Prompt Caching (90% off) + Batch API (50% off) + Model Routing + Structured Outputs + Streaming + Extended Thinking.</p>
     <h3>Image Generation</h3>
@@ -361,7 +397,7 @@ server.tool("get_status", "Get project status. Use when user asks about progress
         { question: '90/10 rule?', options: ['Training', '90% cheap, 10% expensive, saves 50-70%', 'Free', 'Output'], correct: 1, explanation: 'Smart model routing.' },
         { question: 'Injection defense?', options: ['System prompts', 'Validation', 'No foolproof — layer defenses', 'Latest model'], correct: 2, explanation: 'Defense in depth, limit blast radius.' },
         { question: '1000 users breaks?', options: ['Nothing', 'Rate limits, DB, cost, agents', 'Frontend', '1M only'], correct: 1, explanation: 'Scale reveals hidden problems.' },
-        { question: 'Dominant image gen?', options: ['GANs', 'VAEs', 'Diffusion models', 'Auto-reg'], correct: 2, explanation: 'Noise → denoise guided by text.' },
+        { question: 'Migration review?', options: ['Change the model directly', 'Baseline evals, canary, rollback trigger, decommission criteria', 'Update the README', 'Use the newest model'], correct: 1, explanation: 'Migration needs measured compatibility and a reversible release path.' },
         { question: 'Indirect injection?', options: ['Slow', 'Hidden in data AI processes', 'Multiple prompts', 'API'], correct: 1, explanation: 'Webpages/docs with hidden instructions.' },
         { question: 'AI-as-judge?', options: ['Legal', 'Another AI evaluates quality', 'Competition', 'Human'], correct: 1, explanation: 'Opus scores Haiku. Scalable.' },
         { question: 'Complete journey?', options: ['Prompting', 'Talk→Prompt→Code→Memory→Tools→Agents→Claude Code→Multi-Agent→MCP→Deploy→SaaS→Scale', 'Coding', 'ChatGPT'], correct: 1, explanation: 'Each phase builds on the last.' }
@@ -385,11 +421,11 @@ server.tool("get_status", "Get project status. Use when user asks about progress
                 { type: 'code', language: 'markdown', code: '## Cost Analysis: 1000 Users\n\n### Assumptions\n- 1000 users × 10 gens/day × 2000 input + 500 output tokens\n\n### Without Routing (all Haiku $1/$5 per 1M)\n- Input: 20M × $1 = $20/day\n- Output: 5M × $5 = $25/day\n- Monthly: $1,350\n\n### With Routing (90% Flash $0.15/$0.60, 10% Haiku)\n- Flash: $5.40/day | Haiku: $4.50/day\n- Monthly: ~$300\n\n### Savings: 78% ($1,350 → $300)' },
                 { type: 'verify', text: 'SCALING.md has the math showing 78% savings with model routing.' }
             ]},
-            { title: 'Full production plan', subtitle: '6-area scaling plan', duration: '20 min', instructions: [
+            { title: 'Full production review', subtitle: 'Five go/no-go gates plus operations', duration: '20 min', instructions: [
                 'Use Claude to generate a comprehensive plan. Ask:',
-                { type: 'prompt', text: 'Create a production scaling plan for my AI API (10K requests/day). Cover:\n1. Cost optimization: routing, caching, batch API\n2. Reliability: rate limit handling, fallback models, circuit breakers\n3. Database: SQLite → PostgreSQL path, connection pooling\n4. Security: 3-layer injection defense, PII filtering\n5. Monitoring: latency p50/p95/p99, error rate, cost per request\n6. Agent safety: max_iterations, timeout, budget caps' },
+                { type: 'prompt', text: 'Create a go/no-go production review for my AI API (10K requests/day). For each gate, state assumptions, evidence, owner, threshold, decision, and rollback trigger:\n1. Architecture: boundaries, data flows, dependencies, tenant model, failure domains, ADR\n2. Reliability: SLOs, capacity, queues/backpressure, dependency failures, graceful degradation, recovery\n3. Security: threat model, identity/authorization, secrets, data classification, injection/tool abuse, audit logs\n4. Cost: workload forecast, model routing, caching, per-tenant attribution, budgets, sensitivity analysis\n5. Migration: baseline evals, compatibility, shadow/canary, data reconciliation, rollback, decommission\n6. Operations: traces, p50/p95/p99, error and cost alerts, incident owner, runbook\n7. Agent safety: max_iterations, timeout, budget caps, approval for destructive tools' },
                 'Add to SCALING.md. Commit.',
-                { type: 'verify', text: 'SCALING.md covers all 6 areas with specific numbers and thresholds.' }
+                { type: 'verify', text: 'SCALING.md has all five review gates plus operations and agent safety, with measurable evidence, owners, decisions, and rollback triggers.' }
             ]},
             { title: 'Capstone: choose your own project', subtitle: 'Build something combining 3+ techniques', duration: '60 min', instructions: [
                 { type: 'heading', text: 'Choose an idea' },

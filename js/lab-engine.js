@@ -39,6 +39,7 @@ const LabEngine = {
 
     render() {
         const container = document.getElementById('tab-lab');
+        this.bindEvents(container);
         const lab = this.lab;
         const done = this.stepResults.filter(r => r === true).length;
         const total = lab.steps.length;
@@ -120,22 +121,24 @@ const LabEngine = {
 
         return `
             <div class="lab-step ${isCompleted ? 'lab-step-done' : ''}" id="lab-step-${index}">
-                <div class="lab-step-header" onclick="LabEngine.toggleStep(${index})">
-                    <div class="lab-step-num ${isCompleted ? 'lab-step-num-done' : ''}">${isCompleted ? '✓' : index + 1}</div>
-                    <div class="lab-step-title-area">
-                        <h4>${step.title}</h4>
-                        ${step.subtitle ? `<p class="lab-step-subtitle">${step.subtitle}</p>` : ''}
-                    </div>
-                    ${step.duration ? `<span class="lab-step-time">⏱ ${step.duration}</span>` : ''}
-                    <span class="lab-step-chevron">▼</span>
-                </div>
-                <div class="lab-step-body" id="lab-step-body-${index}">
+                <h4 class="lab-step-heading">
+                    <button type="button" class="lab-step-header" id="lab-step-toggle-${index}" aria-expanded="true" aria-controls="lab-step-body-${index}" data-lab-action="toggle-step" data-step-index="${index}">
+                        <span class="lab-step-num ${isCompleted ? 'lab-step-num-done' : ''}">${isCompleted ? '✓' : index + 1}</span>
+                        <span class="lab-step-title-area">
+                            <span class="lab-step-title">${step.title}</span>
+                            ${step.subtitle ? `<span class="lab-step-subtitle">${step.subtitle}</span>` : ''}
+                        </span>
+                        ${step.duration ? `<span class="lab-step-time">⏱ ${step.duration}</span>` : ''}
+                        <span class="lab-step-chevron" aria-hidden="true">▼</span>
+                    </button>
+                </h4>
+                <div class="lab-step-body" id="lab-step-body-${index}" aria-labelledby="lab-step-toggle-${index}">
                     ${instructionsHtml}
                     ${!isCompleted ? `
-                    <button class="lab-done-btn" onclick="LabEngine.markDone(${index})">
+                    <button type="button" class="lab-done-btn" data-lab-action="mark-done" data-step-index="${index}">
                         ✅ I've completed this step
                     </button>` : `
-                    <button class="lab-done-btn lab-undo-btn" onclick="LabEngine.markUndone(${index})">
+                    <button type="button" class="lab-done-btn lab-undo-btn" data-lab-action="mark-undone" data-step-index="${index}">
                         ↺ Mark as not done
                     </button>`}
                 </div>
@@ -146,27 +149,48 @@ const LabEngine = {
         let content = (step.content || '').replace(/\\n/g, '<br>');
         return `
             <div class="lab-step ${isCompleted ? 'lab-step-done' : ''}" id="lab-step-${index}">
-                <div class="lab-step-header" onclick="LabEngine.toggleStep(${index})">
-                    <div class="lab-step-num ${isCompleted ? 'lab-step-num-done' : ''}">${isCompleted ? '✓' : index + 1}</div>
-                    <div class="lab-step-title-area"><h4>${step.title}</h4></div>
-                    <span class="lab-step-chevron">▼</span>
-                </div>
-                <div class="lab-step-body" id="lab-step-body-${index}">
+                <h4 class="lab-step-heading">
+                    <button type="button" class="lab-step-header" id="lab-step-toggle-${index}" aria-expanded="true" aria-controls="lab-step-body-${index}" data-lab-action="toggle-step" data-step-index="${index}">
+                        <span class="lab-step-num ${isCompleted ? 'lab-step-num-done' : ''}">${isCompleted ? '✓' : index + 1}</span>
+                        <span class="lab-step-title-area"><span class="lab-step-title">${step.title}</span></span>
+                        <span class="lab-step-chevron" aria-hidden="true">▼</span>
+                    </button>
+                </h4>
+                <div class="lab-step-body" id="lab-step-body-${index}" aria-labelledby="lab-step-toggle-${index}">
                     <div class="lab-instr-text">${content}</div>
                     ${!isCompleted ? `
-                    <button class="lab-done-btn" onclick="LabEngine.markDone(${index})">
+                    <button type="button" class="lab-done-btn" data-lab-action="mark-done" data-step-index="${index}">
                         ✅ I've completed this step
                     </button>` : `
-                    <button class="lab-done-btn lab-undo-btn" onclick="LabEngine.markUndone(${index})">
+                    <button type="button" class="lab-done-btn lab-undo-btn" data-lab-action="mark-undone" data-step-index="${index}">
                         ↺ Mark as not done
                     </button>`}
                 </div>
             </div>`;
     },
 
+    bindEvents(container) {
+        if (!container || container.dataset.labEventsBound === 'true') return;
+        container.dataset.labEventsBound = 'true';
+        container.addEventListener('click', event => {
+            const control = event.target.closest('[data-lab-action]');
+            if (!control) return;
+            const stepIndex = Number(control.dataset.stepIndex);
+            const actions = {
+                'toggle-step': () => this.toggleStep(stepIndex),
+                'mark-done': () => this.markDone(stepIndex),
+                'mark-undone': () => this.markUndone(stepIndex)
+            };
+            actions[control.dataset.labAction]?.();
+        });
+    },
+
     toggleStep(index) {
         const body = document.getElementById(`lab-step-body-${index}`);
-        if (body) body.classList.toggle('lab-step-body-collapsed');
+        const toggle = document.getElementById(`lab-step-toggle-${index}`);
+        if (!body || !toggle) return;
+        const isCollapsed = body.classList.toggle('lab-step-body-collapsed');
+        toggle.setAttribute('aria-expanded', String(!isCollapsed));
     },
 
     markDone(index) {
@@ -179,7 +203,10 @@ const LabEngine = {
         }
         this.render();
         const next = document.getElementById(`lab-step-${index + 1}`);
-        if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (next) {
+            const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+            next.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        }
     },
 
     markUndone(index) {

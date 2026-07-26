@@ -1,0 +1,18 @@
+{
+  "name": "AI Mastery Academy",
+  "short_name": "AI Academy",
+  "description": "A self-paced academy for learning AI systems, tools, and product practice.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f5fb",
+  "theme_color": "#44236f",
+  "icons": [
+    {
+      "src": "icons/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

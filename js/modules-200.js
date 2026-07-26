@@ -173,7 +173,7 @@ similarity("dog?", "sourdough") = 0.12  # Unrelated</div>
         <tr><th>Model</th><th>Provider</th><th>Dimensions</th><th>Cost per 1M tokens</th><th>Best For</th></tr>
         <tr><td><strong>text-embedding-3-small</strong></td><td>OpenAI</td><td>1536</td><td>$0.02</td><td>Best price-to-performance for most use cases</td></tr>
         <tr><td><strong>text-embedding-3-large</strong></td><td>OpenAI</td><td>3072</td><td>$0.13</td><td>Maximum retrieval quality when cost is secondary</td></tr>
-        <tr><td><strong>text-embedding-004</strong></td><td>Google</td><td>768</td><td>Free (AI Studio)</td><td>Prototyping and learning — free tier is generous</td></tr>
+        <tr><td><strong>gemini-embedding-001</strong></td><td>Google</td><td>Up to 3072 (configurable)</td><td>Check current API pricing</td><td>Multilingual text retrieval with configurable output size</td></tr>
         <tr><td><strong>voyage-3-large</strong></td><td>Anthropic/Voyage</td><td>1024</td><td>$0.18</td><td>Code + text retrieval, Claude ecosystem</td></tr>
         <tr><td><strong>nomic-embed-text</strong></td><td>Open-source</td><td>768</td><td>Free (self-host)</td><td>Privacy-sensitive, on-prem, no API dependency</td></tr>
         <tr><td><strong>bge-m3</strong></td><td>BAAI (open-source)</td><td>1024</td><td>Free (self-host)</td><td>Multilingual retrieval, hybrid sparse+dense</td></tr>
@@ -181,7 +181,7 @@ similarity("dog?", "sourdough") = 0.12  # Unrelated</div>
 
     <div class="warning-box">
         <h4>⚠️ Critical Rule: Same Model for Index and Query</h4>
-        <p>You <strong>must</strong> use the same embedding model for indexing and querying. If you embed docs with text-embedding-3-small but embed queries with text-embedding-004, the vectors live in different mathematical spaces. Results will be meaningless garbage. This is the #1 beginner RAG mistake.</p>
+        <p>You <strong>must</strong> use the same embedding model and output dimensionality for indexing and querying. If you embed documents with text-embedding-3-small but queries with gemini-embedding-001, the vectors live in different mathematical spaces. Results will be meaningless. This is the #1 beginner RAG mistake.</p>
     </div>
 
     <div class="concept-box">
@@ -459,6 +459,7 @@ Answer (cite sources):"""</div>
     <h3>Scenario: Team Onboarding Knowledge Base</h3>
     <p>You have 50 markdown files in a Confluence-exported wiki. New team members ask the same questions repeatedly. You want a bot that answers from these docs with citations.</p>
 
+    <p><strong>Conceptual integration sketch:</strong> the flow is accurate, but local helpers such as <code>recursive_split</code> and <code>llm.generate</code> are intentionally omitted.</p>
     <div class="code-block"># Step 1: Load and chunk documents
 import os, glob
 
@@ -481,12 +482,15 @@ for doc in docs:
         })
 # Result: ~500 chunks from 50 documents
 
-# Step 3: Embed all chunks (batch for efficiency)
-import google.generativeai as genai
-embeddings = genai.embed_content(
-    model="models/text-embedding-004",
-    content=[c["text"] for c in chunks],
-    task_type="retrieval_document"  # Use "retrieval_query" for questions
+# Step 3: Embed all chunks
+from google import genai
+from google.genai import types
+
+genai_client = genai.Client()  # reads GEMINI_API_KEY
+embedding_result = genai_client.models.embed_content(
+    model="gemini-embedding-001",
+    contents=[c["text"] for c in chunks],
+    config=types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT")
 )
 
 # Step 4: Store in ChromaDB
@@ -495,19 +499,22 @@ client = chromadb.PersistentClient(path="./chroma_db")
 collection = client.get_or_create_collection("wiki")
 collection.add(
     documents=[c["text"] for c in chunks],
-    embeddings=embeddings["embedding"],
+    embeddings=[embedding.values for embedding in embedding_result.embeddings],
     metadatas=[c["metadata"] for c in chunks],
     ids=[f"chunk_{i}" for i in range(len(chunks))]
 )
 
 # Step 5: Query with RAG
 query = "How do I set up my dev environment?"
-query_embedding = genai.embed_content(
-    model="models/text-embedding-004",
-    content=query,
-    task_type="retrieval_query"
+query_result = genai_client.models.embed_content(
+    model="gemini-embedding-001",
+    contents=query,
+    config=types.EmbedContentConfig(task_type="RETRIEVAL_QUERY")
 )
-results = collection.query(query_embeddings=[query_embedding["embedding"]], n_results=5)
+results = collection.query(
+    query_embeddings=[query_result.embeddings[0].values],
+    n_results=5
+)
 
 # Step 6: Format prompt and generate
 context = "\\n---\\n".join([
@@ -605,7 +612,7 @@ answer = llm.generate(f"Context:\\n{context}\\n\\nQuestion: {query}\\nAnswer:")<
             { title: 'Build the document indexer', subtitle: 'Chunk, embed, and store in ChromaDB', duration: '15 min', instructions: [
                 { type: 'command', cmd: 'claude' },
                 'Paste this into Claude Code:',
-                { type: 'prompt', text: 'Build a RAG document indexer. Create indexer.py that:\n1. Reads all .md files from docs/\n2. Splits each into chunks of ~500 chars with 50-char overlap\n3. Creates embeddings using Gemini (models/text-embedding-004)\n4. Stores chunks + embeddings + metadata (filename, chunk_index) in ChromaDB persistent collection at ./chroma_db/\n5. Prints progress per file and total summary\n6. Also create requirements.txt with chromadb and google-generativeai\nHandle errors: skip unreadable files with a warning.' },
+                { type: 'prompt', text: 'Build a RAG document indexer. Create indexer.py that:\n1. Reads all .md files from docs/\n2. Splits each into chunks of ~500 chars with 50-char overlap\n3. Creates separate embeddings using gemini-embedding-001 through the google-genai SDK (from google import genai; one genai.Client())\n4. Stores chunks + embedding.values + metadata (filename, chunk_index) in ChromaDB persistent collection at ./chroma_db/\n5. Prints progress per file and total summary\n6. Also create requirements.txt with chromadb and google-genai\nHandle errors: skip unreadable files with a warning.' },
                 'After Claude Code creates the files:',
                 { type: 'command', cmd: 'pip install -r requirements.txt\npython indexer.py' },
                 { type: 'tip', text: 'If you get an API error, verify GEMINI_API_KEY is set: echo $GEMINI_API_KEY' },
@@ -1264,11 +1271,16 @@ response = openai.chat.completions.create(
               {"role": "user", "content": f"Analyse this code: {code_here}"}]
 )
 
-# Gemini-specific: Multimodal input
-response = genai.GenerativeModel("gemini-2.5-flash").generate_content([
-    "Describe what's happening in this image and extract any text:",
-    uploaded_image  # PIL Image or file upload
-])</div>
+# Gemini-specific: Multimodal input with the current Google GenAI SDK
+from google import genai
+gemini_client = genai.Client()
+response = gemini_client.models.generate_content(
+    model="gemini-3.6-flash",
+    contents=[
+        "Describe what's happening in this image and extract any text:",
+        uploaded_image  # PIL Image
+    ]
+)</div>
 </div>
 
 <div class="learn-section">
@@ -1653,25 +1665,33 @@ response = anthropic.messages.create(
 # Claude returns tool calls in response.content as tool_use blocks</div>
 
     <h4>Google Gemini Function Declarations</h4>
-    <div class="code-block"># Gemini function declaration
-import google.generativeai as genai
+    <div class="code-block"># Gemini function declaration with the Google GenAI SDK
+from google import genai
 
-search_tool = genai.protos.Tool(
-    function_declarations=[{
-        "name": "search_web",
-        "description": "Search the web for current information",
-        "parameters": {
-            "type": "OBJECT",
-            "properties": {
-                "query": {"type": "STRING", "description": "The search query"},
-                "num_results": {"type": "INTEGER", "description": "Results count"}
-            },
-            "required": ["query"]
-        }
-    }]
+search_tool = {
+    "type": "function",
+    "name": "search_web",
+    "description": "Search the web for current information",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "query": {"type": "string", "description": "The search query"},
+            "num_results": {"type": "integer", "description": "Results count"}
+        },
+        "required": ["query"]
+    }
+}
+
+gemini_client = genai.Client()
+interaction = gemini_client.interactions.create(
+    model="gemini-3.6-flash",
+    input="Find the latest AI platform release notes.",
+    tools=[search_tool]
 )
 
-model = genai.GenerativeModel("gemini-pro", tools=[search_tool])</div>
+for step in interaction.steps:
+    if step.type == "function_call":
+        print(step.name, step.arguments)</div>
 
     <table class="content-table">
         <tr><th>Provider</th><th>Tool Format Key</th><th>How Tool Calls Are Returned</th><th>Parallel Tools?</th></tr>
@@ -1784,8 +1804,8 @@ print(result.data)</div>
         <tr><td><strong>Pipeline</strong></td><td>Output of one stage feeds into the next</td><td>Researcher → Writer → Editor → Publisher</td></tr>
     </table>
 
-    <div class="code-block"># Multi-agent pattern: Researcher + Writer
-# Using CrewAI-style pseudocode
+    <div class="code-block"># Conceptual pseudocode: Researcher + Writer
+# Adapt constructor names and fields to your installed orchestration framework.
 
 researcher = Agent(
     role="Senior Research Analyst",
@@ -1798,7 +1818,7 @@ writer = Agent(
     role="Technical Writer",
     goal="Transform research findings into a clear, well-structured report",
     tools=[],  # Writer only uses the research output
-    model="claude-sonnet"
+    model="claude-sonnet-5"
 )
 
 # Define the workflow

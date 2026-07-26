@@ -26,11 +26,14 @@ const app = {
     currentModule: null,
     currentTab: 'learn',
     _pendingSection: null, // section slug to scroll to after render
+    _eventsBound: false,
 
     init() {
         this.buildNavigation();
         this.updateProgress();
         this.bindEvents();
+        this.registerServiceWorker();
+        MasteryEngine.init(MODULES);
 
         const hash = window.location.hash.slice(1);
         const mod = hash ? MODULES.find(m => m.id === hash) : null;
@@ -82,8 +85,12 @@ const app = {
                 const allVisited = sections.length > 0 &&
                     ProgressManager.areAllSectionsVisited(mod.id, sections.map(s => s.slug));
                 const status = ProgressManager.getModuleStatus(mod.id);
-                const completed = status.completed || allVisited;
-                const liClasses = ['nav-module', completed ? 'completed' : ''].filter(Boolean).join(' ');
+                const metadata = MasteryEngine.getMetadata(mod.id);
+                const mastery = metadata ? MasteryEngine.getStatus(mod) : null;
+                const completed = mastery
+                    ? MasteryEngine.STATE_RANK[mastery.state] >= MasteryEngine.STATE_RANK.practiced
+                    : status.completed || allVisited;
+                const liClasses = ['nav-module', completed ? 'completed' : '', MasteryEngine.isActivity(mod.id) ? 'nav-activity' : ''].filter(Boolean).join(' ');
                 const timeLabel = mod.estimatedTime ? `<span class="nav-time">⏱ ${mod.estimatedTime}</span>` : '';
                 const checkMark = completed ? '<span class="module-check">✓</span>' : '';
 
@@ -92,17 +99,17 @@ const app = {
                 if (sections.length > 0) {
                     const sectionItems = sections.map(sec => {
                         const visited = ProgressManager.isSectionVisited(mod.id, sec.slug);
-                        return `<li><a class="${visited ? 'section-visited' : ''}" data-id="${mod.id}" data-section="${sec.slug}">${this.escapeHtml(sec.title)}</a></li>`;
+                        return `<li><button type="button" class="section-link ${visited ? 'section-visited' : ''}" data-id="${mod.id}" data-section="${sec.slug}">${this.escapeHtml(sec.title)}</button></li>`;
                     }).join('');
                     sectionsHtml = `<ul class="module-sections collapsed">${sectionItems}</ul>`;
                 }
 
                 return `<li class="${liClasses}" data-module="${mod.id}">
-                    <a class="module-link" data-id="${mod.id}">
+                    <button type="button" class="module-link" data-id="${mod.id}">
                         <span class="module-icon">${mod.icon}</span>
                         <span class="module-title">${this.escapeHtml(mod.title)}</span>
                         ${checkMark}${timeLabel}
-                    </a>
+                    </button>
                     ${sectionsHtml}
                 </li>`;
             }).join('');
@@ -125,7 +132,7 @@ const app = {
         });
 
         // Section sub-link: load module + scroll to section
-        document.querySelectorAll('#sidebar .module-sections a').forEach(link => {
+        document.querySelectorAll('#sidebar .module-sections .section-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const moduleId = link.dataset.id;
@@ -191,7 +198,7 @@ const app = {
     _refreshSectionVisited(moduleId) {
         const navItem = document.querySelector(`#sidebar li.nav-module[data-module="${moduleId}"]`);
         if (!navItem) return;
-        navItem.querySelectorAll('.module-sections a').forEach(a => {
+        navItem.querySelectorAll('.module-sections .section-link').forEach(a => {
             const slug = a.dataset.section;
             if (ProgressManager.isSectionVisited(moduleId, slug)) {
                 a.classList.add('section-visited');
@@ -254,6 +261,26 @@ const app = {
     },
 
     bindEvents() {
+        if (this._eventsBound) return;
+        this._eventsBound = true;
+
+        document.addEventListener('click', (event) => {
+            const control = event.target.closest('[data-app-action]');
+            if (!control) return;
+
+            const actions = {
+                'start-level': () => this.startLevel(Number(control.dataset.level)),
+                'show-dashboard': () => this.showDashboard(),
+                'switch-tab': () => this.switchTab(control.dataset.tab),
+                'previous-module': () => this.prevModule(),
+                'complete-module': () => this.completeModule(),
+                'next-module': () => this.nextModule(),
+                'close-search': () => this.closeSearch(),
+                'pick-search': () => this.pickSearch(control.dataset.id)
+            };
+            actions[control.dataset.appAction]?.();
+        });
+
         document.getElementById('resetProgress').addEventListener('click', () => {
             if (confirm('Reset ALL progress? This cannot be undone.')) {
                 ProgressManager.resetAll();
@@ -313,6 +340,13 @@ const app = {
         }
     },
 
+    registerServiceWorker() {
+        if (!['http:', 'https:'].includes(window.location.protocol) || !('serviceWorker' in navigator)) return;
+        navigator.serviceWorker.register('./sw.js').catch(error => {
+            console.warn('Service worker registration failed:', error);
+        });
+    },
+
     // ─── SEARCH PALETTE ────────────────────────
     openSearch() {
         const p = document.getElementById('searchPalette');
@@ -344,7 +378,7 @@ const app = {
         items = items.slice(0, 15);
         if (!items.length) { ul.innerHTML = '<li class="search-empty">No matches</li>'; return; }
         ul.innerHTML = items.map((m, i) =>
-            `<li class="search-item ${i === 0 ? 'active' : ''}" data-id="${m.id}" onclick="app.pickSearch('${m.id}')">
+            `<li class="search-item ${i === 0 ? 'active' : ''}" data-app-action="pick-search" data-id="${m.id}">
                 <span class="search-icon">${m.icon}</span>
                 <span class="search-title">${this.escapeHtml(m.title)}</span>
                 <span class="search-sub">L${m.level} · ${this.escapeHtml(m.subtitle || '')}</span>
@@ -455,13 +489,14 @@ const app = {
 
         const status = ProgressManager.getModuleStatus(moduleId);
         const completeBtn = document.getElementById('completeModule');
-        if (status.completed) {
-            completeBtn.textContent = '✓ Completed';
-            completeBtn.style.background = 'var(--success)';
-        } else {
-            completeBtn.textContent = '✓ Mark Complete';
-            completeBtn.style.background = '';
-        }
+        const metadata = MasteryEngine.getMetadata(moduleId);
+        const mastery = metadata ? MasteryEngine.getStatus(mod) : null;
+        completeBtn.textContent = mastery
+            ? `${MasteryEngine.STATE_LABELS[mastery.state]} · Check my progress`
+            : status.completed ? '✓ Activity complete' : 'Mark activity complete';
+        completeBtn.style.background = mastery && MasteryEngine.STATE_RANK[mastery.state] >= MasteryEngine.STATE_RANK.practiced
+            ? 'var(--success)' : '';
+        MasteryEngine.renderModulePanel(mod);
 
         this.switchTab('learn');
         window.location.hash = moduleId;
@@ -514,6 +549,24 @@ const app = {
 
     completeModule() {
         if (!this.currentModule) return;
+        const metadata = MasteryEngine.getMetadata(this.currentModule.id);
+        if (metadata) {
+            ProgressManager.markContentReviewed(this.currentModule.id);
+            const mastery = MasteryEngine.getStatus(this.currentModule);
+            const nextTab = mastery.missing.includes('quiz') ? 'quiz' : mastery.missing.includes('lab') ? 'lab' : 'learn';
+            const message = mastery.missing.length
+                ? `Next evidence: ${mastery.missing.join(', ')}`
+                : `${MasteryEngine.STATE_LABELS[mastery.state]} mastery recorded`;
+            this.switchTab(nextTab);
+            this.showToast(message, mastery.missing.length ? 'warning' : 'success');
+            MasteryEngine.renderModulePanel(this.currentModule);
+            this.buildNavigation();
+            this.updateProgress();
+            document.querySelectorAll('#sidebar li.nav-module').forEach(li => {
+                li.classList.toggle('active', li.dataset.module === this.currentModule.id);
+            });
+            return;
+        }
         const status = ProgressManager.getModuleStatus(this.currentModule.id);
         if (status.completed) {
             ProgressManager.uncompleteModule(this.currentModule.id);
@@ -545,16 +598,18 @@ const app = {
 
     updateProgress() {
         const stats = ProgressManager.getStats();
-        const totalModules = MODULES.length;
-        const overallPct = Math.round((stats.modulesCompleted / totalModules) * 100);
+        const realModules = MasteryEngine.getRealModules(MODULES, ACADEMY_MASTERY);
+        const practicedModules = realModules.filter(module =>
+            MasteryEngine.STATE_RANK[MasteryEngine.getStatus(module).state] >= MasteryEngine.STATE_RANK.practiced);
+        const overallPct = Math.round((practicedModules.length / realModules.length) * 100);
 
         document.getElementById('overallProgress').style.width = `${overallPct}%`;
         document.getElementById('overallProgressText').textContent = `${overallPct}% Complete`;
 
         [100, 200, 300, 400].forEach(level => {
-            const levelModules = MODULES.filter(m => m.level === level);
-            const p = ProgressManager.getProgress();
-            const completed = levelModules.filter(m => p.completedModules.includes(m.id)).length;
+            const levelModules = realModules.filter(m => m.level === level);
+            const completed = levelModules.filter(module =>
+                MasteryEngine.STATE_RANK[MasteryEngine.getStatus(module).state] >= MasteryEngine.STATE_RANK.practiced).length;
             const pct = Math.round((completed / levelModules.length) * 100);
             const bar = document.getElementById(`l${level}Progress`);
             const text = document.getElementById(`l${level}ProgressText`);
@@ -566,10 +621,11 @@ const app = {
         const statQuizzes = document.getElementById('statQuizzes');
         const statLabs = document.getElementById('statLabs');
         const statStreak = document.getElementById('statStreak');
-        if (statModules) statModules.textContent = stats.modulesCompleted;
+        if (statModules) statModules.textContent = practicedModules.length;
         if (statQuizzes) statQuizzes.textContent = stats.quizzesPassed;
         if (statLabs) statLabs.textContent = stats.labsCompleted;
         if (statStreak) statStreak.textContent = stats.streak;
+        MasteryEngine.renderDashboard(MODULES);
     },
 
     showToast(message, type = '') {

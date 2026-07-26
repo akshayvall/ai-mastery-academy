@@ -18,6 +18,7 @@ const QuizEngine = {
 
     render() {
         const container = document.getElementById('tab-quiz');
+        this.bindEvents(container);
         if (!this.questions || this.questions.length === 0) {
             container.innerHTML = '<p>No quiz available for this module yet.</p>';
             return;
@@ -36,13 +37,12 @@ const QuizEngine = {
                     <h3>${this.currentQuestion + 1}. ${this.escapeHtml(q.question)}</h3>
                     <div class="quiz-options">
                         ${q.options.map((opt, i) => `
-                            <div class="quiz-option ${this.getOptionClass(i)}"
-                                 onclick="QuizEngine.selectOption(${i})" data-index="${i}">
-                                <input type="radio" name="q${this.currentQuestion}"
+                            <label class="quiz-option ${this.getOptionClass(i)}" data-index="${i}">
+                                    <input type="radio" name="q${this.currentQuestion}" data-option-index="${i}"
                                        ${this.answers[this.currentQuestion] === i ? 'checked' : ''}
                                        ${this.isAnswered() ? 'disabled' : ''}>
                                 <span>${this.escapeHtml(opt)}</span>
-                            </div>
+                            </label>
                         `).join('')}
                     </div>
                     <div class="quiz-explanation ${this.isAnswered() ? 'show' : ''}" id="quizExplanation">
@@ -50,25 +50,58 @@ const QuizEngine = {
                     </div>
                 </div>
                 <div class="quiz-actions">
-                    <button class="btn-secondary" onclick="QuizEngine.prevQuestion()"
+                    <button type="button" class="btn-secondary" data-quiz-action="previous-question"
                             ${this.currentQuestion === 0 ? 'disabled style="opacity:0.3"' : ''}>← Previous</button>
                     ${!this.isAnswered() ?
-                        `<button class="btn-primary" onclick="QuizEngine.submitAnswer()" id="submitBtn"
+                        `<button type="button" class="btn-primary" data-quiz-action="submit-answer" id="submitBtn"
                                  ${this.answers[this.currentQuestion] === null ? 'disabled style="opacity:0.5"' : ''}>Check Answer</button>` : ''}
                     ${this.currentQuestion < totalQ - 1 ?
-                        `<button class="btn-primary" onclick="QuizEngine.nextQuestion()">Next Question →</button>` :
-                        `<button class="btn-primary" onclick="QuizEngine.showResults()" style="background:var(--success)">See Results</button>`}
+                        `<button type="button" class="btn-primary" data-quiz-action="next-question">Next Question →</button>` :
+                        `<button type="button" class="btn-primary" data-quiz-action="show-results" style="background:var(--success)">See Results</button>`}
                 </div>
                 <div style="display:flex;gap:6px;margin-top:20px;flex-wrap:wrap;">
                     ${this.questions.map((_, i) => `
-                        <div onclick="QuizEngine.goToQuestion(${i})"
-                             style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:pointer;
+                                                <button type="button" class="quiz-question-jump" aria-label="Go to question ${i + 1}" data-quiz-action="go-to-question" data-question-index="${i}"
+                                                         style="width:32px;height:32px;border:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:pointer;
                              ${i === this.currentQuestion ? 'background:var(--ai-purple);color:#fff;' :
                                this.answers[i] !== null ? (this.answers[i] === this.questions[i].correct ? 'background:var(--success);color:#fff;' : 'background:var(--error);color:#fff;') :
-                               'background:#eee;color:#666;'}">${i + 1}</div>
+                                                             'background:#eee;color:#666;'}">${i + 1}</button>
                     `).join('')}
                 </div>
             </div>`;
+    },
+
+    bindEvents(container) {
+        if (!container || container.dataset.quizEventsBound === 'true') return;
+        container.dataset.quizEventsBound = 'true';
+
+        container.addEventListener('click', event => {
+            const input = event.target.closest('[data-option-index]');
+            if (input) {
+                this.selectOption(Number(input.dataset.optionIndex));
+                return;
+            }
+
+            const control = event.target.closest('[data-quiz-action]');
+            if (!control) return;
+            const actions = {
+                'previous-question': () => this.prevQuestion(),
+                'submit-answer': () => this.submitAnswer(),
+                'next-question': () => this.nextQuestion(),
+                'show-results': () => this.showResults(),
+                'go-to-question': () => this.goToQuestion(Number(control.dataset.questionIndex)),
+                'retake-quiz': () => this.init(this.currentQuiz, this.questions),
+                'review-material': () => app.switchTab('learn')
+            };
+            actions[control.dataset.quizAction]?.();
+        });
+
+        container.addEventListener('keydown', event => {
+            const input = event.target.closest('[data-option-index]');
+            if (!input || event.key !== 'Enter') return;
+            event.preventDefault();
+            this.selectOption(Number(input.dataset.optionIndex));
+        });
     },
 
     selectOption(index) { if (this.isAnswered()) return; this.answers[this.currentQuestion] = index; this.render(); },
@@ -90,27 +123,44 @@ const QuizEngine = {
                 <p style="margin-top:8px">${q.explanation}</p>`;
     },
 
+    calculateResult() {
+        const total = this.questions.length;
+        const correct = this.questions.reduce((count, question, index) =>
+            count + (this.answers[index] === question.correct ? 1 : 0), 0);
+        const pct = Math.round((correct / total) * 100);
+        const taggedCritical = this.questions
+            .map((question, index) => question.critical === true ? index : -1)
+            .filter(index => index >= 0);
+        const criticalIndexes = taggedCritical.length ? taggedCritical : [0];
+        const criticalMisses = criticalIndexes.filter(index =>
+            this.answers[index] !== this.questions[index].correct).length;
+        return { total, correct, pct, criticalMisses, passed: pct >= 80 && criticalMisses === 0 };
+    },
+
     prevQuestion() { if (this.currentQuestion > 0) { this.currentQuestion--; this.render(); } },
     nextQuestion() { if (this.currentQuestion < this.questions.length - 1) { this.currentQuestion++; this.render(); } },
     goToQuestion(index) { this.currentQuestion = index; this.render(); },
 
     showResults() {
         const container = document.getElementById('tab-quiz');
-        const total = this.questions.length;
-        const correct = this.questions.reduce((count, q, i) => count + (this.answers[i] === q.correct ? 1 : 0), 0);
-        const pct = Math.round((correct / total) * 100);
-        const passed = pct >= 70;
-        ProgressManager.saveQuizScore(this.currentQuiz, correct, total);
+        const { total, correct, pct, criticalMisses, passed } = this.calculateResult();
+        const reviewWasDue = ProgressManager.isReviewDue(this.currentQuiz);
+        ProgressManager.saveQuizScore(this.currentQuiz, correct, total, criticalMisses);
+        if (passed && reviewWasDue) ProgressManager.recordReview(this.currentQuiz, true);
 
         container.innerHTML = `
             <div class="quiz-results fade-in">
                 <h2>${passed ? '🎉 Quiz Passed!' : '📝 Keep Studying'}</h2>
                 <div class="score-display ${passed ? 'passed' : 'failed'}">${pct}%</div>
                 <p>${correct} out of ${total} correct</p>
-                <p style="color:var(--text-secondary);margin:12px 0">${passed ? 'Great job! You\'ve demonstrated solid understanding of this topic.' : 'You need 70% to pass. Review the material and try again.'}</p>
+                <p style="color:var(--text-secondary);margin:12px 0">${passed
+                    ? 'You passed the 80% threshold and the critical concept check.'
+                    : criticalMisses > 0
+                        ? 'Review the first critical concept and try again. Critical questions must be correct.'
+                        : 'You need 80% to pass. Review the material and try again.'}</p>
                 <div style="display:flex;gap:12px;justify-content:center;margin-top:20px">
-                    <button class="btn-secondary" onclick="QuizEngine.init('${this.currentQuiz}', QuizEngine.questions)">↺ Retake Quiz</button>
-                    <button class="btn-primary" onclick="app.switchTab('learn')">📖 Review Material</button>
+                    <button class="btn-secondary" data-quiz-action="retake-quiz">↺ Retake Quiz</button>
+                    <button class="btn-primary" data-quiz-action="review-material">📖 Review Material</button>
                 </div>
                 <div style="margin-top:32px;text-align:left">
                     <h3 style="margin-bottom:16px">Question Review:</h3>
@@ -123,6 +173,10 @@ const QuizEngine = {
                 </div>
             </div>`;
         app.updateProgress();
+        if (app.currentModule && typeof MasteryEngine !== 'undefined') {
+            MasteryEngine.renderModulePanel(app.currentModule);
+            MasteryEngine.renderDashboard(MODULES);
+        }
     },
 
     escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }

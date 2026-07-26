@@ -15,6 +15,25 @@ const DiagramEngine = {
 
     activeAnimations: [],
 
+    escapeHtml(value) {
+        const characters = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return String(value ?? '').replace(/[&<>"']/g, character => characters[character]);
+    },
+
+    domId(prefix, value, index = '') {
+        const safeValue = Array.from(String(value ?? 'diagram'))
+            .map(character => /[A-Za-z0-9_-]/.test(character) ? character : `-${character.codePointAt(0).toString(16)}-`)
+            .join('');
+        const suffix = index === '' ? '' : `-${index}`;
+        return `${prefix}-${safeValue || 'diagram'}${suffix}`;
+    },
+
     // ── Standard arrowhead markers ──
     arrowDefs(colors) {
         return colors.map(c => {
@@ -31,9 +50,9 @@ const DiagramEngine = {
             container.innerHTML = '<p class="no-content">No visual diagrams for this module yet.</p>';
             return;
         }
-        container.innerHTML = `<div class="diagrams-wrapper">${diagrams.map(d => this.renderDiagram(d)).join('')}</div>`;
+        container.innerHTML = `<div class="diagrams-wrapper">${diagrams.map((d, index) => this.renderDiagram(d, index)).join('')}</div>`;
         // Synchronous init — rAF is throttled indefinitely in hidden/background tabs
-        diagrams.forEach(d => this.initDiagram(d));
+        diagrams.forEach((d, index) => this.initDiagram(d, index));
     },
 
     cleanup() {
@@ -41,39 +60,81 @@ const DiagramEngine = {
         this.activeAnimations = [];
     },
 
-    renderDiagram(diagram) {
+    renderDiagram(diagram, index) {
+        const id = String(diagram.id);
+        const title = String(diagram.title || 'Diagram');
+        const wrapperId = this.domId('diagram', id, index);
+        const headingId = this.domId('diagram-heading', id, index);
+        const canvasId = this.domId('canvas', id);
+        const textEquivalentId = this.domId('diagram-text', id, index);
+        const stepInfoId = this.domId('stepinfo', id);
+        const stepCountId = this.domId('stepcnt', id);
+        const stepTextId = this.domId('steptxt', id);
+        const description = String(diagram.description || `Visual explanation of ${title}.`);
+        const steps = Array.isArray(diagram.steps) ? diagram.steps : [];
         return `
-        <div class="visual-diagram" id="diagram-${diagram.id}">
+        <div class="visual-diagram" id="${wrapperId}" data-diagram-id="${this.escapeHtml(id)}">
             <div class="diagram-title-bar">
-                <h3>${diagram.title}</h3>
+                <h3 id="${headingId}">${this.escapeHtml(title)}</h3>
                 <div class="diagram-controls">
-                    ${diagram.steps ? `<button class="diag-btn diag-btn-step" onclick="DiagramEngine.stepThrough('${diagram.id}')">▶ Step</button>` : ''}
-                    <button class="diag-btn diag-btn-play" onclick="DiagramEngine.play('${diagram.id}')">▶ Play</button>
-                    <button class="diag-btn diag-btn-reset" onclick="DiagramEngine.reset('${diagram.id}')">↺ Reset</button>
+                    ${steps.length > 0 ? `<button type="button" class="diag-btn diag-btn-step" data-diagram-action="step" aria-label="Show the next step for ${this.escapeHtml(title)}">▶ Step</button>` : ''}
+                    <button type="button" class="diag-btn diag-btn-play" data-diagram-action="play" aria-label="Play the animation for ${this.escapeHtml(title)}">▶ Play</button>
+                    <button type="button" class="diag-btn diag-btn-reset" data-diagram-action="reset" aria-label="Reset ${this.escapeHtml(title)}">↺ Reset</button>
                 </div>
             </div>
-            ${diagram.description ? `<p class="diagram-description">${diagram.description}</p>` : ''}
-            <div class="diagram-canvas" id="canvas-${diagram.id}"></div>
-            ${diagram.steps ? `
-            <div class="diagram-step-info" id="stepinfo-${diagram.id}">
-                <div class="step-counter">Step <span id="stepcnt-${diagram.id}">0</span> / ${diagram.steps.length}</div>
-                <div class="step-text" id="steptxt-${diagram.id}">Click "Step" to begin</div>
+            ${diagram.description ? `<p class="diagram-description">${this.escapeHtml(description)}</p>` : ''}
+            <div class="diagram-text-equivalent sr-only" id="${textEquivalentId}">
+                <p>${this.escapeHtml(description)}</p>
+                ${steps.length > 0 ? `<ol>${steps.map(step => `<li>${this.escapeHtml(step)}</li>`).join('')}</ol>` : ''}
+            </div>
+            <div class="diagram-canvas" id="${canvasId}" aria-describedby="${textEquivalentId}"></div>
+            ${steps.length > 0 ? `
+            <div class="diagram-step-info" id="${stepInfoId}" role="status" aria-live="polite" aria-atomic="true">
+                <div class="step-counter">Step <span id="${stepCountId}">0</span> / ${steps.length}</div>
+                <div class="step-text" id="${stepTextId}">Select Step to begin</div>
             </div>` : ''}
-            ${diagram.legend ? `<div class="diagram-legend">${diagram.legend.map(l => `<span class="legend-item"><span class="legend-dot" style="background:${l.color}"></span>${l.label}</span>`).join('')}</div>` : ''}
+            ${diagram.legend ? `<div class="diagram-legend">${diagram.legend.map(l => `<span class="legend-item"><span class="legend-dot" style="background:${this.escapeHtml(l.color)}"></span>${this.escapeHtml(l.label)}</span>`).join('')}</div>` : ''}
         </div>`;
     },
 
-    initDiagram(diagram) {
-        const canvas = document.getElementById(`canvas-${diagram.id}`);
+    initDiagram(diagram, index) {
+        const id = String(diagram.id);
+        const canvas = document.getElementById(this.domId('canvas', id));
         if (!canvas) return;
         canvas.dataset.step = '0';
         canvas.dataset.playing = 'false';
         const builder = this.builders[diagram.type] || this.builders._fallback;
         canvas.innerHTML = builder.call(this, diagram);
+
+        const svg = canvas.querySelector('svg');
+        if (svg) {
+            const namespace = 'http://www.w3.org/2000/svg';
+            const titleId = this.domId('svg-title', id, index);
+            const descriptionId = this.domId('svg-desc', id, index);
+            const title = document.createElementNS(namespace, 'title');
+            const description = document.createElementNS(namespace, 'desc');
+            title.id = titleId;
+            title.textContent = String(diagram.title || 'Diagram');
+            description.id = descriptionId;
+            description.textContent = [
+                diagram.description || `Visual explanation of ${diagram.title || 'this concept'}.`,
+                ...(Array.isArray(diagram.steps) ? diagram.steps.map((step, stepIndex) => `Step ${stepIndex + 1}: ${step}`) : [])
+            ].join(' ');
+            svg.insertBefore(description, svg.firstChild);
+            svg.insertBefore(title, description);
+            svg.setAttribute('role', 'img');
+            svg.setAttribute('aria-labelledby', `${titleId} ${descriptionId}`);
+            svg.setAttribute('focusable', 'false');
+        }
+
+        const wrapper = canvas.closest('.visual-diagram');
+        wrapper?.querySelector('[data-diagram-action="step"]')?.addEventListener('click', () => this.stepThrough(id));
+        wrapper?.querySelector('[data-diagram-action="play"]')?.addEventListener('click', () => this.play(id));
+        wrapper?.querySelector('[data-diagram-action="reset"]')?.addEventListener('click', () => this.reset(id));
     },
 
     play(diagramId) {
-        const canvas = document.getElementById(`canvas-${diagramId}`);
+        const canvas = document.getElementById(this.domId('canvas', diagramId));
         if (!canvas) return;
         canvas.dataset.playing = 'true';
         canvas.classList.add('animating');
@@ -82,7 +143,7 @@ const DiagramEngine = {
     },
 
     reset(diagramId) {
-        const canvas = document.getElementById(`canvas-${diagramId}`);
+        const canvas = document.getElementById(this.domId('canvas', diagramId));
         if (!canvas) return;
         canvas.dataset.step = '0';
         canvas.dataset.playing = 'false';
@@ -92,20 +153,20 @@ const DiagramEngine = {
             svg.classList.remove('animate-all');
             svg.querySelectorAll('.step-highlight').forEach(el => el.classList.remove('active'));
         }
-        const stepTxt = document.getElementById(`steptxt-${diagramId}`);
-        const stepCnt = document.getElementById(`stepcnt-${diagramId}`);
-        if (stepTxt) stepTxt.textContent = 'Click "Step" to begin';
+        const stepTxt = document.getElementById(this.domId('steptxt', diagramId));
+        const stepCnt = document.getElementById(this.domId('stepcnt', diagramId));
+        if (stepTxt) stepTxt.textContent = 'Select Step to begin';
         if (stepCnt) stepCnt.textContent = '0';
     },
 
     stepThrough(diagramId) {
-        const canvas = document.getElementById(`canvas-${diagramId}`);
+        const canvas = document.getElementById(this.domId('canvas', diagramId));
         if (!canvas) return;
         const allMods = (typeof MODULES !== 'undefined') ? MODULES : [];
         let diagram = null;
         for (const m of allMods) {
             if (m.diagrams) {
-                const d = m.diagrams.find(x => x.id === diagramId);
+                const d = m.diagrams.find(x => String(x.id) === String(diagramId));
                 if (d) { diagram = d; break; }
             }
         }
@@ -122,10 +183,10 @@ const DiagramEngine = {
                 svg.querySelectorAll(`[data-step="${step}"]`).forEach(el => el.classList.add('active'));
             }
         }
-        const stepTxt = document.getElementById(`steptxt-${diagramId}`);
-        const stepCnt = document.getElementById(`stepcnt-${diagramId}`);
+        const stepTxt = document.getElementById(this.domId('steptxt', diagramId));
+        const stepCnt = document.getElementById(this.domId('stepcnt', diagramId));
         if (stepCnt) stepCnt.textContent = step;
-        if (stepTxt) stepTxt.textContent = step === 0 ? 'Click "Step" to begin' : diagram.steps[step - 1];
+        if (stepTxt) stepTxt.textContent = step === 0 ? 'Select Step to begin' : diagram.steps[step - 1];
     },
 
     // ──────────────────────────────────────────────
