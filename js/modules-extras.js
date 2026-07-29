@@ -224,7 +224,7 @@ const MODULES_EXTRAS = [
             description: 'JSON-RPC over a transport. Servers expose three surfaces (tools, resources, prompts) and any compatible client can use any server.',
             steps: [
                 'Client side: an LLM agent runs inside a host app and uses the MCP runtime to discover and call servers.',
-                'Transport: JSON-RPC messages travel over stdio, HTTP, or WebSocket.',
+                'Transport: JSON-RPC messages use the standard stdio or Streamable HTTP transport; custom transports require explicit interoperability design.',
                 'Server side: exposes tools (callable functions), resources (readable data), and prompts (reusable templates).'
             ]
         }

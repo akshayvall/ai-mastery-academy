@@ -23,7 +23,7 @@ const MODULES_300 = [
             description: 'Model Context Protocol is JSON-RPC over a transport. Servers expose three surfaces (tools, resources, prompts) and any compatible client can use any server.',
             steps: [
                 'Client side: an LLM agent runs inside a host app and uses the MCP runtime to discover and call servers.',
-                'Transport: JSON-RPC messages travel over stdio, HTTP, or WebSocket.',
+                'Transport: JSON-RPC messages use the standard stdio or Streamable HTTP transport; custom transports require explicit interoperability design.',
                 'Server side: exposes tools (callable functions), resources (readable data), and prompts (reusable templates).'
             ]
         }
@@ -31,7 +31,7 @@ const MODULES_300 = [
     learn: `
 <div class="learn-section">
     <h2>MCP — USB Standard for AI Tools</h2>
-    <p>Build a tool once → works with Claude, VS Code, Cursor, any MCP client. 200+ servers available.</p>
+    <p>Build a capability behind the protocol once, then connect it to compatible hosts through a dedicated MCP client. The server ecosystem is growing, but compatibility, permissions, and supported protocol versions still need validation.</p>
     <table class="content-table">
         <tr><th>Component</th><th>Role</th><th>Examples</th></tr>
         <tr><td><strong>Client</strong></td><td>AI requesting tools</td><td>Claude Desktop, VS Code, Claude Code</td></tr>
@@ -146,6 +146,21 @@ server.tool("get_status", "Get project status. Use when user asks about progress
     subtitle: 'FastAPI agent endpoint, rate limiting, cost tracking, Docker, Azure deployment',
     icon: '🚀',
     estimatedTime: '90m',
+    diagrams: [
+        {
+            id: 'fullstack-deploy-diagram',
+            type: 'fullstack-deploy',
+            title: 'Full-Stack AI — Runtime and Release Boundaries',
+            description: 'A production AI feature spans a client, authenticated API, bounded AI runtime, stateful infrastructure, and a release pipeline. Each boundary needs its own reliability and security controls.',
+            steps: [
+                'Frontend collects input and renders streamed or completed responses without exposing secrets.',
+                'Backend authenticates, validates, rate-limits, and records request-level telemetry.',
+                'AI layer applies model routing, retrieval, tool permissions, budgets, and evaluation gates.',
+                'Infrastructure stores state, secrets, traces, and caches behind least-privilege access.',
+                'CI/CD builds an immutable version, tests it, deploys gradually, monitors, and can roll back.'
+            ]
+        }
+    ],
     learn: `
 <div class="learn-section">
     <h2>From Script → Deployed System</h2>
@@ -475,12 +490,12 @@ server.tool("get_status", "Get project status. Use when user asks about progress
             title: 'Document Q&A Assistant — Full Architecture',
             description: 'End-to-end flow: user uploads docs, asks questions, receives LLM answers grounded in their own data via RAG.',
             steps: [
-                'Frontend: user uploads documents and types questions in a chat interface.',
-                'Backend API (FastAPI): receives requests, orchestrates the pipeline, returns structured responses.',
-                'Ingestion Pipeline: extracts text → chunks → embeds → stores in vector DB.',
-                'RAG Query Pipeline: embeds question → retrieves top-k chunks → augments prompt → generates answer.',
-                'LLM (Claude / GPT): generates the grounded answer with citations from retrieved chunks.',
-                'Vector DB (ChromaDB): stores and retrieves document embeddings for semantic search.'
+                'Frontend: user uploads documents and asks questions through a clear chat interface.',
+                'Backend API: authenticates, validates, orchestrates the workflow, and returns structured responses.',
+                'Ingestion pipeline: extracts text, chunks it, creates embeddings, and preserves source metadata.',
+                'Vector store: persists embeddings and metadata for filtered semantic retrieval.',
+                'RAG query pipeline: embeds the question, retrieves evidence, and assembles a grounded prompt.',
+                'LLM response: answers from retrieved evidence and returns inspectable citations.'
             ]
         },
         {
@@ -489,13 +504,13 @@ server.tool("get_status", "Get project status. Use when user asks about progress
             title: 'How every Academy phase maps to this capstone',
             description: 'This project is not new material — it is the integration test for everything you have learned.',
             steps: [
-                'Phase 0 (LLM Basics): you call an LLM API and handle structured responses.',
-                'Phase 4 (RAG): you build a full retrieval-augmented generation pipeline from scratch.',
-                'Phase 5 (Prompt Engineering): you design system prompts, few-shot examples, and temperature tuning.',
-                'Phase 6 (Agents): the query pipeline is an agent loop — retrieve, reason, respond.',
-                'Phase 8 (MCP): stretch goal — expose your Q&A as an MCP server for Claude Code.',
-                'Phase 10 (Deployment): Docker, environment variables, health checks, production deploy.',
-                'Phase 11 (Security): input validation, prompt injection defense, rate limiting, key rotation.'
+                'Phases 0–1: apply model fundamentals, testable instructions, and structured output contracts.',
+                'Phase 3: call provider SDKs safely with schemas, errors, secrets, and retry boundaries.',
+                'Phase 4: build and evaluate ingestion, retrieval, grounding, and citation behavior.',
+                'Phases 5–6: use validated tools and bounded orchestration only where the workflow needs them.',
+                'Phase 9: optionally expose the Q&A capability through a permissioned MCP server.',
+                'Phase 10: package, observe, deploy gradually, and prove rollback.',
+                'Phases 11–12: review tenant safety, unit economics, reliability, and architecture tradeoffs.'
             ]
         }
     ],

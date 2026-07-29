@@ -55,6 +55,40 @@ const DiagramEngine = {
         diagrams.forEach((d, index) => this.initDiagram(d, index));
     },
 
+    renderPreview(diagram, container) {
+        if (!diagram || !container) return;
+        const id = String(diagram.id);
+        const title = String(diagram.title || 'Core visual');
+        const description = String(diagram.description || `Visual explanation of ${title}.`);
+        const headingId = this.domId('preview-heading', id);
+        const textId = this.domId('preview-text', id);
+        container.innerHTML = `
+            <div class="inline-visual-heading">
+                <p class="mastery-eyebrow">Core visual</p>
+                <h2 id="${headingId}">${this.escapeHtml(title)}</h2>
+                <p>${this.escapeHtml(description)}</p>
+            </div>
+            <div id="${textId}" class="sr-only">${this.escapeHtml(description)} ${Array.isArray(diagram.steps) ? diagram.steps.map((step, index) => `Step ${index + 1}: ${this.escapeHtml(step)}.`).join(' ') : ''}</div>
+            <div class="diagram-canvas inline-diagram-canvas" tabindex="0" aria-label="Core visual: ${this.escapeHtml(title)}" aria-describedby="${textId}"></div>
+            <button type="button" class="btn-secondary" data-app-action="switch-tab" data-tab="diagrams">Open the complete visual walkthrough</button>`;
+        const canvas = container.querySelector('.inline-diagram-canvas');
+        const builder = this.builders[diagram.type] || this.builders._fallback;
+        canvas.innerHTML = builder.call(this, diagram);
+        const svg = canvas.querySelector('svg');
+        if (!svg) return;
+        const namespace = 'http://www.w3.org/2000/svg';
+        const svgTitle = document.createElementNS(namespace, 'title');
+        const svgDescription = document.createElementNS(namespace, 'desc');
+        svgTitle.id = this.domId('preview-svg-title', id);
+        svgDescription.id = this.domId('preview-svg-desc', id);
+        svgTitle.textContent = title;
+        svgDescription.textContent = description;
+        svg.insertBefore(svgDescription, svg.firstChild);
+        svg.insertBefore(svgTitle, svgDescription);
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-labelledby', `${svgTitle.id} ${svgDescription.id}`);
+    },
+
     cleanup() {
         this.activeAnimations.forEach(id => cancelAnimationFrame(id));
         this.activeAnimations = [];
@@ -87,7 +121,7 @@ const DiagramEngine = {
                 <p>${this.escapeHtml(description)}</p>
                 ${steps.length > 0 ? `<ol>${steps.map(step => `<li>${this.escapeHtml(step)}</li>`).join('')}</ol>` : ''}
             </div>
-            <div class="diagram-canvas" id="${canvasId}" aria-describedby="${textEquivalentId}"></div>
+            <div class="diagram-canvas" id="${canvasId}" tabindex="0" aria-label="Scrollable diagram: ${this.escapeHtml(title)}" aria-describedby="${textEquivalentId}"></div>
             ${steps.length > 0 ? `
             <div class="diagram-step-info" id="${stepInfoId}" role="status" aria-live="polite" aria-atomic="true">
                 <div class="step-counter">Step <span id="${stepCountId}">0</span> / ${steps.length}</div>
@@ -229,6 +263,24 @@ const DiagramEngine = {
         return `M ${x1} ${ac.y} L ${bc.x} ${ac.y} L ${bc.x} ${y2}`;
     },
 
+    bCompletionSteps(diagram, configuredSteps, viewBox) {
+        const steps = Array.isArray(diagram.steps) ? diagram.steps : [];
+        if (steps.length <= configuredSteps) return '';
+        const values = String(viewBox).split(/\s+/).map(Number);
+        const width = values[2] || 860;
+        const height = values[3] || 420;
+        return steps.slice(configuredSteps).map((step, index) => {
+            const stepNumber = configuredSteps + index + 1;
+            const y = height - 42 - index * 34;
+            const text = String(step);
+            const concise = text.length > 92 ? `${text.slice(0, 89)}...` : text;
+            return `<g data-step="${stepNumber}" class="step-highlight">
+                <rect x="20" y="${y}" width="${width - 40}" height="30" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+                <text x="${width / 2}" y="${y + 19}" text-anchor="middle" fill="#047857" font-size="11" font-weight="700">${this.escapeHtml(concise)}</text>
+            </g>`;
+        }).join('');
+    },
+
     // ──────────────────────────────────────────────
     // BUILDERS — one per diagram type
     // ──────────────────────────────────────────────
@@ -251,8 +303,10 @@ const DiagramEngine = {
             }).join('');
             const nodeSvg = nodes.map(n =>
                 `<g ${n.step ? `data-step="${n.step}" class="step-highlight"` : ''}>${this.bNode(n, this.BC.purple)}</g>`).join('');
+            const configuredSteps = Math.max(0, ...nodes.map(node => node.step || 0), ...edges.map(edge => edge.step || 0));
+            const completionSteps = this.bCompletionSteps(d, configuredSteps, viewBox);
             return `<svg viewBox="${viewBox}" preserveAspectRatio="xMidYMid meet">
-                <defs>${colors.map(c => this.bArrow(c)).join('')}</defs>${edgeSvg}${nodeSvg}</svg>`;
+                <defs>${colors.map(c => this.bArrow(c)).join('')}</defs>${edgeSvg}${nodeSvg}${completionSteps}</svg>`;
         },
 
         'b-layers'(d) {
@@ -293,7 +347,9 @@ const DiagramEngine = {
             const legend = series ? `
                 <rect x="${x0}" y="30" width="14" height="14" rx="3" fill="${this.BC.purple}"/><text x="${x0 + 20}" y="42" fill="${this.BC.sub}" font-size="12">${series[0]}</text>
                 <rect x="${x0 + 130}" y="30" width="14" height="14" rx="3" fill="${this.BC.blue}"/><text x="${x0 + 150}" y="42" fill="${this.BC.sub}" font-size="12">${series[1]}</text>` : '';
-            return `<svg viewBox="${viewBox}" preserveAspectRatio="xMidYMid meet">${legend}${rows}</svg>`;
+            const configuredSteps = Math.max(0, ...bars.map(bar => bar.step || 0));
+            const completionSteps = this.bCompletionSteps(d, configuredSteps, viewBox);
+            return `<svg viewBox="${viewBox}" preserveAspectRatio="xMidYMid meet">${legend}${rows}${completionSteps}</svg>`;
         },
 
         'b-curves'(d) {
@@ -410,7 +466,7 @@ const DiagramEngine = {
                 <text x="400" y="170" text-anchor="middle" fill="#6b7280" font-size="13" font-style="italic">↓ tokeniser splits into sub-word tokens ↓</text>
                 ${tokenGroups}
                 <text x="400" y="290" text-anchor="middle" fill="#4c1d95" font-size="14">Each token is converted to a numeric ID. The model sees only IDs.</text>
-                <text x="400" y="320" text-anchor="middle" fill="#6b7280" font-size="12">≈ 4 chars per token (English) · 100K-token vocab is typical</text>
+                <text x="400" y="320" text-anchor="middle" fill="#6b7280" font-size="12">Token counts vary by model and tokenizer · verify important inputs with provider tooling</text>
             </svg>`;
         },
 
@@ -422,7 +478,7 @@ const DiagramEngine = {
                 { tok: 'ran',     p: 0.12 },
                 { tok: 'slept',   p: 0.08 },
                 { tok: 'walked',  p: 0.05 },
-                { tok: '… (50K others)', p: 0.15 }
+                { tok: '… other tokens', p: 0.15 }
             ];
             const barX = 320, barY0 = 110, barH = 30, gap = 12, barMax = 360;
             const bars = candidates.map((c, i) => {
@@ -467,13 +523,12 @@ const DiagramEngine = {
             }).join('');
 
             // Vector DB cluster
-            const dots = [];
-            for (let i = 0; i < 14; i++) {
-                const cx = 400 + (Math.random() - 0.5) * 180;
-                const cy = 70 + Math.random() * 40;
-                const r = 4 + Math.random() * 3;
-                dots.push(`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#a78bfa" opacity="0.6"/>`);
-            }
+            const dots = Array.from({ length: 14 }, (_, index) => {
+                const cx = 315 + (index * 37) % 170;
+                const cy = 58 + (index * 23) % 48;
+                const r = 4 + index % 3;
+                return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#a78bfa" opacity="0.6"/>`;
+            });
 
             return `<svg viewBox="0 0 800 380" preserveAspectRatio="xMidYMid meet">
                 <defs>${this.arrowDefs(['#7c3aed'])}</defs>
@@ -515,11 +570,13 @@ const DiagramEngine = {
             return `<svg viewBox="0 0 800 420" preserveAspectRatio="xMidYMid meet">
                 <defs>${this.arrowDefs(['#7c3aed'])}</defs>
                 <text x="400" y="40" text-anchor="middle" fill="#4c1d95" font-size="20" font-weight="700">ReAct: Reason + Act loop</text>
-                ${arcs}
                 ${boxes}
-                <circle cx="${cx}" cy="${cy}" r="32" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
-                <text x="${cx}" y="${cy + 4}" text-anchor="middle" fill="#4c1d95" font-size="11" font-weight="700">repeat until</text>
-                <text x="${cx}" y="${cy + 18}" text-anchor="middle" fill="#4c1d95" font-size="11" font-weight="700">done</text>
+                <g data-step="4" class="step-highlight">
+                    ${arcs}
+                    <circle cx="${cx}" cy="${cy}" r="32" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+                    <text x="${cx}" y="${cy + 4}" text-anchor="middle" fill="#4c1d95" font-size="11" font-weight="700">repeat until</text>
+                    <text x="${cx}" y="${cy + 18}" text-anchor="middle" fill="#4c1d95" font-size="11" font-weight="700">done</text>
+                </g>
                 <text x="400" y="380" text-anchor="middle" fill="#4b5563" font-size="13">Each cycle the model decides: keep going, call another tool, or finish.</text>
             </svg>`;
         },
@@ -581,7 +638,7 @@ const DiagramEngine = {
                     <line x1="280" y1="200" x2="520" y2="200" stroke="#7c3aed" stroke-width="2" marker-end="url(#ah-7c3aed)" stroke-dasharray="6" class="anim-line"/>
                     <line x1="520" y1="220" x2="280" y2="220" stroke="#0ea5e9" stroke-width="2" marker-end="url(#ah-0ea5e9)" stroke-dasharray="6" class="anim-line"/>
                     <text x="400" y="186" text-anchor="middle" fill="#4c1d95" font-size="12" font-weight="600">JSON-RPC</text>
-                    <text x="400" y="246" text-anchor="middle" fill="#6b7280" font-size="11">stdio · HTTP · WebSocket</text>
+                    <text x="400" y="246" text-anchor="middle" fill="#6b7280" font-size="11">stdio · Streamable HTTP</text>
                 </g>
 
                 <!-- Server -->
@@ -636,9 +693,9 @@ const DiagramEngine = {
         // 9. Embedding space — 2D scatter with clusters
         'embedding-space'(d) {
             const clusters = [
-                { color: '#7c3aed', label: 'Animals',     points: [[160, 110], [180, 140], [140, 150], [170, 170], [200, 130], [150, 175]] },
+                { color: '#7c3aed', label: 'Animals',     points: [[160, 110], [180, 140], [140, 150], [175, 185], [220, 120], [115, 205]] },
                 { color: '#0ea5e9', label: 'Vehicles',    points: [[480, 110], [510, 140], [460, 165], [530, 130], [500, 180], [475, 145]] },
-                { color: '#059669', label: 'Programming', points: [[280, 280], [320, 300], [260, 310], [310, 270], [340, 295]] },
+                { color: '#059669', label: 'Programming', points: [[280, 280], [320, 300], [260, 310], [310, 270], [450, 300]] },
                 { color: '#dc2626', label: 'Food',        points: [[600, 290], [630, 270], [580, 310], [640, 305], [610, 320]] }
             ];
             const labels = ['cat', 'dog', 'rabbit', 'horse', 'cow', 'sheep', 'car', 'truck', 'bike', 'bus', 'plane', 'boat', 'python', 'javascript', 'rust', 'go', 'java', 'pizza', 'sushi', 'curry', 'pasta', 'tacos'];
@@ -653,8 +710,8 @@ const DiagramEngine = {
             }).join('');
 
             // Highlighted query point + nearest neighbour line (step 5)
-            const query = { x: 200, y: 145 };
-            const nearest = { x: 180, y: 140 };
+            const query = { x: 245, y: 185 };
+            const nearest = { x: 175, y: 185 };
             const queryGroup = `<g data-step="5" class="step-highlight">
                 <circle cx="${query.x}" cy="${query.y}" r="10" fill="none" stroke="#dc2626" stroke-width="2"/>
                 <text x="${query.x + 14}" y="${query.y - 8}" fill="#dc2626" font-size="11" font-weight="700">query: "kitten"</text>
@@ -664,7 +721,7 @@ const DiagramEngine = {
             return `<svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
                 <defs>${this.arrowDefs(['#dc2626'])}</defs>
                 <rect x="40" y="60" width="720" height="300" rx="8" fill="#fafafa" stroke="#d1d5db"/>
-                <text x="400" y="40" text-anchor="middle" fill="#4c1d95" font-size="16" font-weight="700">Embedding space (2-D projection of 1536-D vectors)</text>
+                <text x="400" y="40" text-anchor="middle" fill="#4c1d95" font-size="16" font-weight="700">Embedding space (2-D projection of high-dimensional vectors)</text>
                 ${dots}
                 ${queryGroup}
                 <text x="400" y="386" text-anchor="middle" fill="#4b5563" font-size="13">Similar concepts cluster together. Cosine similarity finds nearest neighbours.</text>
@@ -722,14 +779,14 @@ const DiagramEngine = {
             const colors = ['#7c3aed','#059669','#2563eb','#d97706','#dc2626'];
             const defs = this.arrowDefs ? DiagramEngine.arrowDefs(colors) : '';
             const boxes = [
-                { x: 50,  y: 30,  w: 130, h: 50, label: 'CLAUDE.md',       sub: 'Project context',     fill: '#ede9fe', stroke: '#7c3aed' },
-                { x: 50,  y: 110, w: 130, h: 50, label: 'User Prompt',     sub: '"Add auth to API"',    fill: '#ecfdf5', stroke: '#059669' },
-                { x: 250, y: 70,  w: 140, h: 50, label: '🧠 Claude Code',  sub: 'Plan & reason',        fill: '#f0f0ff', stroke: '#2563eb' },
-                { x: 460, y: 30,  w: 120, h: 44, label: 'Read Files',      sub: 'grep · glob · view',   fill: '#fefce8', stroke: '#d97706' },
-                { x: 460, y: 86,  w: 120, h: 44, label: 'Edit Code',       sub: 'create · edit',        fill: '#fefce8', stroke: '#d97706' },
-                { x: 460, y: 142, w: 120, h: 44, label: 'Run Commands',    sub: 'test · build · lint',  fill: '#fefce8', stroke: '#d97706' },
-                { x: 460, y: 198, w: 120, h: 44, label: 'MCP Tools',       sub: 'DB · API · search',    fill: '#fefce8', stroke: '#d97706' },
-                { x: 650, y: 100, w: 120, h: 50, label: 'Verify & Commit', sub: 'tests pass → git',     fill: '#ecfdf5', stroke: '#059669' }
+                { x: 50,  y: 30,  w: 130, h: 50, label: 'CLAUDE.md',       sub: 'Project context',     fill: '#ede9fe', stroke: '#7c3aed', step: 1 },
+                { x: 50,  y: 110, w: 130, h: 50, label: 'User Prompt',     sub: '"Add auth to API"',    fill: '#ecfdf5', stroke: '#059669', step: 1 },
+                { x: 250, y: 70,  w: 140, h: 50, label: '🧠 Claude Code',  sub: 'Plan & reason',        fill: '#f0f0ff', stroke: '#2563eb', step: 2 },
+                { x: 460, y: 30,  w: 120, h: 44, label: 'Read Files',      sub: 'grep · glob · view',   fill: '#fefce8', stroke: '#d97706', step: 3 },
+                { x: 460, y: 86,  w: 120, h: 44, label: 'Edit Code',       sub: 'create · edit',        fill: '#fefce8', stroke: '#d97706', step: 4 },
+                { x: 460, y: 142, w: 120, h: 44, label: 'Run Commands',    sub: 'test · build · lint',  fill: '#fefce8', stroke: '#d97706', step: 5 },
+                { x: 460, y: 198, w: 120, h: 44, label: 'MCP Tools',       sub: 'DB · API · search',    fill: '#fefce8', stroke: '#d97706', step: 6 },
+                { x: 650, y: 100, w: 120, h: 50, label: 'Verify & Commit', sub: 'tests pass → git',     fill: '#ecfdf5', stroke: '#059669', step: 7 }
             ];
             const arrows = [
                 { x1: 180, y1: 55,  x2: 248, y2: 85,  c: '#7c3aed' },
@@ -742,7 +799,7 @@ const DiagramEngine = {
                 { x1: 580, y1: 164, x2: 648, y2: 130, c: '#d97706' }
             ];
             const rects = boxes.map(b => `
-                <g data-step="${boxes.indexOf(b) + 1}" class="step-highlight">
+                <g data-step="${b.step}" class="step-highlight">
                     <rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="8" fill="${b.fill}" stroke="${b.stroke}" stroke-width="1.5"/>
                     <text x="${b.x + b.w/2}" y="${b.y + 20}" text-anchor="middle" fill="#1f2937" font-size="12" font-weight="700">${b.label}</text>
                     <text x="${b.x + b.w/2}" y="${b.y + 36}" text-anchor="middle" fill="#6b7280" font-size="10">${b.sub}</text>
@@ -783,13 +840,48 @@ const DiagramEngine = {
                 `<line x1="560" y1="140" x2="588" y2="140" stroke="#2563eb" stroke-width="1.5" marker-end="url(#ah-2563eb)"/>`
             ].join('');
             const cicd = `
-                <rect x="20" y="265" width="730" height="40" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1"/>
-                <text x="385" y="290" text-anchor="middle" fill="#dc2626" font-size="12" font-weight="700">CI/CD Pipeline: GitHub Actions → Build → Test → Deploy → Monitor</text>`;
+                <g data-step="5" class="step-highlight">
+                    <rect x="20" y="265" width="730" height="40" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1"/>
+                    <text x="385" y="290" text-anchor="middle" fill="#dc2626" font-size="12" font-weight="700">CI/CD Pipeline: GitHub Actions → Build → Test → Deploy → Monitor</text>
+                </g>`;
             return `<svg viewBox="0 0 780 320" preserveAspectRatio="xMidYMid meet">
                 <defs>${defs}</defs>
                 <text x="390" y="24" text-anchor="middle" fill="#4c1d95" font-size="14" font-weight="700">Full-Stack AI Application Architecture</text>
                 ${layerSvg}${arrows}${cicd}
             </svg>`;
+        },
+
+        'capstone-architecture'(d) {
+            const nodes = [
+                { id: 'ui', x: 20, y: 170, w: 130, h: 82, label: 'Web interface', sub: 'upload + chat', icon: '🖥️', color: '#7c3aed', step: 1 },
+                { id: 'api', x: 190, y: 170, w: 140, h: 82, label: 'FastAPI', sub: 'validate + route', icon: '🔌', color: '#0ea5e9', step: 2 },
+                { id: 'ingest', x: 380, y: 35, w: 160, h: 92, label: 'Ingestion', sub: 'extract · chunk\nembed', icon: '📄', color: '#d97706', step: 3 },
+                { id: 'store', x: 650, y: 35, w: 170, h: 92, label: 'Vector store', sub: 'embeddings + metadata', icon: '🧭', color: '#059669', step: 4 },
+                { id: 'query', x: 380, y: 285, w: 160, h: 92, label: 'RAG query', sub: 'embed · retrieve\naugment', icon: '🔎', color: '#7c3aed', step: 5 },
+                { id: 'model', x: 650, y: 285, w: 170, h: 92, label: 'LLM response', sub: 'grounded answer\nwith citations', icon: '✨', color: '#dc2626', step: 6 }
+            ];
+            const edges = [
+                { from: 'ui', to: 'api', label: 'HTTPS', color: '#7c3aed', step: 2 },
+                { from: 'api', to: 'ingest', label: 'documents', color: '#d97706', step: 3 },
+                { from: 'ingest', to: 'store', label: 'upsert', color: '#059669', step: 4 },
+                { from: 'api', to: 'query', label: 'question', color: '#0ea5e9', step: 5 },
+                { from: 'query', to: 'store', label: 'top-k', color: '#059669', step: 5, dashed: true },
+                { from: 'query', to: 'model', label: 'grounded prompt', color: '#7c3aed', step: 6 }
+            ];
+            return this.builders['b-pipeline'].call(this, { ...d, data: { nodes, edges, viewBox: '0 0 860 420' } });
+        },
+
+        'phase-mapping'(d) {
+            const layers = [
+                { label: 'Phases 0–1 · Model and prompt foundations', sub: 'Tokens, limits, testable instructions, and output contracts', color: '#7c3aed', tag: 'FOUNDATION', step: 1 },
+                { label: 'Phase 3 · Provider SDK integration', sub: 'API calls, schemas, errors, secrets, and retries', color: '#0ea5e9', tag: 'RUNTIME', step: 2 },
+                { label: 'Phase 4 · Retrieval-augmented generation', sub: 'Ingest, retrieve, ground, cite, and evaluate', color: '#059669', tag: 'KNOWLEDGE', step: 3 },
+                { label: 'Phases 5–6 · Tools and bounded agents', sub: 'Validated tool contracts, loops, budgets, and stop conditions', color: '#d97706', tag: 'ORCHESTRATION', step: 4 },
+                { label: 'Phase 9 · Optional MCP interface', sub: 'Expose the Q&A capability through a permissioned server', color: '#7c3aed', tag: 'ECOSYSTEM', step: 5 },
+                { label: 'Phase 10 · Production deployment', sub: 'API, container, telemetry, rollout, and rollback', color: '#0ea5e9', tag: 'OPERATIONS', step: 6 },
+                { label: 'Phases 11–12 · Product and expert review', sub: 'Tenant safety, unit economics, reliability, and architecture judgment', color: '#dc2626', tag: 'SHIP GATE', step: 7 }
+            ];
+            return this.builders['b-layers'].call(this, { ...d, data: { layers, viewBox: '0 0 860 500' } });
         },
 
         // Fallback

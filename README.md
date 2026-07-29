@@ -7,6 +7,7 @@
 **Scope:** personal
 **Created:** 2026-04-21
 **Sibling project:** [`../azure-networking-academy`](../azure-networking-academy/) — same engine, different domain.
+**Live site:** https://akshayvall.github.io/ai-mastery-academy/
 
 ---
 
@@ -105,6 +106,9 @@ Then open http://localhost:8080.
 - **Installable and offline after first load** — service-worker-cached app shell, no external CDNs, no trackers
 - **Honest mastery states** — Learned → Practiced → Demonstrated → Durable, with 80% retrieval checks, lab evidence, transfer rubrics, and spaced review
 - **Diagnostic learning route** — ten questions recommend the earliest competency worth practicing
+- **Today workspace** — one deterministic next action, due evidence, and the next three milestones
+- **Mobile study shell** — five-item bottom navigation plus an accessible, focus-managed module drawer
+- **Guided Memory & RAG prototype** — guided/browse modes, exact-section resume, compact evidence, and an inline core visual
 
 ---
 
@@ -119,6 +123,8 @@ css/
 js/
   app.js                # Router, view management, progress wiring
   progress.js           # localStorage-backed progress
+  ui-state.js           # separate versioned navigation and resume state
+  today-engine.js       # deterministic daily action selection
   mastery-content.js    # Outcomes, diagnostics, transfer challenges, rubrics
   mastery-engine.js     # Mastery dashboard, evidence flow, review queue
   quiz-engine.js        # Quiz rendering & scoring
@@ -146,7 +152,9 @@ node --test tests/*.test.js
 for file in js/*.js sw.js; do node --check "$file"; done
 ```
 
-GitHub Pages runs the same validation before deployment. The next product milestone is external review of capstone artifacts and calibration of the self-assessment rubric, not another module-count expansion.
+The diagram contract also verifies builder coverage, unique IDs, step parity, deterministic SVG output, geometry regressions, keyboard access, mobile readability, current MCP transports, and release-cache coherence. See [docs/diagram-audit-2026-07.md](docs/diagram-audit-2026-07.md).
+
+GitHub Pages runs the same Node validation before deployment. The July 2026 browser matrix additionally rendered all 39 diagrams at desktop, tablet, and mobile widths. The next product milestone is external review of capstone artifacts and calibration of the self-assessment rubric, not another module-count expansion.
 
 ---
 

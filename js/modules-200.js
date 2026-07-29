@@ -34,7 +34,7 @@ const MODULES_200 = [
             id: 'embedding-space-diagram',
             type: 'embedding-space',
             title: 'Embedding space — why semantic search works',
-            description: 'Each piece of text becomes a vector in (typically) 1536-D space. Similar meanings cluster together. This is how a search for "kitten" finds "cat" without sharing any letters.',
+            description: 'Each piece of text becomes a high-dimensional vector. Similar meanings cluster together, so a search for "kitten" can find "cat" without sharing any letters. Dimensions depend on the embedding model and configuration.',
             steps: [
                 'Animals cluster together top-left.',
                 'Vehicles cluster top-right.',
@@ -67,7 +67,7 @@ const MODULES_200 = [
 ]
 // You send the FULL array each time. The model sees all of it.
 // This IS the "memory" — there is no other.</div>
-    <p>The <strong>messages array IS the memory</strong>. But context windows are finite (128K–200K tokens for frontier models in 2026). When your knowledge base is 10,000 pages of docs, you cannot shove it all into the prompt. You need a way to find and inject <em>only the relevant pieces</em>. That is RAG.</p>
+    <p>The <strong>messages array IS the memory</strong>. Context windows are model-dependent, finite, costly to fill, and not uniformly reliable across every position. Even a very large window is not a sound retrieval strategy for a 10,000-page knowledge base. You need a way to find, validate, and inject <em>only the relevant evidence</em>. That is RAG.</p>
 
     <div class="concept-box">
         <h4>🧠 The Grounding Problem</h4>
@@ -2282,6 +2282,23 @@ class ProductionAgent:
     subtitle: '7-layer architecture, CLAUDE.md, commands, rules, skills, hooks, MCP, managed agents, and operations',
     icon: '🏗️',
     estimatedTime: '90m',
+    diagrams: [
+        {
+            id: 'claude-code-workflow-diagram',
+            type: 'claude-code-workflow',
+            title: 'Claude Code — Context to Verified Change',
+            description: 'A coding agent should move from repository context and a scoped request through inspection, implementation, tools, and executable verification. The human remains responsible for permissions and review.',
+            steps: [
+                'Load project instructions and the scoped user request before acting.',
+                'Plan the smallest change that can satisfy a verifiable outcome.',
+                'Read and search the repository to resolve the controlling code path.',
+                'Edit only the files needed for the requested behavior.',
+                'Run focused tests, builds, or linters and inspect their output.',
+                'Use MCP or external tools only when the task actually needs them.',
+                'Review the diff and commit only after the evidence passes.'
+            ]
+        }
+    ],
     learn: `
 <div class="learn-section">
     <h2>2026 Upgrade: Code agent usage now includes runtime operations</h2>

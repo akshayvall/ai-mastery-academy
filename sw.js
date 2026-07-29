@@ -1,26 +1,28 @@
 const CACHE_PREFIX = 'ai-mastery-academy-';
-const CACHE_NAME = `${CACHE_PREFIX}v1`;
+const CACHE_NAME = `${CACHE_PREFIX}2026-07-ui-redesign`;
 const APP_SHELL_PATHS = [
     './',
     'index.html',
     'manifest.webmanifest',
     'icons/app-icon.svg',
-    'css/styles.css?v=2026-07-builder-release',
-    'js/progress.js?v=2026-07-builder-release',
-    'js/landscape.js',
-    'js/modules-100.js',
-    'js/modules-200.js',
-    'js/modules-300.js',
-    'js/modules-extras.js',
-    'js/modules-pm.js',
-    'js/modules-builder.js?v=2026-07-builder-release',
-    'js/mastery-content.js',
-    'js/quiz-engine.js',
-    'js/interactive.js',
-    'js/lab-engine.js',
-    'js/diagrams.js',
-    'js/mastery-engine.js',
-    'js/app.js?v=2026-07-builder-release'
+    'css/styles.css?v=2026-07-ui-redesign',
+    'js/progress.js?v=2026-07-ui-redesign',
+    'js/ui-state.js?v=2026-07-ui-redesign',
+    'js/today-engine.js?v=2026-07-ui-redesign',
+    'js/landscape.js?v=2026-07-ui-redesign',
+    'js/modules-100.js?v=2026-07-ui-redesign',
+    'js/modules-200.js?v=2026-07-ui-redesign',
+    'js/modules-300.js?v=2026-07-ui-redesign',
+    'js/modules-extras.js?v=2026-07-ui-redesign',
+    'js/modules-pm.js?v=2026-07-ui-redesign',
+    'js/modules-builder.js?v=2026-07-ui-redesign',
+    'js/mastery-content.js?v=2026-07-ui-redesign',
+    'js/quiz-engine.js?v=2026-07-ui-redesign',
+    'js/interactive.js?v=2026-07-ui-redesign',
+    'js/lab-engine.js?v=2026-07-ui-redesign',
+    'js/diagrams.js?v=2026-07-ui-redesign',
+    'js/mastery-engine.js?v=2026-07-ui-redesign',
+    'js/app.js?v=2026-07-ui-redesign'
 ];
 
 const resolveFromScope = path => new URL(path, self.registration.scope).href;

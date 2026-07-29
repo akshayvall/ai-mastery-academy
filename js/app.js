@@ -18,6 +18,7 @@ const MODULES = [
     ...((typeof MODULES_BUILDER !== 'undefined') ? MODULES_BUILDER : []),
 ];
 const CONTENT_LAST_VERIFIED = MODEL_LANDSCAPE.verified;
+const WORKFLOW_PROTOTYPE_ID = 'phase4-memory-rag';
 
 // Cache parsed sections per module so we only parse HTML once
 const _sectionCache = {};
@@ -27,6 +28,7 @@ const app = {
     currentTab: 'learn',
     _pendingSection: null, // section slug to scroll to after render
     _eventsBound: false,
+    _mobileNavOpener: null,
 
     init() {
         this.buildNavigation();
@@ -168,11 +170,13 @@ const app = {
     // Load a module's Learn tab and smooth-scroll to a specific section heading
     navigateToSection(moduleId, sectionSlug) {
         this._pendingSection = sectionSlug;
+        if (this._sectionObserver) this._sectionObserver.disconnect();
 
         // If the module is already loaded, just switch tab & scroll
         if (this.currentModule && this.currentModule.id === moduleId) {
             this.switchTab('learn');
             this._scrollToSection(sectionSlug);
+            this._observeAfterScroll(moduleId);
         } else {
             this.loadModule(moduleId);
             // loadModule will call _scrollToSection via _pendingSection
@@ -188,6 +192,7 @@ const app = {
             // Mark section as visited
             if (this.currentModule) {
                 ProgressManager.markSectionVisited(this.currentModule.id, sectionSlug);
+                UIStateManager.saveSection(this.currentModule.id, sectionSlug);
                 this._refreshSectionVisited(this.currentModule.id);
             }
         }
@@ -260,6 +265,18 @@ const app = {
         });
     },
 
+    _observeAfterScroll(moduleId) {
+        const content = document.getElementById('content');
+        let started = false;
+        const start = () => {
+            if (started) return;
+            started = true;
+            this._observeSections(moduleId);
+        };
+        content.addEventListener('scrollend', start, { once: true });
+        setTimeout(start, 800);
+    },
+
     bindEvents() {
         if (this._eventsBound) return;
         this._eventsBound = true;
@@ -276,7 +293,12 @@ const app = {
                 'complete-module': () => this.completeModule(),
                 'next-module': () => this.nextModule(),
                 'close-search': () => this.closeSearch(),
-                'pick-search': () => this.pickSearch(control.dataset.id)
+                'pick-search': () => this.pickSearch(control.dataset.id),
+                'set-module-mode': () => this.setModuleMode(control.dataset.moduleMode),
+                'open-evidence': () => this.openEvidence(control.dataset.evidenceTarget),
+                'navigate-section': () => this.navigateToSection(this.currentModule?.id, control.dataset.sectionId),
+                'close-mobile-nav': () => this.closeMobileNav(),
+                'navigate-destination': () => this.navigateDestination(control.dataset.destination)
             };
             actions[control.dataset.appAction]?.();
         });
@@ -321,6 +343,9 @@ const app = {
                 this.openSearch();
             } else if (e.key === 'Escape') {
                 this.closeSearch();
+                this.closeMobileNav();
+            } else if (e.key === 'Tab') {
+                this.trapMobileNavFocus(e);
             }
         });
         const searchInput = document.getElementById('searchInput');
@@ -332,12 +357,168 @@ const app = {
         // Mobile nav toggle
         const toggle = document.getElementById('mobileNavToggle');
         if (toggle) {
-            toggle.addEventListener('click', () => {
-                const sb = document.getElementById('sidebar');
-                const open = sb.classList.toggle('mobile-open');
-                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            });
+            toggle.addEventListener('click', () => this.toggleMobileNav());
         }
+        window.addEventListener('resize', () => this.syncMobileNav());
+        this.syncMobileNav();
+    },
+
+    isMobileNav() {
+        return window.matchMedia('(max-width: 768px)').matches;
+    },
+
+    openMobileNav() {
+        if (!this.isMobileNav()) return;
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('navBackdrop');
+        const toggle = document.getElementById('mobileNavToggle');
+        this._mobileNavOpener = document.activeElement;
+        sidebar.removeAttribute('aria-hidden');
+        sidebar.inert = false;
+        sidebar.classList.add('mobile-open');
+        backdrop.hidden = false;
+        document.body.classList.add('nav-drawer-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        const firstControl = sidebar.querySelector('button, a, input');
+        if (firstControl) firstControl.focus({ preventScroll: true });
+    },
+
+    closeMobileNav(restoreFocus = true) {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar.classList.contains('mobile-open')) return;
+        const backdrop = document.getElementById('navBackdrop');
+        const toggle = document.getElementById('mobileNavToggle');
+        sidebar.classList.remove('mobile-open');
+        backdrop.hidden = true;
+        document.body.classList.remove('nav-drawer-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        if (restoreFocus && this._mobileNavOpener && this._mobileNavOpener.isConnected) this._mobileNavOpener.focus();
+        else if (restoreFocus) toggle.focus();
+        if (this.isMobileNav()) {
+            sidebar.setAttribute('aria-hidden', 'true');
+            sidebar.inert = true;
+        }
+        this._mobileNavOpener = null;
+    },
+
+    toggleMobileNav() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('mobile-open')) this.closeMobileNav();
+        else this.openMobileNav();
+    },
+
+    trapMobileNavFocus(event) {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar.classList.contains('mobile-open')) return;
+        const controls = Array.from(sidebar.querySelectorAll('button:not([disabled]), a[href], input:not([disabled])'));
+        if (!controls.length) return;
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    },
+
+    syncMobileNav() {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('navBackdrop');
+        if (this.isMobileNav()) {
+            if (!sidebar.classList.contains('mobile-open')) {
+                sidebar.setAttribute('aria-hidden', 'true');
+                sidebar.inert = true;
+            }
+            return;
+        }
+        sidebar.classList.remove('mobile-open');
+        sidebar.removeAttribute('aria-hidden');
+        sidebar.inert = false;
+        backdrop.hidden = true;
+        document.body.classList.remove('nav-drawer-open');
+        document.getElementById('mobileNavToggle').setAttribute('aria-expanded', 'false');
+    },
+
+    navigateDestination(destination) {
+        UIStateManager.setDestination(destination);
+        document.querySelectorAll('.bottom-nav-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.destination === destination);
+        });
+        if (destination === 'today') {
+            this.closeMobileNav(false);
+            this.showDashboard();
+            return;
+        }
+        this.openMobileNav();
+    },
+
+    isWorkflowPrototype(moduleId) {
+        return moduleId === WORKFLOW_PROTOTYPE_ID;
+    },
+
+    setModuleMode(mode) {
+        if (!this.currentModule || !this.isWorkflowPrototype(this.currentModule.id)) return;
+        const normalizedMode = mode === 'browse' ? 'browse' : 'guided';
+        const moduleView = document.getElementById('moduleView');
+        moduleView.classList.toggle('guided-mode', normalizedMode === 'guided');
+        moduleView.classList.toggle('browse-mode', normalizedMode === 'browse');
+        document.querySelectorAll('[data-module-mode]').forEach(button => {
+            button.setAttribute('aria-pressed', String(button.dataset.moduleMode === normalizedMode));
+        });
+    },
+
+    openEvidence(target) {
+        const disclosure = document.querySelector('#masteryPanel .evidence-disclosure');
+        if (!disclosure) return;
+        disclosure.open = true;
+        disclosure.dataset.focusTarget = target || 'evidence';
+        disclosure.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        disclosure.querySelector('summary')?.focus();
+    },
+
+    renderSectionOutline(module) {
+        const outline = document.getElementById('sectionOutline');
+        const list = document.getElementById('sectionOutlineList');
+        const sections = this.isWorkflowPrototype(module.id) ? this.parseSections(module) : [];
+        outline.hidden = sections.length === 0;
+        if (!sections.length) {
+            list.innerHTML = '';
+            return;
+        }
+        list.innerHTML = sections.map(section => `
+            <li><button type="button" data-app-action="navigate-section" data-section-id="${section.slug}">${this.escapeHtml(section.title)}</button></li>`).join('');
+        outline.open = !window.matchMedia('(max-width: 1023px)').matches;
+    },
+
+    renderInlineCoreVisual(module) {
+        document.getElementById('inlineCoreVisual')?.remove();
+        if (!this.isWorkflowPrototype(module.id) || !module.diagrams?.length || typeof DiagramEngine.renderPreview !== 'function') return;
+        const firstSection = document.querySelector('#tab-learn .learn-section');
+        if (!firstSection) return;
+        const preview = document.createElement('section');
+        preview.id = 'inlineCoreVisual';
+        preview.className = 'inline-core-visual';
+        preview.setAttribute('aria-label', 'Core visual');
+        firstSection.insertAdjacentElement('afterend', preview);
+        DiagramEngine.renderPreview(module.diagrams[0], preview);
+    },
+
+    configureModuleExperience(module) {
+        const enabled = this.isWorkflowPrototype(module.id);
+        const moduleView = document.getElementById('moduleView');
+        document.getElementById('moduleModeBar').hidden = !enabled;
+        moduleView.classList.toggle('workflow-prototype', enabled);
+        moduleView.classList.remove('guided-mode', 'browse-mode');
+        this.renderSectionOutline(module);
+        if (!enabled) return;
+        const uiState = UIStateManager.get(MODULES.map(item => item.id));
+        if (!this._pendingSection && uiState.lastSectionByModule[module.id]) {
+            this._pendingSection = uiState.lastSectionByModule[module.id];
+        }
+        this.setModuleMode('guided');
+        this.renderInlineCoreVisual(module);
     },
 
     registerServiceWorker() {
@@ -414,6 +595,7 @@ const app = {
     },
 
     showDashboard() {
+        UIStateManager.setDestination('today');
         document.getElementById('dashboard').classList.add('active');
         document.getElementById('moduleView').classList.remove('active');
         // Clear active state on module links (not section links)
@@ -476,6 +658,8 @@ const app = {
             LabEngine.init(mod.id, mod.lab);
         }
 
+        this.configureModuleExperience(mod);
+
         // Highlight the active module in sidebar
         document.querySelectorAll('#sidebar li.nav-module').forEach(li => {
             li.classList.toggle('active', li.dataset.module === moduleId);
@@ -502,15 +686,16 @@ const app = {
         window.location.hash = moduleId;
         ProgressManager.setLastVisited(moduleId);
 
-        // Set up section observation for auto-visit tracking
-        this._observeSections(moduleId);
-
         // If there's a pending section scroll, do it after a short delay for render
         if (this._pendingSection) {
             const slug = this._pendingSection;
-            setTimeout(() => this._scrollToSection(slug), 120);
+            setTimeout(() => {
+                this._scrollToSection(slug);
+                this._observeAfterScroll(moduleId);
+            }, 120);
         } else {
             document.getElementById('content').scrollTop = 0;
+            this._observeSections(moduleId);
         }
 
         setTimeout(() => {
@@ -527,11 +712,18 @@ const app = {
 
     switchTab(tabName) {
         this.currentTab = tabName;
+        if (this.currentModule) UIStateManager.touchModule(this.currentModule.id, tabName);
         document.querySelectorAll('.module-tabs .tab').forEach(tab => {
             tab.classList.toggle('active', tab.dataset.tab === tabName);
         });
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.toggle('active', content.id === `tab-${tabName}`);
+        });
+        document.querySelectorAll('.guided-stepper [data-tab]').forEach(button => {
+            const active = button.dataset.tab === tabName;
+            button.classList.toggle('active', active);
+            if (active) button.setAttribute('aria-current', 'step');
+            else button.removeAttribute('aria-current');
         });
     },
 

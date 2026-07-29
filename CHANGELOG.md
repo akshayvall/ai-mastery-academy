@@ -11,6 +11,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - Local spaced-review scheduling at 1, 3, 7, 21, and 60 days, plus a dashboard review queue.
 - Installable PWA assets (`manifest.webmanifest`, `sw.js`, same-origin icon) with offline navigation after the first successful load.
 - Zero-dependency Node test suite and a GitHub Pages validation gate.
+- Exhaustive diagram contracts and `docs/diagram-audit-2026-07.md`, covering all 39 diagram instances.
+- Capstone architecture and phase-mapping diagrams, plus restored Claude Code and full-stack deployment visuals.
+- Deterministic Today workspace, separate `ai-academy-ui-state:v1` navigation state, and exact-section resume.
+- Accessible five-item mobile navigation with a focus-managed secondary drawer.
+- Model Lab Notebook identity and a guided Memory and RAG vertical slice with compact evidence and an inline core visual.
 
 ### Changed
 - Mastery progress now excludes the 10 diagram-only review activities from the 31-module denominator.
@@ -19,12 +24,19 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - Current OpenAI, Anthropic, and Google catalogs, IDs, pricing notes, SDK patterns, and first-party source metadata were refreshed for July 26, 2026.
 - Deployment, SaaS, MCP, expert-review, and PM modules now include stronger production, security, reliability, cost, and evaluation guidance.
 - CSP now blocks inline scripts; runtime controls use delegated event handlers.
+- Mobile diagrams preserve readable text in a keyboard-focusable local scroll region instead of shrinking the SVG to fit.
+- Tokenization, embedding, context-window, and MCP transport language now favors durable, model-specific verification over fixed generalizations.
+- Diagram and curriculum assets use one release token with a new offline cache generation.
+- Dashboard delivery now prioritizes one next action, due work, and three path milestones instead of a marketing hero and empty summary cards.
 
 ### Fixed
+- Removed diagram fallback placeholders, step mismatches, embedding-label collisions, and nondeterministic RAG decoration.
+- Corrected the capstone phase mapping and aligned every declared visual step with a rendered state.
 - Completed the July 2026 content audit: replaced retired model IDs, rewrote obsolete Claude prefill guidance around structured outputs, refreshed model/pricing/context claims, updated adaptive-thinking guidance, and corrected temperature determinism claims.
 - Updated the Level 300 capstone from `gpt-4o-mini` to `gpt-5.4-mini` and regenerated the Builder Track after correcting the MCP date and Gemma 3 prerequisite in its source project.
 - `js/modules-100.js` parse error (`Unexpected token ']'`) caused by a missing `const MODULES_100 = [` declaration and an orphaned top-level `subtitle` line after curriculum merge.
 - Re-validated syntax with `node --check` for both `js/modules-100.js` and `js/modules-200.js`.
+- Removed the fixed-offset mobile drawer overlap and restored focus after Escape or backdrop dismissal.
 
 ### Added (earlier work)
 - `js/landscape.js` as the single source for volatile model names, prices, context limits, and the curriculum verification date.
