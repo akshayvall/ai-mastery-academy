@@ -489,19 +489,31 @@ html, body {
 #sidebar li.active { background: var(--ai-purple); color: #fff; }
 #sidebar li.completed .nav-title::before { content: '✓ '; color: var(--success); font-weight: 700; }
 #sidebar li.completed.active .nav-title::before { color: #c4f5d6; }
-.nav-title { flex: 1; }
+.nav-title, .module-title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .nav-time { font-size: 10px; color: #999; white-space: nowrap; opacity: 0.85; }
 #sidebar li.active .nav-time { color: #ede9fe; opacity: 1; }
 
 /* ============ MOBILE NAV TOGGLE ============ */
 .mobile-nav-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 1000; background: var(--ai-purple); color: #fff; border: none; width: 40px; height: 40px; border-radius: 6px; font-size: 22px; cursor: pointer; box-shadow: var(--shadow); }
+.sidebar-close { display: none; }
 .nav-backdrop, .bottom-nav { display: none; }
 .nav-backdrop[hidden] { display: none; }
 @media (max-width: 768px) {
     body.nav-drawer-open { overflow: hidden; }
     .mobile-nav-toggle { display: block; z-index: 1200; }
-    #sidebar { position: fixed; inset: 0 auto 0 0; width: min(calc(100vw - 32px), 420px); min-width: 0; max-width: calc(100vw - 32px); max-height: none; height: 100dvh; transform: translateX(-100%); pointer-events: none; transition: transform 0.2s ease; z-index: 1300; }
+    #sidebar { position: fixed; inset: 0 auto 0 0; width: min(calc(100vw - 12px), 420px); min-width: 0; max-width: calc(100vw - 12px); max-height: none; height: 100dvh; transform: translateX(-100%); pointer-events: none; transition: transform 0.2s ease; z-index: 1300; }
     #sidebar.mobile-open { transform: translateX(0); pointer-events: auto; }
+    .sidebar-close { position: absolute; top: 12px; right: 12px; z-index: 2; width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid #4b4b53; border-radius: 6px; background: #28282e; color: #fff; font: 400 26px/1 sans-serif; cursor: pointer; }
+    .sidebar-header { padding: 20px 68px 16px 18px; }
+    .progress-overview { padding: 14px 18px; }
+    .nav-section { padding: 10px 0 14px; border-bottom: 1px solid #303037; }
+    .nav-level { padding: 8px 16px; font-size: 10px; }
+    #sidebar .nav-module > .module-link { width: calc(100% - 16px); min-height: 48px; margin: 2px 8px; padding: 8px 12px; align-items: flex-start; gap: 9px; border-radius: 6px; font-size: 13.5px; line-height: 1.35; }
+    #sidebar .module-icon { width: 20px; flex: 0 0 20px; margin-top: 1px; text-align: center; }
+    #sidebar .nav-time { display: none; }
+    #sidebar .module-check { margin: 2px 0 0; }
+    .nav-activity-group ul { padding-bottom: 6px; }
+    .sidebar-footer { padding: 14px 18px calc(18px + env(safe-area-inset-bottom)); }
     .nav-backdrop { position: fixed; inset: 0; display: block; width: 100%; height: 100%; border: 0; background: rgba(17, 18, 23, 0.54); z-index: 1250; }
     .bottom-nav { position: fixed; inset: auto 0 0; z-index: 1200; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-height: 64px; padding: 4px 4px max(4px, env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--border-color); box-shadow: 0 -8px 24px rgba(30, 24, 45, 0.08); }
     .bottom-nav-item { min-width: 0; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 0; border-radius: 4px; background: transparent; color: var(--text-secondary); font: inherit; font-size: 11px; cursor: pointer; }
@@ -575,30 +587,34 @@ html, body {
 .module-sections li a.section-visited { color: #a78bfa; }
 
 /* Module link with expand arrow */
-.nav-module > a.module-link {
+.nav-module > .module-link {
     display: flex; align-items: center; gap: 6px;
     padding: 8px 14px; cursor: pointer; font-size: 13.5px;
     line-height: 1.3; color: var(--text-sidebar);
     border-radius: 4px; margin: 1px 8px; transition: background 0.15s;
     position: relative; text-decoration: none;
 }
-.nav-module > a.module-link:hover { background: rgba(255,255,255,0.05); color: #fff; }
-.nav-module.active > a.module-link { background: var(--ai-purple); color: #fff; }
-.nav-module.completed > a.module-link .module-title::before { content: '✓ '; color: var(--success); font-weight: 700; }
-.nav-module.completed.active > a.module-link .module-title::before { color: #c4f5d6; }
+.nav-module > .module-link:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.nav-module.active > .module-link { background: var(--ai-purple); color: #fff; }
+.nav-module.completed > .module-link .module-title::before { content: '✓ '; color: var(--success); font-weight: 700; }
+.nav-module.completed.active > .module-link .module-title::before { color: #c4f5d6; }
 .module-check { color: var(--success); font-weight: 700; font-size: 12px; margin-left: 4px; }
 .module-icon { flex-shrink: 0; }
 
 /* Expand/collapse arrow indicator */
-.nav-module > a.module-link::after {
+.nav-module > .module-link::after {
     content: '▸'; position: absolute; right: 0.5rem; top: 50%;
     transform: translateY(-50%); font-size: 0.7rem; color: #6b7280;
     transition: transform 0.2s;
 }
-.nav-module.expanded > a.module-link::after { transform: translateY(-50%) rotate(90deg); }
+.nav-module.expanded > .module-link::after { transform: translateY(-50%) rotate(90deg); }
 
 /* Override generic sidebar li rules for nav-module so they don't conflict */
 #sidebar li.nav-module { display: block; padding: 0; margin: 0; border: none; }
+.nav-activity-group { display: block !important; margin: 4px 8px 0 !important; padding: 0 !important; border: 0 !important; }
+.nav-activity-group details { border-top: 1px solid #34343b; }
+.nav-activity-group summary { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; color: #aaa8b2; font-size: 12px; font-weight: 700; cursor: pointer; }
+.nav-activity-group summary span:last-child { min-width: 24px; padding: 2px 6px; border-radius: 10px; background: #303037; text-align: center; }
 
 /* Print styles for cheat-sheet (browser print of Learn tab) */
 @media print {

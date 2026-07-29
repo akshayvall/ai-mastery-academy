@@ -38,6 +38,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - Re-validated syntax with `node --check` for both `js/modules-100.js` and `js/modules-200.js`.
 - Removed the fixed-offset mobile drawer overlap and restored focus after Escape or backdrop dismissal.
 - Synchronized browser Back and Forward navigation with dashboard and module hash routes.
+- Rebuilt the mobile curriculum drawer with readable 48px module rows, a visible close control, wider title space, hidden time clutter, and collapsed Visual review groups.
 
 ### Added (earlier work)
 - `js/landscape.js` as the single source for volatile model names, prices, context limits, and the curriculum verification date.

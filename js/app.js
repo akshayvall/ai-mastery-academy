@@ -82,7 +82,7 @@ const app = {
         for (const [level, containerId] of Object.entries(levels)) {
             const container = document.getElementById(containerId);
             const levelModules = MODULES.filter(m => m.level === parseInt(level));
-            container.innerHTML = levelModules.map(mod => {
+            const renderModule = mod => {
                 const sections = this.parseSections(mod);
                 const allVisited = sections.length > 0 &&
                     ProgressManager.areAllSectionsVisited(mod.id, sections.map(s => s.slug));
@@ -114,7 +114,17 @@ const app = {
                     </button>
                     ${sectionsHtml}
                 </li>`;
-            }).join('');
+            };
+            const learningModules = levelModules.filter(mod => !MasteryEngine.isActivity(mod.id));
+            const activityModules = levelModules.filter(mod => MasteryEngine.isActivity(mod.id));
+            const visualReview = activityModules.length ? `
+                <li class="nav-activity-group">
+                    <details>
+                        <summary><span>Visual review</span><span>${activityModules.length}</span></summary>
+                        <ul>${activityModules.map(renderModule).join('')}</ul>
+                    </details>
+                </li>` : '';
+            container.innerHTML = learningModules.map(renderModule).join('') + visualReview;
         }
 
         // Bind click handlers for module links and section links
