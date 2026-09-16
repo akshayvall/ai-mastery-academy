@@ -595,7 +595,7 @@ answer = llm.generate(f"Context:\\n{context}\\n\\nQuestion: {query}\\nAnswer:")<
     ],
     lab: {
         title: 'Hands-On: Build a RAG Knowledge Base',
-        scenario: 'Build a complete RAG system from scratch with Claude Code. Index your documents in ChromaDB, query with cited answers.',
+        scenario: 'Build a RAG system over synthetic or permitted public documents. Use deterministic local fixtures first; provider embeddings and answers require separate approval.',
         duration: '45-60 min',
         cost: 'Free (Google AI Studio for embeddings)',
         difficulty: 'Intermediate',
@@ -604,10 +604,10 @@ answer = llm.generate(f"Context:\\n{context}\\n\\nQuestion: {query}\\nAnswer:")<
             { title: 'Create the project and documents', subtitle: 'Set up docs that your RAG system will search', duration: '5 min', instructions: [
                 { type: 'command', cmd: 'mkdir rag-knowledge-base\ncd rag-knowledge-base\nmkdir docs' },
                 { type: 'heading', text: 'Create 3-5 markdown files in docs/' },
-                'These are the documents your system will search over. Make them REAL — use content you actually work with:',
-                { type: 'list', items: ['docs/architecture.md — 300+ words about a system you know', 'docs/coding-standards.md — your team conventions', 'docs/onboarding.md — new-member guide', 'docs/faq.md — 10 common Q&As', 'docs/troubleshooting.md — 10 issues + solutions'] },
-                { type: 'tip', text: 'The more realistic your docs, the more useful the final system. Write at least 200 words per file.' },
-                { type: 'verify', text: 'Run <strong>ls docs/</strong> — 3-5 .md files. Open each and confirm 200+ words of real content.' }
+                'Create synthetic MapleDesk policy fixtures, not workplace documents or customer records:',
+                { type: 'list', items: ['docs/access.md: D1, fictional password-reset instructions with a five-minute link expiry', 'docs/returns.md: D2, unopened items accepted within 30 days; opened-item exceptions need human review', 'docs/delivery.md: D3, fictional standard delivery takes 3-5 days; delays need a status check'] },
+                { type: 'tip', text: 'Give each document an ID and version. Add an ambiguous ticket and an out-of-corpus question so citation and abstention behavior can be checked independently.' },
+                { type: 'verify', text: 'Inspect docs/: each file contains only synthetic or permitted public content, a source ID, and a version. No workplace records or credentials are present.' }
             ]},
             { title: 'Build the document indexer', subtitle: 'Chunk, embed, and store in ChromaDB', duration: '15 min', instructions: [
                 { type: 'command', cmd: 'claude' },
@@ -615,7 +615,7 @@ answer = llm.generate(f"Context:\\n{context}\\n\\nQuestion: {query}\\nAnswer:")<
                 { type: 'prompt', text: 'Build a RAG document indexer. Create indexer.py that:\n1. Reads all .md files from docs/\n2. Splits each into chunks of ~500 chars with 50-char overlap\n3. Creates separate embeddings using gemini-embedding-001 through the google-genai SDK (from google import genai; one genai.Client())\n4. Stores chunks + embedding.values + metadata (filename, chunk_index) in ChromaDB persistent collection at ./chroma_db/\n5. Prints progress per file and total summary\n6. Also create requirements.txt with chromadb and google-genai\nHandle errors: skip unreadable files with a warning.' },
                 'After Claude Code creates the files:',
                 { type: 'command', cmd: 'pip install -r requirements.txt\npython indexer.py' },
-                { type: 'tip', text: 'If you get an API error, verify GEMINI_API_KEY is set: echo $GEMINI_API_KEY' },
+                { type: 'tip', text: 'For a separately approved provider run, check key presence without revealing its value: PowerShell Test-Path Env:GEMINI_API_KEY. Never echo the key or include it in evidence. A local mock route needs no key.' },
                 { type: 'verify', text: 'Script runs without errors. Prints chunk counts per file. A <strong>chroma_db/</strong> folder is created.' }
             ]},
             { title: 'Build the query system', subtitle: 'Embed questions, retrieve chunks, generate cited answers', duration: '15 min', instructions: [
@@ -2473,7 +2473,7 @@ The API serves a React frontend at ../client.
         <tr><td><strong>L0</strong></td><td>Foundation</td><td>The runtime environment — Claude Code runs as a process with full filesystem access, terminal access, and the ability to execute arbitrary commands</td><td>CLI binary, Node.js runtime, terminal session, filesystem access</td></tr>
         <tr><td><strong>L1</strong></td><td>Memory</td><td>Persistent context that survives between sessions — tells Claude who you are and how your project works</td><td>CLAUDE.md (global, project, directory), CLAUDE.local.md, .claudeignore</td></tr>
         <tr><td><strong>L2</strong></td><td>Skills</td><td>Reusable workflow templates that auto-trigger based on file patterns or task types</td><td>.claude/skills/ directory, SKILL.md files, built-in skills (docx, xlsx, pdf)</td></tr>
-        <tr><td><strong>L3</strong></td><td>MCP</td><td>External tool integrations via Model Context Protocol — connects Claude to databases, APIs, and services</td><td>MCP servers, .claude/settings.json, 200+ available integrations</td></tr>
+        <tr><td><strong>L3</strong></td><td>MCP</td><td>External tool integrations via Model Context Protocol — connects Claude to databases, APIs, and services</td><td>Project MCP definitions in .mcp.json; local/user definitions in ~/.claude.json</td></tr>
         <tr><td><strong>L4</strong></td><td>Commands</td><td>User-invoked actions — slash commands you type to control Claude Code behavior</td><td>/help, /init, /compact, /clear, /model, /mcp, /doctor, /config, /cost, custom commands</td></tr>
         <tr><td><strong>L5</strong></td><td>Orchestration</td><td>Multi-agent coordination — spawning subagents, hooks for automation, checkpoint management</td><td>Subagent dispatch, PreToolUse/PostToolUse hooks, Esc Esc rewind</td></tr>
         <tr><td><strong>L6</strong></td><td>Workflows</td><td>High-level patterns that combine all layers — architect mode, creator mode, PM patterns</td><td>Plan-then-implement, test-driven, review-and-refactor patterns</td></tr>
@@ -2584,9 +2584,10 @@ When the user asks to deploy, release, or ship to production.
     <h3>How MCP Works</h3>
     <ol>
         <li><strong>MCP Server</strong> — A small program that exposes tools (functions) Claude can call. Example: a PostgreSQL MCP server exposes "run_query" and "list_tables" tools.</li>
-        <li><strong>Configuration</strong> — You register MCP servers in .claude/settings.json or via the /mcp command.</li>
+        <li><strong>Configuration</strong>: project-scoped MCP server definitions belong in project-root .mcp.json. Local and user scopes use ~/.claude.json. Register through claude mcp add with an explicit scope; /mcp inspects and manages connections.</li>
         <li><strong>Usage</strong> — Claude automatically discovers available MCP tools and uses them when relevant to your task.</li>
     </ol>
+    <p>Source-reviewed 2026-09-14: <a href="https://code.claude.com/docs/en/mcp#project-scope" target="_blank" rel="noopener">Claude Code MCP scope documentation</a>. Hooks and permissions remain in .claude/settings.json; moving MCP definitions does not move those settings. CLI startup and provider integration have not been executed for this review.</p>
 
     <h3>Popular MCP Integrations</h3>
     <table class="content-table">
@@ -2602,16 +2603,16 @@ When the user asks to deploy, release, or ship to production.
 
     <h3>Adding an MCP Server</h3>
     <div class="code-block"># Via CLI command
-claude mcp add github -- npx -y @anthropic/mcp-github
+claude mcp add github --scope project -- npx -y @anthropic/mcp-github
 
-# Or manually in .claude/settings.json
+# Or manually in project-root .mcp.json
 {
   "mcpServers": {
     "github": {
       "command": "npx",
       "args": ["-y", "@anthropic/mcp-github"],
       "env": {
-        "GITHUB_TOKEN": "your-token-here"
+        "GITHUB_TOKEN": "\${GITHUB_TOKEN}"
       }
     }
   }
@@ -2619,7 +2620,7 @@ claude mcp add github -- npx -y @anthropic/mcp-github
 
     <div class="tip-box">
         <h4>💡 MCP Security</h4>
-        <p>Store sensitive tokens in environment variables or a secrets manager — never hardcode them in settings.json. Use <strong>settings.local.json</strong> (gitignored) for personal API keys so they never get committed to version control.</p>
+        <p>Use an environment-variable reference in shared MCP definitions and keep the actual credential outside the repository and synced artifacts. Review the server package, command, and requested access before approving startup. Local/user MCP definitions use ~/.claude.json; ordinary hooks and permissions still use settings.json. A gitignored file does not by itself prevent secret exposure through backups or logs.</p>
     </div>
 </div>
 
@@ -2987,17 +2988,17 @@ git commit -m "refactor: migrate entire API from JavaScript to TypeScript
 </div>
 `,
     quiz: [
-        { question: '.claude/?', options: ['Cache', 'Control center: settings, commands, rules, skills, agents', 'Logs', 'Temp'], correct: 1, explanation: 'All Claude Code config.' },
+        { question: '.claude/?', options: ['Cache', 'Control center: settings, commands, rules, skills, agents', 'Logs', 'Temp'], correct: 1, explanation: 'Project settings and customizations live here; project MCP definitions are separate in .mcp.json.' },
         { question: 'CLAUDE.md vs local?', options: ['Same', 'CLAUDE.md: team (committed). Local: personal (gitignored)', 'Local newer', 'Models'], correct: 1, explanation: 'Team shared, personal private.' },
         { question: 'Commands vs Skills?', options: ['Same', 'Commands: manual. Skills: auto-trigger', 'Skills cost', 'Commands newer'], correct: 1, explanation: 'Explicit vs automatic.' },
         { question: '/init?', options: ['Git', 'Auto-generate CLAUDE.md', 'Server', 'Deps'], correct: 1, explanation: 'Examines project, creates initial CLAUDE.md.' },
         { question: 'Managed Agents?', options: ['Chat', 'Autonomous cloud with stateful sessions', 'Video', 'DB'], correct: 1, explanation: 'Deploy agents that run unattended.' },
         { question: 'Esc×2?', options: ['Exit', 'Rewind to previous checkpoint', 'Clear', 'Help'], correct: 1, explanation: 'Undo to last safe state.' },
         { question: 'Hooks?', options: ['Webhooks', 'PreToolCall/PostToolCall scripts', 'Shortcuts', 'Git only'], correct: 1, explanation: 'Lint before commit, format after edit.' },
-        { question: 'MCP add?', options: ['Plugin', '.claude/settings.json or claude mcp add', 'Different tool', 'Auto'], correct: 1, explanation: 'Configure in settings or CLI.' }
+        { question: 'MCP add?', options: ['Plugin', 'Project-root .mcp.json or claude mcp add --scope project', 'Different tool', 'Auto'], correct: 1, explanation: 'Project MCP server definitions use .mcp.json. Local/user definitions use ~/.claude.json; hooks and permissions remain settings.' }
     ],
     interactive: [
-        { type: 'drag-drop', id: 'claude-folder', title: '.claude/ Components', description: 'Match to purpose.', items: ['CLAUDE.md', 'commands/review.md', 'rules/code-style.md', 'skills/deploy/SKILL.md', 'agents/reviewer.md', 'settings.json'], targets: { 'Team instructions': ['CLAUDE.md'], 'Slash command': ['commands/review.md'], 'Auto-loaded rules': ['rules/code-style.md'], 'Auto-triggered workflow': ['skills/deploy/SKILL.md'], 'Isolated sub-agent': ['agents/reviewer.md'], 'Permissions + MCP': ['settings.json'] } },
+        { type: 'drag-drop', id: 'claude-folder', title: 'Project configuration components', description: 'Match to purpose; .mcp.json is at project root, outside .claude/.', items: ['CLAUDE.md', 'commands/review.md', 'rules/code-style.md', 'skills/deploy/SKILL.md', 'agents/reviewer.md', 'settings.json', '.mcp.json'], targets: { 'Team instructions': ['CLAUDE.md'], 'Slash command': ['commands/review.md'], 'Auto-loaded rules': ['rules/code-style.md'], 'Auto-triggered workflow': ['skills/deploy/SKILL.md'], 'Isolated sub-agent': ['agents/reviewer.md'], 'Permissions + hooks': ['settings.json'], 'Project MCP definitions': ['.mcp.json'] } },
         { type: 'flashcards', id: 'cc-cards', title: 'Claude Code Cards', cards: [
             { front: '7 layers?', back: 'Foundation, Memory, Skills, MCP, Commands, Orchestration, Workflows.' },
             { front: 'Managed Agents?', back: 'Cloud autonomous. Agent+Environment→Session. ant CLI. Runs unattended.' },
@@ -3033,9 +3034,10 @@ git commit -m "refactor: migrate entire API from JavaScript to TypeScript
                 { type: 'verify', text: 'New endpoint uses ORM, has Pydantic model, has tests, has docstring.' }
             ]},
             { title: 'LAYER 3 — MCP: connect GitHub', subtitle: 'Create GitHub issues from Claude Code', duration: '10 min', instructions: [
-                'Create GitHub Personal Access Token: github.com/settings/tokens → repo scope.',
-                'Create .claude/settings.json:',
-                { type: 'code', language: 'json', code: '{\n  "permissions": {"allow": ["read","write","execute"]},\n  "mcpServers": {\n    "github": {\n      "command": "npx",\n      "args": ["-y","@modelcontextprotocol/server-github"],\n      "env": {"GITHUB_TOKEN": "ghp_YOUR_TOKEN"}\n    }\n  }\n}' },
+                'For an optional approved GitHub integration, use a narrowly scoped test-repository credential supplied through the process environment. Keep existing reviewed hooks and permissions in .claude/settings.json; do not store the credential there.',
+                'Create project-root .mcp.json:',
+                { type: 'code', language: 'json', code: '{\n  "mcpServers": {\n    "github": {\n      "command": "npx",\n      "args": ["-y","@modelcontextprotocol/server-github"],\n      "env": {"GITHUB_TOKEN": "${GITHUB_TOKEN}"}\n    }\n  }\n}' },
+                'Review the server package and command before approving startup. This scope correction is source-reviewed; package availability, CLI startup, and provider execution still need separate checks.',
                 'Restart Claude Code. Check: /mcp → should show github.',
                 'Test: "Create a GitHub issue titled Add authentication with 3 acceptance criteria"',
                 { type: 'verify', text: 'GitHub repo → Issues tab → new issue created by Claude Code.' }
@@ -3727,12 +3729,12 @@ claude mcp remove filesystem
     </div>
 
     <h3>Scope Levels</h3>
-    <p>Claude Code stores MCP config at three levels:</p>
+    <p>Claude Code supports local, project, and user MCP scopes. Enterprise policy can separately constrain which servers are allowed.</p>
     <table class="content-table">
         <tr><th>Scope</th><th>File</th><th>Use Case</th></tr>
+        <tr><td><strong>Local</strong></td><td>~/.claude.json, scoped to the current project</td><td>Personal server definitions for one project</td></tr>
         <tr><td><strong>Project</strong></td><td>.mcp.json in project root</td><td>Shared with team (commit to repo)</td></tr>
-        <tr><td><strong>User</strong></td><td>~/.claude/settings.json</td><td>Personal servers across all projects</td></tr>
-        <tr><td><strong>Enterprise</strong></td><td>Managed by org admin</td><td>Organisation-wide servers</td></tr>
+        <tr><td><strong>User</strong></td><td>~/.claude.json</td><td>Personal servers across all projects</td></tr>
     </table>
 
     <div class="code-block">
@@ -3745,7 +3747,7 @@ claude mcp add my-server --scope user -- node ./my-server.js
 
     <div class="tip-box">
         <h4>💡 Pro Tip: Project-Level MCP</h4>
-        <p>If you create a <strong>.mcp.json</strong> in your project root and commit it, anyone who clones the repo and uses Claude Code will automatically have access to the same MCP servers. This is powerful for team standardisation.</p>
+        <p>A project-root <strong>.mcp.json</strong> shares server definitions, not credentials or automatic permission to run them. Each user reviews and approves project servers before use. Source-reviewed 2026-09-14 against <a href="https://code.claude.com/docs/en/mcp#project-scope" target="_blank" rel="noopener">Claude Code MCP scopes</a>; hooks and permissions remain ordinary settings.</p>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════ -->

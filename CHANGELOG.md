@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### September learning release
+- Added distinct learner destinations, selected-path/session recommendations, guided coaching for all 31 modules, local case analysis, predictions, evidence examples, and downloadable worksheets/reports.
+- Fixed save/import failure reporting, corrupt-storage protection, draft recovery, quiz focus and answer-position cues, missing rubric validation, and failed/duplicate review handling. Evidence provenance is explicit.
+- Updated sourced model/pricing facts and MCP setup instructions, removed unsafe workplace-input directions, and aligned mock API tests and plan limits.
+- Added self-contained browser CI gates and release `2026-09-learning-1` with scoped, coherent offline caching. All 184 Node tests and 19 browser tests passed again on September 16; publication was approved that day. Provider/cloud labs remain unexecuted.
+
 ### Added
 - Versioned mastery progress (`schemaVersion: 2`) with Learned, Practiced, Demonstrated, and Durable states; existing completion data migrates as legacy evidence pending revalidation.
 - Ten-question diagnostic that recommends the earliest competency worth practicing.

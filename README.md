@@ -17,6 +17,27 @@ A pure-HTML / CSS / JavaScript study site (no build step, no frameworks, no CDNs
 
 Progress is saved in your browser's `localStorage` and can be exported / imported as JSON.
 
+## September learning release
+
+Release `2026-09-learning-1` includes the changes below. GitHub Pages publishes `main` only after the Node and browser gates pass; see the [deployment runs](https://github.com/akshayvall/ai-mastery-academy/actions/workflows/pages.yml).
+
+- Today, Learn, Practice, Build, and More have distinct task views. Learning path and 10/25/60-minute session choices guide recommendations without blocking reference access.
+- All 31 real modules support guided/browse mode, worked cases, predictions, changed tasks, illustrative evidence, downloadable worksheets, and subscription-free case practice. The 10 visual-review activities remain separate.
+- Quiz answer positions vary with stable identities and explicit critical-question policy. Failed due reviews are recorded. Evidence labels distinguish self-assessment and self-reported reviewer input from external verification.
+- Progress backups identify their academy and format. Failed saves retain recoverable work; invalid imports and corrupt storage cannot silently replace existing progress. Drafts and lesson tab/section links survive navigation.
+- Model facts are source-checked for September 14. Supported older lab models remain pinned; provider and cloud execution are not implied by source review.
+
+The deployment gate runs locally with:
+
+```powershell
+node --test tests/*.test.js
+python -m pip install -r tests/requirements.txt
+python -m playwright install chromium
+python tests/browser_smoke.py
+```
+
+The browser runner starts and stops its own local server. It uses disposable browser storage and does not execute course lab commands. Manual screen-reader review, actual provider integration, and measured learning outcomes remain separate checks.
+
 ---
 
 ## 🗺️ Curriculum

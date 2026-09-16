@@ -248,14 +248,14 @@ RESPONSE TO EVALUATE: {output}</div>
         <tr><th>Anthropic model (verified ${MODEL_LANDSCAPE.sources.anthropic.verifiedDate})</th><th>Input $/M</th><th>Output $/M</th><th>Sweet spot</th></tr>
         <tr><td>Maximum capability: ${MODEL_LANDSCAPE.anthropic.frontier}</td><td>${MODEL_LANDSCAPE.anthropic.frontierPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.frontierPrice.output}</td><td>Highest-stakes reasoning and evaluation</td></tr>
         <tr><td>Advanced reasoning: ${MODEL_LANDSCAPE.anthropic.reasoning}</td><td>${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}</td><td>Hard reasoning and judge workloads</td></tr>
-        <tr><td>Workhorse: ${MODEL_LANDSCAPE.anthropic.balanced}</td><td>${MODEL_LANDSCAPE.anthropic.balancedPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.balancedPrice.output}</td><td>Introductory rate through August 31, 2026; then ${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.output}</td></tr>
+        <tr><td>Workhorse: ${MODEL_LANDSCAPE.anthropic.balanced}</td><td>${MODEL_LANDSCAPE.anthropic.balancedPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.balancedPrice.output}</td><td>Standard API pricing; the planned September 1 increase was cancelled</td></tr>
         <tr><td>Small and fast: ${MODEL_LANDSCAPE.anthropic.small}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.output}</td><td>Classification, extraction, routing</td></tr>
     </table>
-    <p>The ${MODEL_LANDSCAPE.anthropic.balanced} introductory price is ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per million tokens through August 31, 2026. Model the standard ${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.output} rate for forecasts extending beyond that date. Prices change frequently, so re-check the <a href="${MODEL_LANDSCAPE.sources.anthropic.pricing}" target="_blank" rel="noopener">official Anthropic pricing page</a> before approving a business case.</p>
+    <p>The ${MODEL_LANDSCAPE.anthropic.balanced} rate of ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per million input/output tokens is now standard, not a temporary promotion. The planned September 1 increase was cancelled. Source-reviewed ${MODEL_LANDSCAPE.sources.anthropic.verifiedDate} against the <a href="${MODEL_LANDSCAPE.sources.anthropic.pricing}" target="_blank" rel="noopener">official Anthropic pricing page</a>; re-check before approving a business case. These are standard USD API rates, excluding taxes and separate batch, cached-token, or context-tier pricing. The calculations below use illustrative workloads; no provider lab was executed.</p>
     <p>1 token ≈ 4 English characters ≈ 0.75 words. A 1000-word answer is ~1300 output tokens.</p>
 
     <h3>Example: cost-per-query worked out</h3>
-        <div class="code-block">RAG support bot, Sonnet 5 introductory price (through August 31, 2026):
+        <div class="code-block">RAG support bot, Sonnet 5 standard price (source-reviewed 2026-09-14):
   Input  = system prompt (500) + 4 retrieved chunks (4×500=2000) + user msg (100)
          = ~2600 input tokens
   Output = ~400 tokens
@@ -267,8 +267,9 @@ RESPONSE TO EVALUATE: {output}</div>
 At $19/month plan with 60% target gross margin → AI must stay ≤ $7.60/user
 $0.92 leaves room for other variable costs.
 
-Post-promotion sensitivity at $3/$15:
-    Cost/query = $0.0138; 100 queries/user/month = $1.38</div>
+Output-length sensitivity at the same $2/$10 standard rates:
+    800 output tokens: $0.0052 input + $0.008 output = $0.0132/query
+    100 queries/user/month = $1.32; this is an illustrative workload change.</div>
 </div>
 
 <div class="learn-section">
@@ -296,18 +297,18 @@ Post-promotion sensitivity at $3/$15:
     <table class="content-table">
         <tr><th>Field</th><th>Example</th></tr>
         <tr><td>Feature</td><td>Status report generator</td></tr>
-        <tr><td>Model</td><td>${MODEL_LANDSCAPE.anthropic.balanced}, introductory ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per M through August 31, 2026</td></tr>
+        <tr><td>Model</td><td>${MODEL_LANDSCAPE.anthropic.balanced}, standard ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per million input/output tokens; source-reviewed ${MODEL_LANDSCAPE.sources.anthropic.verifiedDate}</td></tr>
         <tr><td>Avg input tokens</td><td>1,800</td></tr>
         <tr><td>Avg output tokens</td><td>600</td></tr>
         <tr><td>CPQ (raw)</td><td>$0.0096</td></tr>
-        <tr><td>Cache hit rate</td><td>40%</td></tr>
+        <tr><td>Assumed total model-cost reduction</td><td>40% illustrative reduction, not inferred from a cache hit rate; actual cache reads/writes need separate pricing</td></tr>
         <tr><td>CPQ (effective, simplified 40% reduction)</td><td>$0.0058</td></tr>
         <tr><td>Q/U per month (Pro plan)</td><td>40</td></tr>
         <tr><td>Variable AI cost per Pro user / mo</td><td>$0.23</td></tr>
         <tr><td>Pro plan price</td><td>$29</td></tr>
         <tr><td>Other variable cost (DB, infra)</td><td>$1.20</td></tr>
         <tr><td><strong>Gross margin (Pro)</strong></td><td><strong>~95%</strong></td></tr>
-        <tr><td>Post-promotion sensitivity</td><td>$0.0144 raw CPQ; $0.0086 effective; $0.35/user/month at $3/$15</td></tr>
+        <tr><td>Output-length sensitivity (1,200 output tokens)</td><td>$0.0156 raw CPQ; $0.0094 effective with the same illustrative 40% reduction; $0.37/user/month at 40 queries and unchanged standard rates</td></tr>
         <tr><td>Power-user cap (rate-limit at)</td><td>200/mo (otherwise margin breaks at heavy users)</td></tr>
     </table>
     <div class="warning-box">
@@ -319,7 +320,7 @@ Post-promotion sensitivity at $3/$15:
         <ul class="references-list" style="list-style:none; padding:0;">
             <li>📄 <a href="https://a16z.com/who-owns-the-generative-ai-platform/" target="_blank" rel="noopener">a16z — Who Owns the Generative AI Platform?</a> — Analysis of value capture and cost dynamics in the AI stack</li>
             <li>📄 <a href="https://openai.com/api/pricing/" target="_blank" rel="noopener">OpenAI — API Pricing</a> — Current token pricing for all GPT models, including input/output splits</li>
-            <li>📄 <a href="https://www.anthropic.com/pricing" target="_blank" rel="noopener">Anthropic — API Pricing</a> — Claude model pricing with prompt caching and batch discounts</li>
+            <li>📄 <a href="${MODEL_LANDSCAPE.sources.anthropic.pricing}" target="_blank" rel="noopener">Anthropic API Pricing</a>: standard rates, prompt caching, and batch pricing; source-reviewed ${MODEL_LANDSCAPE.sources.anthropic.verifiedDate}</li>
             <li>📄 <a href="https://a16z.com/navigating-the-high-cost-of-ai-compute/" target="_blank" rel="noopener">a16z — Navigating the High Cost of AI Compute</a> — Strategies for managing AI infrastructure costs at scale</li>
         </ul>
     </div>
@@ -336,7 +337,7 @@ Post-promotion sensitivity at $3/$15:
         { question: 'A healthy first artefact for any AI feature is…', options: ['A logo', 'A unit-economics worksheet (CPQ, Q/U, margin per plan)', 'A press release', 'A roadmap deck'], correct: 1, explanation: 'You can\'t price or plan without it.' }
     ],
     interactive: [
-        { type: 'drag-drop', id: 'pm-cost-dd', title: 'Pick the right model class', description: 'Match each task to the cheapest model class that\'s likely good enough.', items: ['Classifying support tickets into 8 categories', 'Multi-step research agent producing a 5-page brief', 'Acting as the judge in your eval suite', 'Extracting JSON fields from an email'], targets: { 'Frontier (Fable 5 / GPT-5.6 Sol / Gemini 3.1 Pro Preview)': ['Multi-step research agent producing a 5-page brief', 'Acting as the judge in your eval suite'], 'Small and fast (Haiku 4.5 / GPT-5.6 Luna / Gemini Flash)': ['Classifying support tickets into 8 categories', 'Extracting JSON fields from an email'] } },
+        { type: 'drag-drop', id: 'pm-cost-dd', title: 'Pick the right model class', description: 'Match each task to the cheapest model class that\'s likely good enough; validate the choice with task-specific evals.', items: ['Classifying support tickets into 8 categories', 'Multi-step research agent producing a 5-page brief', 'Acting as the judge in your eval suite', 'Extracting JSON fields from an email'], targets: { [`Frontier (${MODEL_LANDSCAPE.anthropic.frontier} / ${MODEL_LANDSCAPE.openai.frontier} / ${MODEL_LANDSCAPE.google.frontier})`]: ['Multi-step research agent producing a 5-page brief', 'Acting as the judge in your eval suite'], 'Small and fast (Haiku 4.5 / GPT-5.6 Luna / Gemini Flash)': ['Classifying support tickets into 8 categories', 'Extracting JSON fields from an email'] } },
         { type: 'flashcards', id: 'pm-cost-cards', title: 'Cost Cards', cards: [
             { front: 'The PM\'s three numbers?', back: 'Cost per query (CPQ), queries per user per month (Q/U), gross margin per plan.' },
             { front: 'Cost levers in priority order?', back: 'Caching → model routing → prompt pruning → batch API → semantic cache → self-host (last).' },

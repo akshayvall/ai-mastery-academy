@@ -104,7 +104,7 @@ const MODULES_100 = [
     <table class="content-table">
         <tr><th>Concept</th><th>What It Means</th><th>Why You Care</th></tr>
         <tr><td><strong>Tokens</strong></td><td>Text units of ~3-4 characters. 1,000 tokens ≈ 750 words.</td><td>All pricing and context limits are in tokens.</td></tr>
-        <tr><td><strong>Context Window</strong></td><td>Maximum tokens a model can accept for one request</td><td>GPT-5.6 Sol/Terra/Luna: ${MODEL_LANDSCAPE.openai.context} · Claude Fable/Opus/Sonnet: ${MODEL_LANDSCAPE.anthropic.context}; Haiku 4.5: ${MODEL_LANDSCAPE.anthropic.smallContext} · listed Gemini models: ${MODEL_LANDSCAPE.google.context} input tokens</td></tr>
+        <tr><td><strong>Context Window</strong></td><td>Maximum tokens a model can accept for one request</td><td>GPT-6 Astra: ${MODEL_LANDSCAPE.openai.context}. Reference limits for the supported examples: Claude Opus/Sonnet ${MODEL_LANDSCAPE.anthropic.context}, Haiku 4.5 ${MODEL_LANDSCAPE.anthropic.smallContext}, Gemini 3.6 Flash ${MODEL_LANDSCAPE.google.context} input tokens. Check each newer model separately.</td></tr>
         <tr><td><strong>Temperature</strong></td><td>Controls sampling randomness on models that expose it</td><td>Lower can improve consistency; it does not guarantee identical output. Current Claude models use adaptive thinking and reject sampling parameters.</td></tr>
         <tr><td><strong>System Prompt</strong></td><td>Hidden instructions defining AI behaviour</td><td>The single most powerful lever for controlling output.</td></tr>
         <tr><td><strong>Hallucination</strong></td><td>Generating plausible but factually wrong text</td><td>Always verify critical facts. The model is sometimes confidently wrong.</td></tr>
@@ -133,13 +133,15 @@ const MODULES_100 = [
 </div>
 
 <div class="learn-section">
-    <h2>The Big Three Platforms — July 2026</h2>
+    <h2>The Big Three Platforms: September 2026</h2>
+    <p>Catalog names and standard API token rates source-reviewed ${MODEL_LANDSCAPE.verifiedDate}. Prices below are USD per million input/output tokens, not subscription prices. Provider labs have not been executed; product plans, context tiers, and account terms need their own checks.</p>
     <div class="comparison-grid">
         <div class="comparison-card">
             <h4>🟢 OpenAI / ChatGPT</h4>
             <ul>
-                <li><strong>Models:</strong> ${MODEL_LANDSCAPE.openai.frontier} (${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output} per MTok), ${MODEL_LANDSCAPE.openai.balanced} (${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}), ${MODEL_LANDSCAPE.openai.small} (${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output})</li>
-                <li><strong>Context:</strong> ${MODEL_LANDSCAPE.openai.context} tokens for the listed GPT-5.6 family</li>
+                <li><strong>Current flagship:</strong> ${MODEL_LANDSCAPE.openai.frontier} (${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output} per MTok)</li>
+                <li><strong>Still supported:</strong> ${MODEL_LANDSCAPE.openai.supported} (${MODEL_LANDSCAPE.openai.supportedPrice.input}/${MODEL_LANDSCAPE.openai.supportedPrice.output}), ${MODEL_LANDSCAPE.openai.balanced} (${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}), ${MODEL_LANDSCAPE.openai.small} (${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output})</li>
+                <li><strong>Flagship context:</strong> ${MODEL_LANDSCAPE.openai.context} tokens</li>
                 <li><strong>Products:</strong> Custom GPTs, Canvas, Codex (cloud agent), Sora (video), GPT-image-1.5</li>
                 <li><strong>Best at:</strong> General purpose, images, video, consumer UX</li>
                 <li><strong>Plans:</strong> Free / Plus $20 / Pro $200</li>
@@ -149,8 +151,8 @@ const MODULES_100 = [
             <h4>🟣 Anthropic / Claude</h4>
             <ul>
                 <li><strong>Models:</strong> ${MODEL_LANDSCAPE.anthropic.frontier} (${MODEL_LANDSCAPE.anthropic.frontierPrice.input}/${MODEL_LANDSCAPE.anthropic.frontierPrice.output} per MTok), ${MODEL_LANDSCAPE.anthropic.reasoning} (${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}/${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}), ${MODEL_LANDSCAPE.anthropic.balanced} (${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output}), ${MODEL_LANDSCAPE.anthropic.small} (${MODEL_LANDSCAPE.anthropic.smallPrice.input}/${MODEL_LANDSCAPE.anthropic.smallPrice.output})</li>
-                <li><strong>Context:</strong> ${MODEL_LANDSCAPE.anthropic.context} for Fable 5, Opus 5, and Sonnet 5; ${MODEL_LANDSCAPE.anthropic.smallContext} for Haiku 4.5</li>
-                <li><strong>Sonnet 5 pricing:</strong> ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per MTok through ${MODEL_LANDSCAPE.anthropic.balancedIntroThrough}; then ${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.output}</li>
+                <li><strong>Reference context:</strong> ${MODEL_LANDSCAPE.anthropic.context} for Opus 5 and Sonnet 5; ${MODEL_LANDSCAPE.anthropic.smallContext} for Haiku 4.5. Check the Fable 5.1 entry before sizing its requests.</li>
+                <li><strong>Sonnet 5 standard pricing:</strong> ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per MTok. The planned September 1 increase was cancelled; the current rate is no longer introductory.</li>
                 <li><strong>Products:</strong> Claude Code, Cowork, Projects, Artifacts, Managed Agents, MCP</li>
                 <li><strong>Best at:</strong> Coding, agents, complex instructions, long documents</li>
                 <li><strong>Plans:</strong> Free / Pro $20 / Max $100</li>
@@ -159,9 +161,10 @@ const MODULES_100 = [
         <div class="comparison-card">
             <h4>🔵 Google / Gemini</h4>
             <ul>
-                <li><strong>Stable models:</strong> ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>), ${MODEL_LANDSCAPE.google.small} (<code>${MODEL_LANDSCAPE.google.smallId}</code>)</li>
+                <li><strong>Current stable:</strong> ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>)</li>
+                <li><strong>Supported lab pin:</strong> ${MODEL_LANDSCAPE.google.supported} (<code>${MODEL_LANDSCAPE.google.supportedId}</code>); supported older examples do not require automatic migration.</li>
                 <li><strong>Current Pro:</strong> ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>), currently preview</li>
-                <li><strong>Context:</strong> ${MODEL_LANDSCAPE.google.context} input tokens for the listed models; Gemini 2.5 also remains supported</li>
+                <li><strong>Reference context:</strong> ${MODEL_LANDSCAPE.google.context} input tokens for the Gemini 3.6 Flash example. Check newer model limits separately; Gemini 2.5 also remains supported.</li>
                 <li><strong>Products:</strong> NotebookLM, Deep Research, AI Studio (free), Veo 3.1, Computer Use</li>
                 <li><strong>Best at:</strong> Research, multimodal, huge documents, Google Workspace</li>
                 <li><strong>Plans:</strong> Free / Advanced $20</li>
@@ -774,8 +777,8 @@ Note: "mike says db is slow, customers complaining"</div>
 )</div>
     <p><strong>The messages array IS the memory.</strong> AI has no persistent memory. You send the FULL conversation each request. Managing this array is how chatbots "remember."</p>
 
-    <h3>Provider Patterns (catalog verified July 26, 2026)</h3>
-    <p><strong>Abbreviated examples:</strong> install each SDK separately and replace ellipses with real message content before running.</p>
+    <h3>Provider Patterns (catalog source-reviewed ${MODEL_LANDSCAPE.verifiedDate})</h3>
+    <p><strong>Abbreviated, unexecuted examples:</strong> supported lab pins are retained. Use synthetic message content and local mock responses first; SDK installation and provider execution need separate verification, approval, and a request budget.</p>
     <div class="code-block"># OpenAI: pip install openai
 from openai import OpenAI
 client = OpenAI()  # reads OPENAI_API_KEY env var
@@ -790,7 +793,7 @@ msg = client.messages.create(model="${MODEL_LANDSCAPE.anthropic.balancedId}", ma
 from google import genai
 client = genai.Client()  # reads GEMINI_API_KEY
 r = client.models.generate_content(
-    model="${MODEL_LANDSCAPE.google.stableId}",
+    model="${MODEL_LANDSCAPE.google.supportedId}",
     contents="What is Kubernetes?"
 )</div>
 </div>
@@ -993,12 +996,12 @@ r = client.models.generate_content(
 
 <div class="learn-section">
     <h2>Current catalog snapshot</h2>
-    <p>Verified ${MODEL_LANDSCAPE.verifiedDate}. Keep model selection separate from durable architecture because names, prices, and lifecycle status change faster than system design.</p>
+    <p>Source-reviewed ${MODEL_LANDSCAPE.verifiedDate}; provider labs have not been executed. Keep model selection separate from durable architecture because names, prices, and lifecycle status change faster than system design. Retain supported lab pins until an application-specific migration passes its own evaluation. Next source review: ${MODEL_LANDSCAPE.nextReviewDate}; owner: ${MODEL_LANDSCAPE.reviewOwner}.</p>
     <table class="content-table">
         <tr><th>Provider</th><th>Current entries</th><th>Context and pricing</th></tr>
-        <tr><td><strong>OpenAI</strong></td><td>${MODEL_LANDSCAPE.openai.frontier} (<code>${MODEL_LANDSCAPE.openai.frontierId}</code>)<br>${MODEL_LANDSCAPE.openai.balanced} (<code>${MODEL_LANDSCAPE.openai.balancedId}</code>)<br>${MODEL_LANDSCAPE.openai.small} (<code>${MODEL_LANDSCAPE.openai.smallId}</code>)</td><td>${MODEL_LANDSCAPE.openai.context} context. Per MTok: ${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output}, ${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}, ${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output}.</td></tr>
-        <tr><td><strong>Anthropic</strong></td><td>${MODEL_LANDSCAPE.anthropic.frontier} (<code>${MODEL_LANDSCAPE.anthropic.frontierId}</code>)<br>${MODEL_LANDSCAPE.anthropic.reasoning} (<code>${MODEL_LANDSCAPE.anthropic.reasoningId}</code>)<br>${MODEL_LANDSCAPE.anthropic.balanced} (<code>${MODEL_LANDSCAPE.anthropic.balancedId}</code>)<br>${MODEL_LANDSCAPE.anthropic.small} (<code>${MODEL_LANDSCAPE.anthropic.smallId}</code>)</td><td>Fable/Opus/Sonnet: ${MODEL_LANDSCAPE.anthropic.context}; Haiku: ${MODEL_LANDSCAPE.anthropic.smallContext}. Sonnet is ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} through ${MODEL_LANDSCAPE.anthropic.balancedIntroThrough}, then ${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedStandardPrice.output}.</td></tr>
-        <tr><td><strong>Google</strong></td><td>Stable: ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>) and ${MODEL_LANDSCAPE.google.small} (<code>${MODEL_LANDSCAPE.google.smallId}</code>)<br>Pro preview: ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>)</td><td>${MODEL_LANDSCAPE.google.context} input tokens. Gemini 2.5 models remain supported.</td></tr>
+        <tr><td><strong>OpenAI</strong></td><td>Flagship: ${MODEL_LANDSCAPE.openai.frontier} (<code>${MODEL_LANDSCAPE.openai.frontierId}</code>)<br>Supported: ${MODEL_LANDSCAPE.openai.supported} (<code>${MODEL_LANDSCAPE.openai.supportedId}</code>), ${MODEL_LANDSCAPE.openai.balanced} (<code>${MODEL_LANDSCAPE.openai.balancedId}</code>), ${MODEL_LANDSCAPE.openai.small} (<code>${MODEL_LANDSCAPE.openai.smallId}</code>)</td><td>Astra: ${MODEL_LANDSCAPE.openai.context} context. USD per million input/output tokens: Astra ${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output}; Sol ${MODEL_LANDSCAPE.openai.supportedPrice.input}/${MODEL_LANDSCAPE.openai.supportedPrice.output}; Terra ${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}; Luna ${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output}.</td></tr>
+        <tr><td><strong>Anthropic</strong></td><td>Frontier: ${MODEL_LANDSCAPE.anthropic.frontier} (<code>${MODEL_LANDSCAPE.anthropic.frontierId}</code>)<br>Current: ${MODEL_LANDSCAPE.anthropic.reasoning} (<code>${MODEL_LANDSCAPE.anthropic.reasoningId}</code>) and ${MODEL_LANDSCAPE.anthropic.balanced} (<code>${MODEL_LANDSCAPE.anthropic.balancedId}</code>)<br>Small: ${MODEL_LANDSCAPE.anthropic.small} (<code>${MODEL_LANDSCAPE.anthropic.smallId}</code>)</td><td>Fable ${MODEL_LANDSCAPE.anthropic.frontierPrice.input}/${MODEL_LANDSCAPE.anthropic.frontierPrice.output}; Opus ${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}/${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}; Sonnet ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per MTok standard. The planned September increase was cancelled. Reference context: Opus/Sonnet ${MODEL_LANDSCAPE.anthropic.context}, Haiku ${MODEL_LANDSCAPE.anthropic.smallContext}; check Fable 5.1 separately.</td></tr>
+        <tr><td><strong>Google</strong></td><td>Current stable: ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>)<br>Supported pin: ${MODEL_LANDSCAPE.google.supported} (<code>${MODEL_LANDSCAPE.google.supportedId}</code>)<br>Pro preview: ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>)</td><td>Gemini 3.6 Flash reference: ${MODEL_LANDSCAPE.google.context} input tokens. Check the newer model entry for its limits. Gemini 2.5 models remain supported.</td></tr>
     </table>
     <ul class="references-list" style="list-style:none; padding:0;">
         <li>📄 <a href="${MODEL_LANDSCAPE.sources.openai.models}" target="_blank" rel="noopener">OpenAI model catalog</a> — verified ${MODEL_LANDSCAPE.sources.openai.verifiedDate}</li>

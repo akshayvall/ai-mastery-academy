@@ -39,6 +39,7 @@ const MODULES_300 = [
         <tr><td><strong>Tools</strong></td><td>Individual capabilities</td><td>create_issue, navigate_page, query_db</td></tr>
     </table>
     <h3>Building an MCP Server</h3>
+    <p>For Claude Code, project server definitions belong in project-root .mcp.json; local/user definitions belong in ~/.claude.json. Keep hooks and permissions in .claude/settings.json. Source-reviewed 2026-09-14 against <a href="https://code.claude.com/docs/en/mcp#project-scope" target="_blank" rel="noopener">Claude Code MCP scopes</a>. The SDK sketch and CLI integration below have not been executed for this review.</p>
     <div class="code-block">import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 const server = new McpServer({name: "my-tools", version: "1.0.0"});
 server.tool("get_status", "Get project status. Use when user asks about progress.",
@@ -118,9 +119,9 @@ server.tool("get_status", "Get project status. Use when user asks about progress
                 { type: 'verify', text: 'All 8 tests pass. Good inputs return data; bad inputs fail safely; logs support diagnosis without exposing arguments.' }
             ]},
             { title: 'Connect to Claude Code + create skill', subtitle: 'Add MCP server + auto-triggered skill', duration: '10 min', instructions: [
-                'Add to .claude/settings.json:',
+                'Add to project-root .mcp.json:',
                 { type: 'code', language: 'json', code: '{"mcpServers": {"project-tools": {"command":"node","args":["./dist/index.js"]}}}' },
-                'Restart Claude Code. Check: /mcp → shows project-tools.',
+                'Review the local command and approve project-scoped server use before connecting. Keep hooks and permissions in .claude/settings.json. Restart Claude Code, then check /mcp for project-tools; this is an unexecuted verification step.',
                 { type: 'command', cmd: 'mkdir -p .claude/skills/project-check' },
                 'Create .claude/skills/project-check/SKILL.md:',
                 { type: 'code', language: 'markdown', code: '---\ndescription: Check project status and health\n---\nWhen user asks about projects, progress, or health:\n1. Call get_project_status\n2. Call check_health for related services\n3. Format as status table' },
@@ -216,7 +217,7 @@ server.tool("get_status", "Get project status. Use when user asks about progress
     lab: {
         title: 'Hands-On: Deploy an AI Agent API',
         scenario: 'FastAPI agent endpoint with rate limiting, cost tracking, Docker, and deployment.',
-        duration: '60-90 min', cost: 'Free (optional Azure for deploy)', difficulty: 'Advanced',
+        duration: '60-90 min', cost: 'Free with local mocks; provider calls and hosting need separate approval and budget', difficulty: 'Advanced',
         prerequisites: ['Completed Phases 6-8', 'Docker installed (optional)', 'Claude Code installed'],
         steps: [
             { title: 'Build the API with Claude Code', subtitle: 'All endpoints + SQLite logging', duration: '15 min', instructions: [
@@ -227,11 +228,11 @@ server.tool("get_status", "Get project status. Use when user asks about progress
                 { type: 'verify', text: 'Swagger shows 4 endpoints. POST returns result + metadata. GET /runs shows the run.' }
             ]},
             { title: 'Add all protections', subtitle: 'Rate limiting, iteration cap, timeout, cost tracking', duration: '15 min', instructions: [
-                { type: 'prompt', text: 'Add protections:\n1. Authenticate callers; reject missing or invalid credentials\n2. Rate limit: 10/min per caller and IP (slowapi). 429 when exceeded.\n3. max_iterations > 10 → reject with 400\n4. Timeout: kill after 60 seconds → 408\n5. Retry transient model errors at most twice with exponential backoff + jitter; do not retry validation/auth errors\n6. Cost tracking: compute from token count + model rate\n7. Structured telemetry: request ID, model, latency, tokens, cost, retries, status; never log secrets or prompt contents\n8. Error handling: clear JSON, never expose tracebacks\n9. Write 10+ pytest tests covering auth, success, retry, rate limit, bad max_iter, invalid body, timeout, and health' },
+                { type: 'prompt', text: 'Add protections:\n1. Authenticate Bearer tokens; reject missing or invalid credentials. Use a synthetic local test identity, with its token supplied in LOCAL_TEST_TOKEN, only in the local mock/test environment\n2. Rate limit: 10/min per caller and IP (slowapi). 429 when exceeded.\n3. max_iterations > 10 → reject with 400\n4. Timeout: kill after 60 seconds → 408\n5. Retry transient model errors at most twice with exponential backoff + jitter; do not retry validation/auth errors\n6. Cost tracking: compute from token count + model rate\n7. Structured telemetry: request ID, model, latency, tokens, cost, retries, status; never log secrets or prompt contents\n8. Error handling: clear JSON, never expose tracebacks\n9. Write 10+ pytest tests covering auth, success, retry, rate limit, bad max_iter, invalid body, timeout, and health. Use deterministic mock provider responses and a fresh quota state; no paid API calls' },
                 { type: 'command', cmd: 'pytest -v' },
-                'Manual rate limit test:',
-                { type: 'command', cmd: 'for i in $(seq 1 15); do curl -s -o /dev/null -w "%{http_code} " -X POST http://localhost:8000/api/run-agent -H "Content-Type: application/json" -d \'{"task":"test"}\'; done' },
-                { type: 'verify', text: 'Tests pass. Rapid requests show 429 after 10. max_iterations=50 → 400.' }
+                'Manual rate-limit test in PowerShell 7 against localhost only: select the deterministic mock provider and a fresh per-user quota, then set LOCAL_TEST_TOKEN directly in the terminal to a valid synthetic test credential without printing it. Never weaken production authentication to run this test.',
+                { type: 'command', cmd: 'if (-not $env:LOCAL_TEST_TOKEN) { throw "Set a valid local test credential in the terminal first." }\n1..15 | ForEach-Object { Invoke-WebRequest -Uri "http://localhost:8000/api/run-agent" -Method Post -Headers @{ Authorization = "Bearer $env:LOCAL_TEST_TOKEN" } -ContentType "application/json" -Body \'{"task":"synthetic test"}\' -SkipHttpErrorCheck | Select-Object -ExpandProperty StatusCode }' },
+                { type: 'verify', text: 'With a fresh authenticated quota and all mock responses within one minute, the first 10 requests succeed and the next 5 return 429. Repeated 401/403 responses indicate an auth setup failure, not a rate-limit pass. Test max_iterations=50 separately with an authenticated fresh quota: expect 400. Clear LOCAL_TEST_TOKEN from the shell after testing. These examples are source-reviewed, not executed results.' }
             ]},
             { title: 'Dockerise + plan the release', subtitle: 'Container, secrets, rollout, and rollback', duration: '10 min', instructions: [
                 { type: 'prompt', text: 'Create:\n1. Dockerfile (python:3.12-slim, non-root runtime, health check, pinned deps, uvicorn)\n2. docker-compose.yml (port 8000, inject GEMINI_API_KEY from the environment)\n3. .dockerignore and .env.example with placeholders only\n4. DEPLOYMENT.md covering Azure managed identity + secret store, health/readiness probes, immutable image versions, 10% canary or deployment slot, rollback thresholds for error rate/latency/cost, and the exact rollback command' },
@@ -272,6 +273,7 @@ server.tool("get_status", "Get project status. Use when user asks about progress
     <div class="tip-box"><h4>🎯 For PMs — prototype before you spec</h4><p>Don’t write a PRD for an AI feature you haven’t put in front of 5 real users. Use the playbook in <strong>PM Playbook: Discovery → Ship</strong>: 30-minute no-code prototype in NotebookLM/Project, Wizard-of-Oz with 5 users, then write the spec. Saves a quarter of wasted build.</p></div>
     <h3>Features</h3>
     <p>Status Report → Risk Analysis → Meeting Prep. Business: Free (5/mo) → Pro ($29) → Team ($19/user).</p>
+    <p>These are fictional product and pricing assumptions, not measured demand. The Free entitlement is five generations per UTC calendar month. Use only synthetic fixtures or permitted public data; real workplace inputs and provider execution require separate data-use and budget approval.</p>
     <h3>SaaS Stack</h3>
     <p>React frontend + FastAPI backend + Clerk/Azure AD auth + PostgreSQL + Stripe billing + AI + Azure deploy.</p>
     <h3>SaaS Control Plane</h3>
@@ -311,25 +313,25 @@ server.tool("get_status", "Get project status. Use when user asks about progress
     ]}],
     lab: {
         title: 'Hands-On: Build Your AI SaaS MVP',
-        scenario: 'Product brief → build backend → add auth + usage limits → deploy. Your capstone project.',
-        duration: '90-120 min', cost: 'Free', difficulty: 'Advanced',
+        scenario: 'Build and test a fictional SaaS locally with synthetic inputs, auth, and monthly usage limits. Provider calls, publishing, and deployment are optional and separately approved.',
+        duration: '90-120 min', cost: 'Free with local mocks; provider calls and hosting need separate approval and budget', difficulty: 'Advanced',
         prerequisites: ['Completed Phases 9-10', 'All prior projects built'],
         steps: [
             { title: 'Write the product brief', subtitle: 'BEFORE any code — define the product', duration: '15 min', instructions: [
                 'Create product-brief.md (this is the most important step):',
                 { type: 'code', language: 'markdown', code: '# AI TPM Assistant — Product Brief\n\n## Problem\nTPMs spend 3+ hours/week on status reports, risk analyses, meeting prep.\n\n## Target User\nTPMs at enterprise tech (50K+), managing 2-5 workstreams, reporting to VPs weekly.\n\n## Core Features (MVP = 3 only)\n1. Status Report: bullets → formatted exec report\n2. Risk Analyser: context → ranked risks + mitigations\n3. Meeting Prep: agenda + notes → talking points + questions\n\n## Success Metric\nUser generates 3+ outputs/week.\n\n## Business Model\nFree: 5/month | Pro: $29/month | Team: $19/user/month\n\n## Competitive Advantage\nI am the target user. Domain expertise + technical ability.' },
-                { type: 'verify', text: 'product-brief.md has all sections with real, thoughtful content.' }
+                { type: 'verify', text: 'product-brief.md labels its fictional user, demand, and pricing assumptions; it includes one measurable task-success hypothesis and the five-per-month Free entitlement.' }
             ]},
             { title: 'Build the backend', subtitle: '3 AI-powered endpoints', duration: '30 min', instructions: [
                 { type: 'command', cmd: 'mkdir ai-tpm-assistant && cd ai-tpm-assistant && claude' },
                 'Run /init, then:',
-                { type: 'prompt', text: 'Build FastAPI backend for AI TPM Assistant:\n\n1. POST /api/status-report — {updates:str, format:executive|detailed} → {report:str, tokens, cost}\n2. POST /api/risk-analysis — {project_context:str} → {risks:[{risk,likelihood,impact,severity,mitigation}], tokens, cost}\n3. POST /api/meeting-prep — {agenda:str, past_notes:str} → {talking_points:[str], questions:[{question,response}], tokens, cost}\n\nUse Gemini 2.5 Flash. Log all generations to SQLite. Swagger docs at /docs. requirements.txt.' },
+                { type: 'prompt', text: 'Build FastAPI backend for a fictional AI TPM Assistant:\n\n1. POST /api/status-report — {updates:str, format:executive|detailed} → {report:str, tokens, cost}\n2. POST /api/risk-analysis — {project_context:str} → {risks:[{risk,likelihood,impact,severity,mitigation}], tokens, cost}\n3. POST /api/meeting-prep — {agenda:str, past_notes:str} → {talking_points:[str], questions:[{question,response}], tokens, cost}\n\nDefault to deterministic mock responses for synthetic fixtures. Keep Gemini 2.5 Flash as an optional supported provider pin; paid execution requires separate approval. Record only minimized generation metadata in SQLite, never raw prompts or keys. Swagger docs at /docs. requirements.txt.' },
                 { type: 'command', cmd: 'pip install -r requirements.txt\nuvicorn main:app --reload' },
-                'Test ALL 3 at /docs with real inputs from your work.',
+                'Test all three endpoints at /docs with synthetic fixtures only: updates="MapleDesk demo: 8 of 10 fictional tasks done; review moved to Friday"; project_context="Fictional library kiosk: one test device, two-day delivery delay, volunteer owner"; agenda="Review mock search quality and the next trial" with past_notes="Synthetic trial: 3 of 5 questions answered; two need clarification". Do not substitute workplace documents or customer information. Use mock responses unless provider execution is separately approved.',
                 { type: 'verify', text: 'Status report has ## Highlights, ## Risks, ## Next Week. Risk analysis ranks by severity. Meeting prep has specific anticipated questions.' }
             ]},
             { title: 'Add tenant-safe auth + limits', subtitle: 'Isolation, entitlements, abuse controls, and cost attribution', duration: '20 min', instructions: [
-                { type: 'prompt', text: 'Add tenant-safe auth + limits:\n1. X-API-Key auth; store only hashed keys tied to tenant_id, user_id, and plan\n2. Derive tenant/user from the authenticated key, never from request JSON\n3. Enforce tenant_id on every generation and usage query\n4. Server-side plan entitlements: Free max 5 generations/day; Pro has a higher configurable limit\n5. Apply per-user and per-tenant request, token, and spend limits; return 429 with reset time\n6. Track tokens and cost by tenant, user, feature, model, and request ID\n7. GET /api/usage returns the caller tenant only: {daily_used,daily_limit,cost_usd,resets_at}\n8. Audit auth failures and limit decisions without logging raw keys or prompts\n9. Tests: no key→401, bad key→403, cross-tenant lookup→404, 6th Free request→429, Pro entitlement succeeds' },
+                { type: 'prompt', text: 'Add tenant-safe auth + limits:\n1. X-API-Key auth; store only hashed keys tied to tenant_id, user_id, and plan\n2. Derive tenant/user from the authenticated key, never from request JSON\n3. Enforce tenant_id on every generation and usage query\n4. Server-side plan entitlements: Free max 5 generations/month, per UTC calendar month; Pro has a higher configurable monthly limit. Match the product brief and define whether failed generations consume allowance\n5. Apply per-user and per-tenant request, token, and spend limits; return 429 with reset time. Reserve allowance atomically to prevent concurrent requests bypassing the cap\n6. Track tokens and cost by tenant, user, feature, model, and request ID\n7. GET /api/usage returns the caller tenant only: {monthly_used,monthly_limit,cost_usd,resets_at}\n8. Audit auth failures and limit decisions without logging raw keys or prompts\n9. Tests with synthetic identities and mock responses: no key→401, bad key→403, cross-tenant lookup→404, 6th Free request in one month→429, next-month reset, concurrent 5th/6th requests, Pro entitlement succeeds' },
                 { type: 'command', cmd: 'python generate_key.py\npytest -v' },
                 { type: 'verify', text: 'Auth tests pass, cross-tenant access returns no data, server-side entitlements hold, and usage reports tenant-level cost without exposing keys or prompts.' }
             ]},

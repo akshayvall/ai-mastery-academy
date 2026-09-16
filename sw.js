@@ -1,28 +1,32 @@
 const CACHE_PREFIX = 'ai-mastery-academy-';
-const CACHE_NAME = `${CACHE_PREFIX}2026-07-ui-redesign-3`;
+const CACHE_NAME = `${CACHE_PREFIX}2026-09-learning-1`;
+const APP_SCOPE = new URL(self.registration.scope);
 const APP_SHELL_PATHS = [
     './',
     'index.html',
     'manifest.webmanifest',
     'icons/app-icon.svg',
-    'css/styles.css?v=2026-07-ui-redesign-3',
-    'js/progress.js?v=2026-07-ui-redesign-3',
-    'js/ui-state.js?v=2026-07-ui-redesign-3',
-    'js/today-engine.js?v=2026-07-ui-redesign-3',
-    'js/landscape.js?v=2026-07-ui-redesign-3',
-    'js/modules-100.js?v=2026-07-ui-redesign-3',
-    'js/modules-200.js?v=2026-07-ui-redesign-3',
-    'js/modules-300.js?v=2026-07-ui-redesign-3',
-    'js/modules-extras.js?v=2026-07-ui-redesign-3',
-    'js/modules-pm.js?v=2026-07-ui-redesign-3',
-    'js/modules-builder.js?v=2026-07-ui-redesign-3',
-    'js/mastery-content.js?v=2026-07-ui-redesign-3',
-    'js/quiz-engine.js?v=2026-07-ui-redesign-3',
-    'js/interactive.js?v=2026-07-ui-redesign-3',
-    'js/lab-engine.js?v=2026-07-ui-redesign-3',
-    'js/diagrams.js?v=2026-07-ui-redesign-3',
-    'js/mastery-engine.js?v=2026-07-ui-redesign-3',
-    'js/app.js?v=2026-07-ui-redesign-3'
+    'css/styles.css?v=2026-09-learning-1',
+    'css/learning.css?v=2026-09-learning-1',
+    'js/progress.js?v=2026-09-learning-1',
+    'js/ui-state.js?v=2026-09-learning-1',
+    'js/today-engine.js?v=2026-09-learning-1',
+    'js/landscape.js?v=2026-09-learning-1',
+    'js/modules-100.js?v=2026-09-learning-1',
+    'js/modules-200.js?v=2026-09-learning-1',
+    'js/modules-300.js?v=2026-09-learning-1',
+    'js/modules-extras.js?v=2026-09-learning-1',
+    'js/modules-pm.js?v=2026-09-learning-1',
+    'js/modules-builder.js?v=2026-09-learning-1',
+    'js/mastery-content.js?v=2026-09-learning-1',
+    'js/learning-content.js?v=2026-09-learning-1',
+    'js/quiz-engine.js?v=2026-09-learning-1',
+    'js/interactive.js?v=2026-09-learning-1',
+    'js/lab-engine.js?v=2026-09-learning-1',
+    'js/diagrams.js?v=2026-09-learning-1',
+    'js/mastery-engine.js?v=2026-09-learning-1',
+    'js/learning-engine.js?v=2026-09-learning-1',
+    'js/app.js?v=2026-09-learning-1'
 ];
 
 const resolveFromScope = path => new URL(path, self.registration.scope).href;
@@ -50,25 +54,24 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
     const request = event.request;
     const requestUrl = new URL(request.url);
-    if (request.method !== 'GET' || requestUrl.origin !== self.location.origin) return;
+    if (request.method !== 'GET' || requestUrl.origin !== APP_SCOPE.origin || !requestUrl.pathname.startsWith(APP_SCOPE.pathname)) return;
 
     if (request.mode === 'navigate') {
         event.respondWith(
-            fetch(request).catch(() => caches.match(INDEX_URL))
+            caches.open(CACHE_NAME)
+                .then(cache => cache.match(INDEX_URL))
+                .then(cachedIndex => cachedIndex || fetch(request))
         );
         return;
     }
 
     event.respondWith(
-        caches.match(request).then(cachedResponse => {
+        caches.open(CACHE_NAME).then(async cache => {
+            const cachedResponse = await cache.match(request);
             if (cachedResponse) return cachedResponse;
-            return fetch(request).then(networkResponse => {
-                if (networkResponse.ok) {
-                    const responseToCache = networkResponse.clone();
-                    caches.open(CACHE_NAME).then(cache => cache.put(request, responseToCache));
-                }
-                return networkResponse;
-            });
+            const networkResponse = await fetch(request);
+            if (networkResponse.ok) event.waitUntil(cache.put(request, networkResponse.clone()));
+            return networkResponse;
         })
     );
 });

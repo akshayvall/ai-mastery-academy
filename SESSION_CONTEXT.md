@@ -24,6 +24,16 @@ Parent project context: [`../SESSION_CONTEXT.md`](../SESSION_CONTEXT.md).
 
 ## Log
 
+## 2026-09-16 - Publication approved and release gates repeated
+- Akshay requested publication of the completed phases. Release `2026-09-learning-1` targets `main` in `akshayvall/ai-mastery-academy`; the existing Pages workflow must pass before deployment.
+- Repeated all 184 Node tests and 19 browser tests successfully. The generated Builder module is unchanged, and the pending files contain no matches for the credential patterns checked.
+- Previous production baseline: `2b4c5d32ce9815cc411833d7942e4faeabd79bb0`. If rollback is needed, use a reviewed revert commit and a fresh cache release token; do not rewrite branch history or reset learner progress. Live deployment results will be recorded in the parent project after verification.
+
+## 2026-09-14 - All-phase local learning release
+- Implemented approved recovery/assessment fixes and complete learner destinations, with guided coaching, changed tasks, local case practice, illustrative evidence, and drafts across all 31 real modules. Preserved 10 visual-review activities and generated Builder content.
+- Integrated bounded subagent content, storage, assessment, UI, scheduling, and browser-gate work. All 184 academy Node tests and 19 standalone browser tests passed, including keyboard access, imports, offline caching, and worker upgrades.
+- Release token is `2026-09-learning-1`; not committed, pushed, or deployed. Provider/cloud labs and human learning/assistive-technology validation remain unverified. Local preview: http://127.0.0.1:8891/ai-academy/ .
+
 ## 2026-07-13 — July content audit fixes completed
 **Goal:** Apply the Critical, High, and Medium findings from the July 2026 content audit.
 **Outcome:** Replaced retired model IDs and stale defaults, rewrote Claude prefill guidance
