@@ -77,7 +77,7 @@ const MODULES_200 = [
             <li><strong>Recent events</strong> — anything after the training cutoff</li>
             <li><strong>Specialised domains</strong> — your company's specific processes, policies, jargon</li>
         </ul>
-        <p><strong>Grounding</strong> means connecting the model to real, authoritative data so it answers from facts rather than statistical guesses. RAG is the most popular grounding technique because it requires no model retraining.</p>
+        <p><strong>Grounding</strong> connects a response to external evidence. RAG retrieves evidence without retraining the model, but retrieval can miss relevant facts and generation can misinterpret or misattribute them. Check source authority, permissions, freshness, and whether each citation supports the claim; abstain when evidence is missing.</p>
     </div>
 
     <h3>RAG vs Fine-Tuning vs Long Context</h3>
@@ -414,7 +414,7 @@ Answer (cite sources):"""</div>
 
     <div class="warning-box">
         <h4>⚠️ The "Lost in the Middle" Problem</h4>
-        <p>Research shows LLMs pay more attention to content at the <strong>beginning</strong> and <strong>end</strong> of the context, and less to content in the <strong>middle</strong>. If you stuff 10 chunks into the prompt, chunks 4-7 may be effectively ignored. Mitigations:</p>
+        <p>Some long-context retrieval experiments show lower accuracy for evidence in the middle. This is not a universal attention curve: results depend on the model, task, length, and distractors. Move the same evidence between positions and measure answer quality. Candidate mitigations to test:</p>
         <ul>
             <li>Use fewer, more relevant chunks (quality over quantity — 3-5 is usually better than 10+)</li>
             <li>Put the most relevant chunk first AND last</li>
@@ -570,7 +570,7 @@ answer = llm.generate(f"Context:\\n{context}\\n\\nQuestion: {query}\\nAnswer:")<
             <li><strong>Golden dataset</strong> — 50+ question-answer pairs with known correct answers</li>
             <li><strong>Retrieval eval</strong> — are the right chunks being found? (precision@K, recall@K)</li>
             <li><strong>Generation eval</strong> — are answers faithful to the retrieved context? (LLM-as-judge)</li>
-            <li><strong>Release gate</strong> — don't ship until retrieval recall &gt; 80% AND generation faithfulness &gt; 90%</li>
+            <li><strong>Release gate</strong> — set retrieval and faithfulness thresholds by task and failure severity; inspect per-slice results, uncertainty, and unsupported-answer behavior rather than adopting universal percentages.</li>
         </ul>
     </div>
 </div>
@@ -667,15 +667,25 @@ answer = llm.generate(f"Context:\\n{context}\\n\\nQuestion: {query}\\nAnswer:")<
     ],
     learn: `
 <div class="learn-section">
-    <h2>2026 Upgrade: Prompt engineering became context and contract engineering</h2>
-    <p>Prompt quality still matters, but production reliability now comes from stronger contracts: schema-validated outputs, tool input validation, explicit approval boundaries, and clear context lifecycle rules.</p>
+    <h2>Tool contract first: Phase 5 reading route</h2>
+    <p><strong>Prerequisites:</strong> Phase 1 teaches prompt design; Phase 3 teaches JSON, HTTP, requests, and local error handling. Phase 5 adds a proposed action whose execution remains controlled by the application. Start with this contract and the offline denied-write case; the long prompting material below is a prerequisite reference appendix, not a second mandatory prompting course.</p>
+    <table class="content-table">
+        <tr><th>Boundary</th><th>Application responsibility</th><th>Failure to demonstrate</th></tr>
+        <tr><td>Schema</td><td>Allowlisted tool name, typed arguments, limits, and output/error shape</td><td>Reject an unknown tool or extra argument before dispatch</td></tr>
+        <tr><td>Authorization</td><td>Derive caller identity outside the model; enforce resource scope and operation permission</td><td>A valid JSON write request is still a denied write for a read-only caller</td></tr>
+        <tr><td>Side effects</td><td>Explicit approval, idempotency key and durable result lookup for permitted writes</td><td>Duplicate delivery must not repeat a change; a tool call ID alone is insufficient</td></tr>
+        <tr><td>Lifecycle</td><td>Timeout, bounded retries, cancellation, typed error, and stop budget</td><td>A timeout leaves completion uncertain; reconcile before retrying a write</td></tr>
+        <tr><td>Evidence</td><td>Minimal trace linking request, policy decision, tool result, and final answer</td><td>Do not represent denial or failure as a successful action</td></tr>
+    </table>
+    <p><strong>Required offline case:</strong> MapleDesk caller role is reader; the tool allowlist contains read_ticket; the model proposes write_ticket with syntactically valid arguments. Record schema-check outcome, authorization decision, and the response. Expected: no dispatch, denied write, and a plain-language explanation. Change only the model's rationale to "urgent": the result must remain denied. Then analyze an approved writer's timeout and duplicate idempotency key without executing any tool.</p>
+    <p><strong>Reference route:</strong> review the prompting appendix only where needed, then continue to tool schemas, validation, execution, and result messages. The quiz checks these tool boundaries; the optional connected lab is not proof of permission enforcement until its denial and failure cases are independently tested.</p>
     <div class="warning-box"><h4>Practical rule</h4><p>If the output is consumed by code, make it schema-first. If a tool can mutate state, gate it behind explicit approval and logging.</p></div>
 </div>
 
 <div class="learn-section">
-    <h2>Why Prompt Engineering Matters</h2>
+    <h2>Prompting prerequisite reference — optional Phase 1 refresher</h2>
     <p>Prompt engineering is <strong>the interface between human intent and model capability</strong>. The same model can produce garbage or gold depending on how you ask. This is not a hack or workaround — it is a fundamental skill, like knowing how to write a good SQL query or search Google effectively.</p>
-    <p>The gap between a naive prompt and an expert prompt is often <strong>bigger than the gap between model generations</strong>. A well-crafted prompt on GPT-4.1 can outperform a sloppy prompt on GPT-5.4. This is why prompt engineering remains the highest-ROI AI skill in 2026, even as models get smarter.</p>
+    <p>Prompt improvements and model changes address different failure modes. Compare both on the same task evidence; neither replaces tool contracts or authorization. The remaining prompting sections are detailed reference material, not a guarantee of higher value than a model change.</p>
 
     <div class="concept-box">
         <h4>🧠 The Mental Model: Briefing a Smart Contractor</h4>
@@ -694,7 +704,7 @@ answer = llm.generate(f"Context:\\n{context}\\n\\nQuestion: {query}\\nAnswer:")<
 
 <div class="learn-section">
     <h2>Anatomy of a Prompt</h2>
-    <p>Every prompt to a chat-based LLM (GPT, Claude, Gemini) consists of a messages array with distinct roles. Understanding each role is essential:</p>
+    <p>Many chat APIs use messages with distinct roles. Provider schemas differ: OpenAI Responses uses input/output items and an instructions field, while other APIs have separate system fields. This reference shows a chat-message pattern, not a universal wire format.</p>
 
     <h3>The Three Message Roles</h3>
     <table class="content-table">
@@ -704,7 +714,7 @@ answer = llm.generate(f"Context:\\n{context}\\n\\nQuestion: {query}\\nAnswer:")<
         <tr><td><strong>assistant</strong></td><td>The model's responses</td><td>Added after each completed model turn</td><td>"Here is a Python function with type hints:..."</td></tr>
     </table>
 
-    <div class="code-block"># Full message structure — this is what every API call looks like
+    <div class="code-block"># Chat-message reference pattern — adapt to the selected API
 messages = [
     {
         "role": "system",
@@ -791,27 +801,19 @@ Label:"""
 # 4. 3-5 examples is usually the sweet spot</div>
 
     <h3>Chain-of-Thought (CoT)</h3>
-    <p>Ask the model to "think step by step" before answering. This dramatically improves performance on reasoning, math, logic, and multi-step problems. It works because the model's intermediate tokens serve as a "scratch pad" for computation.</p>
-    <div class="code-block"># Without CoT:
-prompt = "If a store has 23 apples and sells 40% on Monday, then receives
-a shipment of 15 on Tuesday, how many apples are there on Tuesday evening?"
-# Model often gets: 22.8 or other wrong answers
+    <p>Step-by-step prompting can help some non-reasoning models, but is not a universal accuracy upgrade. Follow model-specific reasoning guidance and use supported effort controls. Request a concise, checkable explanation rather than hidden reasoning, and verify the answer independently.</p>
+    <div class="code-block"># Specify assumptions instead of rewarding a plausible reasoning story:
+prompt = """A store has 25 apples, sells 40%, then receives 15.
+Give the remaining count and a concise calculation I can check."""
+# Expected calculation: 25 - (25 × 0.40) + 15 = 30
 
-# With CoT (just add "think step by step"):
-prompt = """If a store has 23 apples and sells 40% on Monday, then receives
-a shipment of 15 on Tuesday, how many apples are there on Tuesday evening?
-
-Think step by step."""
-# Model output:
-# Step 1: Start with 23 apples
-# Step 2: Sell 40% on Monday: 23 × 0.40 = 9.2 → round to 9 sold
-# Step 3: After Monday: 23 - 9 = 14 apples
-# Step 4: Tuesday shipment: 14 + 15 = 29 apples
-# Answer: 29 apples</div>
+# Changed condition: 23 apples makes a 40% sale equal to 9.2 apples.
+# Ask whether fractional apples are allowed or how rounding is defined.
+# Do not silently round to 9 and treat the explanation as proof.</div>
 
     <div class="concept-box">
-        <h4>🧠 Why CoT Works — The Scratch Pad Theory</h4>
-        <p>LLMs generate tokens left-to-right. Without CoT, the model must jump directly from question to answer in one "thought." With CoT, the intermediate reasoning tokens act as working memory — each step's output becomes input for the next step. This is why longer, more detailed reasoning chains produce better answers for complex problems.</p>
+        <h4>🧠 Explanation is not verification</h4>
+        <p>Intermediate computation may help on a task, but a longer explanation can still contain errors. Visible explanations are not guaranteed to faithfully describe internal reasoning. Test final answers, assumptions, tool evidence, latency, and cost on held-out examples.</p>
         <p>Current reasoning models can allocate extra compute before answering. Claude uses <strong>adaptive thinking</strong>: the model chooses the reasoning depth, while the <code>effort</code> parameter controls how much compute it may spend. Older fixed <code>budget_tokens</code> examples and sampling parameters do not apply to current Claude models.</p>
     </div>
 
@@ -820,8 +822,8 @@ Think step by step."""
         <tr><th>Technique</th><th>Best For</th><th>Token Cost</th><th>Reliability</th><th>Example Use Case</th></tr>
         <tr><td><strong>Zero-Shot</strong></td><td>Common, well-defined tasks</td><td>🟢 Low</td><td>🟡 Moderate</td><td>Translation, simple Q&A, summarisation</td></tr>
         <tr><td><strong>Few-Shot</strong></td><td>Custom formats, classifications</td><td>🟡 Medium</td><td>🟢 High</td><td>Custom labelling, entity extraction, formatting</td></tr>
-        <tr><td><strong>CoT</strong></td><td>Reasoning, math, logic, analysis</td><td>🔴 Higher</td><td>🟢 High for reasoning</td><td>Math problems, code debugging, decision-making</td></tr>
-        <tr><td><strong>Few-Shot + CoT</strong></td><td>Complex domain reasoning</td><td>🔴 Highest</td><td>🟢 Highest</td><td>Medical diagnosis, legal analysis, code review</td></tr>
+        <tr><td><strong>CoT / reasoning controls</strong></td><td>Model-specific reasoning tasks</td><td>Measure compute and output</td><td>Evaluate against a simpler prompt</td><td>Checkable math or debugging</td></tr>
+        <tr><td><strong>Examples + reasoning controls</strong></td><td>Tasks needing examples and reasoning</td><td>Measure, including retries</td><td>No guaranteed gain; test held-out cases</td><td>Code review with independently verified findings</td></tr>
     </table>
 </div>
 
@@ -1063,14 +1065,14 @@ Professional, concise, developer-friendly. No marketing language."""</div>
 
 <div class="learn-section">
     <h2>Temperature, Top-P, and Max Tokens</h2>
-    <p>These parameters control the model's randomness and output length. Understanding them prevents unexpected behaviour in production.</p>
+    <p>Where supported, these parameters control sampling and output length. Temperature zero does not guarantee identical outputs: model revisions, backend numerics, tool results, and other system inputs can vary. Check the exact model API; some reasoning models do not expose sampling controls.</p>
 
     <h3>Temperature — The Creativity Dial</h3>
     <div class="concept-box">
         <h4>🧠 Visual Analogy: The Music Radio</h4>
         <p>Imagine a radio dial from 0.0 to 2.0:</p>
         <ul>
-            <li><strong>0.0 (Classical station)</strong> — Always plays the most popular, predictable song. Deterministic. Same input → same output every time.</li>
+            <li><strong>0.0 (Classical station)</strong> — Greedy-style selection of a top-scoring token where supported. Lower sampling variation is not guaranteed system reproducibility.</li>
             <li><strong>0.3–0.5 (Pop station)</strong> — Mostly popular songs with occasional variety. Good for factual tasks with some flexibility.</li>
             <li><strong>0.7–0.9 (Indie station)</strong> — Mix of popular and unexpected. Good for creative writing, brainstorming.</li>
             <li><strong>1.5–2.0 (Experimental station)</strong> — Wild, unpredictable, sometimes brilliant, often nonsense. Rarely useful in practice.</li>
@@ -1079,8 +1081,8 @@ Professional, concise, developer-friendly. No marketing language."""</div>
 
     <table class="content-table">
         <tr><th>Temperature</th><th>Behaviour</th><th>Use Case</th></tr>
-        <tr><td><strong>0.0</strong></td><td>Deterministic, always picks highest-probability token</td><td>Code generation, classification, extraction, factual Q&A</td></tr>
-        <tr><td><strong>0.3</strong></td><td>Mostly deterministic with slight variation</td><td>Technical writing, structured output</td></tr>
+        <tr><td><strong>0.0</strong></td><td>Greedy-style sampling; identical output is not guaranteed</td><td>Candidate setting for extraction or classification; test accuracy</td></tr>
+        <tr><td><strong>0.3</strong></td><td>Lower sampling variation, not determinism</td><td>Technical writing, structured output</td></tr>
         <tr><td><strong>0.7</strong></td><td>Balanced — some creativity, mostly coherent</td><td>General conversation, email drafting</td></tr>
         <tr><td><strong>1.0</strong></td><td>More creative, less predictable</td><td>Brainstorming, creative writing, storytelling</td></tr>
         <tr><td><strong>1.5+</strong></td><td>Highly random, often incoherent</td><td>Rarely useful — experimental only</td></tr>
@@ -1393,7 +1395,7 @@ DO NOT:
             <li><strong>Model choice</strong> — Pick the right model for the task (biggest impact)</li>
             <li><strong>System prompt structure</strong> — Role, rules, format, constraints</li>
             <li><strong>Few-shot examples</strong> — Show the model what "good" looks like</li>
-            <li><strong>Chain-of-thought</strong> — For reasoning tasks, ask for step-by-step</li>
+            <li><strong>Reasoning</strong> — Follow model-specific controls; ask for checkable evidence, not hidden reasoning.</li>
             <li><strong>Temperature/parameters</strong> — Fine-tune randomness for your use case</li>
         </ol>
         <p>Most people spend all their time on #5 (parameters) when #2 and #3 (prompt structure and examples) have 10× more impact.</p>
@@ -1407,8 +1409,8 @@ DO NOT:
 `,
     quiz: [
         { question: 'Function calling?', options: ['Python functions', 'Define tools → AI picks → you execute → return result', 'AI executes', 'Cloud'], correct: 1, explanation: 'You define, AI decides, you execute.' },
-        { question: 'AI executes?', options: ['Yes', 'No — returns name+args, YOUR code executes', 'Sometimes', 'Opus only'], correct: 1, explanation: 'AI returns JSON. You do the work.' },
-        { question: 'Foundation of agents?', options: ['No', 'Yes — every agent is built on tool use', 'Chatbots only', 'Web only'], correct: 1, explanation: 'Claude Code, Copilot, Codex — all function calling.' },
+        { question: 'Who enforces tool authorization?', options: ['The model output alone', 'Your application validates the proposed name and arguments, checks identity and permissions, then may execute', 'The tool description alone', 'The most capable model'], correct: 1, explanation: 'A schema-valid request can still be unauthorized. A read-only caller cannot approve its own write through model text.' },
+        { question: 'How should a timed-out write be retried?', options: ['Immediately repeat it', 'Reconcile its status and use a durable idempotency key before any approved retry', 'Assume timeout means no change', 'Let the model guess'], correct: 1, explanation: 'The downstream operation may have completed. A call ID is not a guarantee against duplicate side effects.' },
         { question: 'Descriptions?', options: ['Docs only', 'AI reads them to decide WHEN to call', 'Pricing', 'Not important'], correct: 1, explanation: 'Only signal for tool selection.' },
         { question: 'No tool needed?', options: ['Must use', 'AI responds directly — tool use optional', 'Error', 'All tools'], correct: 1, explanation: 'AI only calls when needed.' },
         { question: 'Web search tool?', options: ['Custom', 'Built-in: web_search_20250305', 'Manual', 'Google API'], correct: 1, explanation: 'First-party in Messages API.' },
@@ -2491,7 +2493,9 @@ The API serves a React frontend at ../client.
 
 <div class="learn-section">
     <h2>🎯 Skills System: Auto-Triggered Workflows</h2>
-    <p>Skills are Claude Code's way of automatically applying specialized workflows when certain conditions are met. Instead of repeating the same instructions every session, you encode them once in a SKILL.md file.</p>
+    <p><strong>Portable Agent Skills versus host-specific behavior:</strong> the open Agent Skills format packages metadata and instructions in SKILL.md, with optional scripts and reference assets. It teaches a procedure; it is not an API transport or a permission grant. Claude Code is one host, with its own directories, invocation controls, subagent behavior, and permission model. Do not assume those extensions work in another client.</p>
+    <p>Source-reviewed 2026-11-11: <a href="https://agentskills.io/what-are-skills" target="_blank" rel="noopener">Agent Skills overview</a> and <a href="https://code.claude.com/docs/en/skills" target="_blank" rel="noopener">Claude Code skills</a>. Claude Code documents custom commands merging into skills while existing command files remain supported. Other clients can differ. The following folder examples are a Claude-specific adapter, not the portable standard itself.</p>
+    <p><strong>Offline portability check:</strong> annotate a fictional read-only ticket-triage skill: separate name/description/procedure from host-specific invocation fields, executable scripts, and requested permissions. Move its text to a second imagined host and list missing tools. Expected: the procedure can be reused, but absent tools or denied permissions remain unavailable; reading SKILL.md cannot authorize an upload or deployment.</p>
 
     <h3>How Skills Work</h3>
     <ol>
@@ -4257,7 +4261,7 @@ npx @modelcontextprotocol/inspector node dist/index.js
 </div>
 `,
     quiz: [
-        { question: 'Why multi-agent?', options: ['Faster', 'Specialised roles = better results', 'Cheaper', 'No reason'], correct: 1, explanation: 'Each excels at their role.' },
+        { question: 'When is multi-agent design justified?', options: ['It is always faster', 'Measured gains over a single-agent or workflow baseline justify coordination cost', 'It is always cheaper', 'Specialist titles guarantee accuracy'], correct: 1, explanation: 'Independent subtasks may benefit from specialization, but coordination adds latency, cost, and failure modes. Keep a single-agent, workflow, or no-AI approach when it meets the task better.' },
         { question: 'Sequential?', options: ['Random', 'A→B→C, output feeds next', 'Parallel', 'One'], correct: 1, explanation: 'Fixed order, clear handoffs.' },
         { question: 'Orchestrator?', options: ['Random', 'Manager delegates + combines', 'Sequential', 'One'], correct: 1, explanation: 'PM assigns, specialists execute.' },
         { question: 'Cowork?', options: ['Chat', 'Background parallel agents', 'Video', 'DB'], correct: 1, explanation: 'Assign tasks, run while you sleep.' },

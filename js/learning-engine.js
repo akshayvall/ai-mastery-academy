@@ -8,7 +8,8 @@ const LearningEngine = {
     },
 
     parseRoute(hash) {
-        const [target, query = ''] = String(hash || '').replace(/^#/, '').split('?');
+        const [rawTarget, query = ''] = String(hash || '').replace(/^#/, '').split('?');
+        const target = ({ path: 'today', lab: 'build', progress: 'more' })[rawTarget] || rawTarget;
         const params = new URLSearchParams(query);
         const destination = this.DESTINATIONS.includes(target) ? target : target ? null : 'today';
         return {
@@ -17,20 +18,29 @@ const LearningEngine = {
             tab: this.TABS.includes(params.get('tab')) ? params.get('tab') : 'learn',
             sectionId: /^[A-Za-z0-9_-]+$/.test(params.get('section') || '') ? params.get('section') : null,
             mode: params.get('mode') === 'browse' ? 'browse' : 'guided',
+            reference: params.get('view') === 'reference' || params.has('tab') || params.has('section') || params.get('mode') === 'browse',
+            unitId: /^[a-z0-9-]+$/.test(params.get('unit') || '') ? params.get('unit') : null,
+            step: ['learn', 'try', 'check'].includes(params.get('step')) ? params.get('step') : null,
             query: (params.get('query') || '').slice(0, 160),
             level: ['100', '200', '300', '400'].includes(params.get('level')) ? params.get('level') : '',
             state: ['not_started', 'learned', 'practiced', 'demonstrated', 'durable'].includes(params.get('state')) ? params.get('state') : '',
-            pathOnly: params.get('path') === 'selected'
+            pathOnly: params.get('path') === 'selected',
+            portfolio: ['pm', 'builder'].includes(params.get('portfolio')) ? params.get('portfolio') : null
         };
     },
 
     formatRoute(route) {
         const params = new URLSearchParams();
         if (route.moduleId) {
+            if (route.reference && !route.unitId && (!route.tab || route.tab === 'learn') &&
+                !route.sectionId && route.mode !== 'browse') params.set('view', 'reference');
+            if (route.unitId) params.set('unit', route.unitId);
+            if (route.step) params.set('step', route.step);
             if (route.tab && route.tab !== 'learn') params.set('tab', route.tab);
             if (route.sectionId) params.set('section', route.sectionId);
             if (route.mode === 'browse') params.set('mode', 'browse');
         } else {
+            if (['pm', 'builder'].includes(route.portfolio)) params.set('portfolio', route.portfolio);
             if (route.query) params.set('query', route.query);
             if (route.level) params.set('level', route.level);
             if (route.state) params.set('state', route.state);
@@ -178,7 +188,7 @@ const LearningEngine = {
         const existing = document.getElementById('moduleCoaching');
         if (existing?.dataset.moduleId === module.id) return true;
         existing?.remove();
-        container.insertAdjacentHTML('afterbegin', this.renderCoachingHtml(module, content));
+        container.insertAdjacentHTML('beforeend', this.renderCoachingHtml(module, content));
         return true;
     },
 
@@ -536,7 +546,8 @@ const LearningEngine = {
         const transfer = entry.transfer;
         const dueAt = entry.review?.nextDue;
         const dueTime = dueAt ? new Date(dueAt).getTime() : NaN;
-        const passingTransfer = Number.isFinite(transfer?.score) && Number.isFinite(transfer?.max) && transfer.max > 0 && transfer.score <= transfer.max && transfer.score / transfer.max >= 0.75;
+        const passingTransfer = Number.isFinite(transfer?.score) && Number.isFinite(transfer?.max) && transfer.max > 0 && transfer.score <= transfer.max && transfer.score / transfer.max >= 0.75 &&
+            (!transfer.scores?.length || (transfer.scores.length === 4 && transfer.scores.every(score => Number.isInteger(score) && score >= 3 && score <= 4)));
         const consumed = (entry.review?.attempts || []).some(attempt => new Date(attempt.dueAt).getTime() === dueTime || new Date(attempt.reviewedAt).getTime() >= dueTime);
         const eligible = passingTransfer && Number.isFinite(dueTime) && !consumed;
         const steps = module.lab?.steps || [];
@@ -573,7 +584,7 @@ const LearningEngine = {
         const modules = (context.modules || []).filter(module => !activityIds.has(module.id));
         const model = { progress: {}, statuses: {}, content: { modules: {}, paths: [] }, preferences: {}, route: {}, ...context, modules };
         model.activities = (context.modules || []).filter(module => activityIds.has(module.id)).slice(0, 10);
-        const title = { learn: 'Learn', practice: 'Practice', build: 'Build', more: 'More' }[destination];
+        const title = { learn: 'Learn', practice: 'Practice', build: 'Lab', more: 'Progress' }[destination];
         return `<div class="learning-surface learning-destination"><h1 id="destinationTitle" tabindex="-1">${title}</h1>${renderers[destination].call(this, model)}</div>`;
     },
 
@@ -634,7 +645,8 @@ const LearningEngine = {
             (flags.active ? inProgress : outstanding).push(row);
         });
         if (!selected.length) return '<p class="learning-empty">No unfinished build tasks.</p>';
-        return this.renderListSection('In-progress labs', inProgress, 'No external labs in progress.') + this.renderListSection('Outstanding transfer', outstanding, 'No other transfer tasks.');
+        return this.renderListSection('In-progress labs', inProgress, 'No external labs in progress.') +
+            `<details class="learning-disclosure"><summary>Original course labs and transfer evidence</summary>${this.renderListSection('Outstanding transfer', outstanding, 'No other transfer tasks.')}</details>`;
     },
 
     provenanceLabel(transfer) {

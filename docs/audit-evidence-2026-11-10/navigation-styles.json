@@ -1,0 +1,42 @@
+[
+  {
+    "text": "Today",
+    "html": "<a href=\"#today\" data-destination=\"today\" class=\"\">Today</a>",
+    "foreground": "rgb(210, 208, 206)",
+    "background": "rgba(0, 0, 0, 0)",
+    "parentBackground": "rgba(0, 0, 0, 0)",
+    "fontSize": "15px"
+  },
+  {
+    "text": "Learn",
+    "html": "<a href=\"#learn\" data-destination=\"learn\" class=\"active\" aria-current=\"page\">Learn</a>",
+    "foreground": "rgb(50, 49, 48)",
+    "background": "rgb(255, 255, 255)",
+    "parentBackground": "rgba(0, 0, 0, 0)",
+    "fontSize": "15px"
+  },
+  {
+    "text": "Practice",
+    "html": "<a href=\"#practice\" data-destination=\"practice\">Practice</a>",
+    "foreground": "rgb(210, 208, 206)",
+    "background": "rgba(0, 0, 0, 0)",
+    "parentBackground": "rgba(0, 0, 0, 0)",
+    "fontSize": "15px"
+  },
+  {
+    "text": "Build",
+    "html": "<a href=\"#build\" data-destination=\"build\">Build</a>",
+    "foreground": "rgb(210, 208, 206)",
+    "background": "rgba(0, 0, 0, 0)",
+    "parentBackground": "rgba(0, 0, 0, 0)",
+    "fontSize": "15px"
+  },
+  {
+    "text": "Progress and settings",
+    "html": "<a href=\"#more\" data-destination=\"more\">Progress and settings</a>",
+    "foreground": "rgb(210, 208, 206)",
+    "background": "rgba(0, 0, 0, 0)",
+    "parentBackground": "rgba(0, 0, 0, 0)",
+    "fontSize": "15px"
+  }
+]

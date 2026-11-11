@@ -94,6 +94,19 @@ test('AI diagram step copy matches rendered SVG steps', () => {
     assert.deepEqual(mismatches, []);
 });
 
+test('every narrated step has a detailed SVG highlight, without gaps', () => {
+    const { modules, engine } = loadDiagramSystem();
+    const missing = [];
+    getInstances(modules).forEach(({ diagram }) => {
+        const svg = engine.builders[diagram.type].call(engine, diagram);
+        const steps = new Set(Array.from(svg.matchAll(/data-step=["'](\d+)["']/g), match => Number(match[1])));
+        diagram.steps.forEach((_, index) => {
+            if (!steps.has(index + 1)) missing.push(`${diagram.id}: step ${index + 1}`);
+        });
+    });
+    assert.deepEqual(missing, []);
+});
+
 test('every AI diagram builder returns a valid bounded SVG', () => {
     const { modules, engine } = loadDiagramSystem();
     getInstances(modules).forEach(({ module, diagram }) => {
@@ -133,10 +146,103 @@ test('AI diagram canvases are keyboard-focusable scroll regions', () => {
     assert.match(html, /class="diagram-canvas"[^>]*aria-label="Scrollable diagram:/);
 });
 
-test('AI mobile diagrams preserve a readable local canvas width', () => {
-    const css = fs.readFileSync(path.join(__dirname, '..', 'css', 'styles.css'), 'utf8');
+test('every instance teaches a complete compact relationship before optional SVG detail', () => {
+    const { modules, engine } = loadDiagramSystem();
+    getInstances(modules).forEach(({ diagram }) => {
+        const html = engine.renderDiagram(diagram, 0);
+        assert.match(html, /class="diagram-overview"/, diagram.id);
+        assert.match(html, /class="diagram-state-list"/, diagram.id);
+        assert.match(html, /class="diagram-failure"/, diagram.id);
+        assert.match(html, /<details class="diagram-detail">/, diagram.id);
+        assert.ok(html.indexOf('diagram-overview') < html.indexOf('diagram-detail'), diagram.id);
+        const model = engine.getLearningModel(diagram);
+        assert.equal(model.states.length, diagram.steps.length, diagram.id);
+        assert.ok(model.overview && model.caveat && model.failure, diagram.id);
+        assert.equal(new Set(model.states.map(state => state[0])).size, model.states.length, diagram.id);
+        model.states.forEach(state => {
+            assert.equal(state.length, 4, diagram.id);
+            assert.ok(state.every(value => typeof value === 'string' && value.length > 0), diagram.id);
+            assert.ok(['data', 'control', 'approval', 'failure'].includes(state[3]), diagram.id);
+        });
+    });
+});
 
-    assert.match(css, /\.diagram-canvas svg\s*\{[^}]*min-width:\s*56rem;[^}]*width:\s*56rem;/s);
+test('walkthrough exposes one Next action and no cosmetic Play control', () => {
+    const { modules, engine } = loadDiagramSystem();
+    getInstances(modules).forEach(({ diagram }) => {
+        const html = engine.renderDiagram(diagram, 0);
+        assert.match(html, /data-diagram-action="step"[^>]*>Next step</);
+        assert.match(html, /data-diagram-action="previous"[^>]*disabled/);
+        assert.match(html, /data-diagram-action="reset"[^>]*disabled/);
+        assert.doesNotMatch(html, /data-diagram-action="play"/);
+    });
+});
+
+test('generated narratives stay intact beside explicit renderer corrections', () => {
+    const { modules, engine } = loadDiagramSystem();
+    getInstances(modules).filter(({ diagram }) => diagram.type.startsWith('b-')).forEach(({ diagram }) => {
+        const before = JSON.stringify(diagram);
+        const html = engine.renderDiagram(diagram, 0);
+        assert.match(html, /Generated source review blocked/);
+        assert.match(html, /Original source narrative/);
+        assert.ok(html.includes(engine.escapeHtml(diagram.description)), diagram.id);
+        diagram.steps.forEach(step => assert.ok(html.includes(engine.escapeHtml(step)), diagram.id));
+        assert.equal(JSON.stringify(diagram), before);
+    });
+});
+
+test('training renderer shows validation and held-out task evidence, not a diagnosis from shape alone', () => {
+    const { modules, engine } = loadDiagramSystem();
+    const diagram = getInstances(modules).find(({ diagram }) => diagram.type === 'b-curves').diagram;
+    const svg = engine.builders['b-curves'].call(engine, diagram);
+    assert.match(svg, /Training loss/);
+    assert.match(svg, /Validation loss/);
+    assert.match(svg, /Held-out task/);
+    assert.match(svg, /Illustrative/);
+    assert.doesNotMatch(svg, />healthy<|>memorizing<|>broken</);
+});
+
+test('renderer semantics include enforcement and uncertainty rather than success-only flows', () => {
+    const { modules, engine } = loadDiagramSystem();
+    const types = Object.fromEntries(getInstances(modules).map(({ diagram }) => [diagram.type, diagram]));
+    const text = type => JSON.stringify(engine.getLearningModel(types[type]));
+    assert.match(text('agent-loop'), /budget/i);
+    assert.match(text('agent-loop'), /human approval/i);
+    assert.match(text('tool-calling'), /authoriz/i);
+    assert.match(text('tool-calling'), /timeout/i);
+    assert.match(text('mcp-architecture'), /negotiat/i);
+    assert.match(text('mcp-architecture'), /host/i);
+    assert.match(text('b-bars'), /illustrative/i);
+    assert.match(text('b-bars'), /reviewer/i);
+    assert.match(text('b-graph'), /entity|resolution/i);
+    const guardrail = getInstances(modules).find(({ diagram }) => diagram.id === 'b-rag-defense').diagram;
+    assert.match(JSON.stringify(engine.getLearningModel(guardrail)), /not.*authorization|not.*guarantee/i);
+});
+
+test('optional detail retains approval, dependency and provenance caveats', () => {
+    const { modules, engine } = loadDiagramSystem();
+    const types = Object.fromEntries(getInstances(modules).map(({ diagram }) => [diagram.type, diagram]));
+    const svg = type => engine.builders[type].call(engine, types[type]);
+    assert.match(svg('multi-agent'), /Research.*Writer.*Reviewer/);
+    assert.doesNotMatch(svg('multi-agent'), /Workers run in parallel/);
+    assert.match(svg('rag-pipeline'), /abstain|Abstain/);
+    assert.match(svg('claude-code-workflow'), /Human review/);
+    assert.doesNotMatch(svg('claude-code-workflow'), /tests pass → git/);
+    assert.match(svg('b-bars'), /Illustrative/);
+    assert.match(svg('b-layers'), /not guarantees|not a guarantee|Illustrative adapter/);
+});
+
+test('timeline detail is an explicit corrective sequence with call identity and cancellation', () => {
+    const { modules, engine } = loadDiagramSystem();
+    getInstances(modules).filter(({ diagram }) => diagram.type === 'b-timeline').forEach(({ diagram }) => {
+        const svg = engine.builders['b-timeline'].call(engine, diagram);
+        assert.match(svg, /Controller/);
+        assert.match(svg, /Policy/);
+        assert.match(svg, /call A/);
+        assert.match(svg, /call B/);
+        assert.match(svg, /cancel|Cancel/);
+        assert.match(svg, /Illustrative sequence correction/);
+    });
 });
 
 test('AI diagrams use durable dimensions and current MCP transports', () => {

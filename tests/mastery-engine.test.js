@@ -54,7 +54,7 @@ test('rubric parser accepts numeric strings and preserves an explicit zero', () 
     const values = Object.freeze(['0', '4', ' 4 ', '4']);
     const scores = engine.parseRubricValues(values);
     assert.deepEqual(Array.from(scores), [0, 4, 4, 4]);
-    assert.equal(engine.evaluateRubric(scores, 'The evidence explains the work and its tradeoffs.').passed, true);
+    assert.equal(engine.evaluateRubric(scores, 'The evidence explains the work and its tradeoffs.').passed, false);
     assert.equal(values[0], '0');
 });
 
@@ -218,14 +218,18 @@ test('a short evidence note is retained, marked invalid, and focused', () => {
     assert.equal(harness.calls.transfers.length, 0);
 });
 
-test('explicit zero can pass the average gate and records self-assessment in the seventh argument', () => {
+test('a failed essential criterion cannot be averaged away before self-assessment is recorded', () => {
     const harness = createMasteryHarness({ rerenderFromApp: true });
     fillTransfer(harness, ['0', '4', '4', '4']);
+    harness.engine.submitTransfer('lesson');
+    assert.equal(harness.calls.transfers.length, 0);
+    assert.match(harness.document.getElementById('transfer-feedback').textContent, /each|every/i);
+    fillTransfer(harness, ['3', '4', '4', '4']);
     const oldFeedback = harness.document.getElementById('transfer-feedback');
     harness.engine.submitTransfer('lesson');
     assert.equal(harness.calls.transfers.length, 1);
-    assert.equal(harness.calls.transfers[0][1], 3);
-    assert.deepEqual(Array.from(harness.calls.transfers[0][4]), [0, 4, 4, 4]);
+    assert.equal(harness.calls.transfers[0][1], 3.75);
+    assert.deepEqual(Array.from(harness.calls.transfers[0][4]), [3, 4, 4, 4]);
     assert.deepEqual({ ...harness.calls.transfers[0][6] }, { provenance: 'self-assessed', reviewer: '' });
     const feedback = harness.document.getElementById('transfer-feedback');
     assert.notEqual(feedback, oldFeedback);

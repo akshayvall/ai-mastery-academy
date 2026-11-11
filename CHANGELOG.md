@@ -4,6 +4,27 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Publication authorization - November 11, 2026
+- User explicitly authorized committing and pushing this release to `main` and deploying it to the existing GitHub Pages site. Release `2026-11-learning-2`; the Pages workflow remains the validation and publication gate.
+
+### Full November learning rollout - local only
+- Expanded the short-course experience to 62 core units across all 31 modules and eight optional specialties; original pilot content is preserved.
+- Upgraded all 39 diagram instances with compact cause/consequence models, keyboard step controls, accessible text and optional full SVG detail. Generated-source discrepancies remain visibly flagged.
+- Added integrated PM/Builder evidence dossiers, required assistance provenance, safe Markdown export and a dated editorial queue that cannot turn local review notes into verified facts.
+- Added optional modern Responses, interoperability, Foundry and migration references; tightened transfer assessment to require every essential criterion >=3 while retaining old evidence.
+- Integrated release `2026-11-learning-2` and full Edge validation. User approved broader rollout; Builder-source editing and archive packaging are still blocked by runtime enforcement. Not committed or published.
+
+### November beginner pilot - local only
+- Added six executable offline Node labs with fixtures, behavior tests, CLI examples and learner guide; linked from Lab. Archive creation is permission-blocked, so source-only setup is explicit and no ZIP download is advertised.
+- Added twelve authored Learn/Try/Check units across six modules, a no-account start, Path/Lab/Progress navigation, compact trace visuals and changed-condition checks with saved self-review explanations.
+- Added exact unit/stage resume, version-change rechecks, legacy-backup compatibility and recoverable unit drafts in existing progress storage; no new mastery credit from short-lesson checks.
+- Corrected academy-owned prompting, grounding, temperature, evaluation, telemetry, orchestration and diagram claims; refreshed dated provider catalogue/lifecycle facts while separating source review from execution.
+- Added Microsoft Edge pilot/recovery/route/offline gates and release `2026-11-pilot-1`. Generated Builder content remains unchanged because access to its separate source project was denied.
+- Not published. Full-core migration, specialist expansion and real-learner outcomes remain behind the approved review gates.
+
+### Documentation - November 2026
+- Added an approval-stage education audit and modernization PRD, including current provider-source findings, all-module and diagram dispositions, learning requirements, metrics, and phased delivery gates. No application behavior or curriculum content changed.
+
 ### September learning release
 - Added distinct learner destinations, selected-path/session recommendations, guided coaching for all 31 modules, local case analysis, predictions, evidence examples, and downloadable worksheets/reports.
 - Fixed save/import failure reporting, corrupt-storage protection, draft recovery, quiz focus and answer-position cues, missing rubric validation, and failed/duplicate review handling. Evidence provenance is explicit.

@@ -35,6 +35,8 @@ const app = {
         this.updateProgress();
         this.bindEvents();
         LearningEngine.init(MODULES);
+        UnitEngine.init();
+        PortfolioEngine.init();
         LearningEngine.renderPreferences();
         this.registerServiceWorker();
         MasteryEngine.init(MODULES);
@@ -70,7 +72,9 @@ const app = {
         let match;
         while ((match = h2Regex.exec(mod.learn)) !== null) {
             // Strip any nested tags to get plain text
-            const plainText = match[1].replace(/<[^>]+>/g, '').trim();
+            const text = document.createElement('template');
+            text.innerHTML = match[1];
+            const plainText = text.content.textContent.trim();
             if (plainText) {
                 sections.push({ slug: this.slugify(plainText), title: plainText });
             }
@@ -467,6 +471,7 @@ const app = {
         if (!LearningEngine.DESTINATIONS.includes(destination)) destination = 'today';
         if (this.currentModule) LearningEngine.saveDrafts(this.currentModule.id);
         this._sectionObserver?.disconnect();
+        document.getElementById('unitView').classList.remove('active');
         this.closeMobileNav(false);
         UIStateManager.setDestination(destination);
         this.updateDestinationState(destination);
@@ -478,6 +483,15 @@ const app = {
         document.getElementById('moduleView').classList.remove('active');
         document.getElementById('destinationView').classList.add('active');
         LearningEngine.renderDestination(destination, route);
+        if (destination === 'build') document.getElementById('destinationTitle').insertAdjacentHTML('afterend', UnitEngine.localLabPack());
+        if (destination === 'build') document.getElementById('localLabPack').insertAdjacentHTML('afterend', UnitEngine.specializations());
+        if (destination === 'more') document.getElementById('destinationView').insertAdjacentHTML('beforeend', UnitEngine.progressSummary());
+        if (destination === 'more') {
+            PortfolioEngine.render(route.portfolio || (UIStateManager.get().activePath === 'ai-product-judgment' ? 'pm' : 'builder'));
+            EditorialEngine.render();
+        }
+        if (destination === 'build') document.getElementById('destinationView').insertAdjacentHTML('beforeend',
+            '<section class="learning-group"><h2>Short practice, no setup</h2><p><a href="#today">Continue the beginner path</a> or <a href="#practice" data-destination="practice">open scheduled review and practice</a>. These exercises use synthetic examples without calling a model.</p></section>');
         this.currentModule = null;
         this.setRoute({ ...route, destination, moduleId: null });
         document.getElementById('content').scrollTop = 0;
@@ -486,7 +500,9 @@ const app = {
 
     updateDestinationState(destination) {
         document.querySelectorAll('[data-destination]').forEach(item => {
-            const active = item.dataset.destination === destination;
+            const primary = item.closest('.workspace-nav, .bottom-nav');
+            const target = primary && destination === 'learn' ? 'today' : primary && destination === 'practice' ? 'build' : destination;
+            const active = item.dataset.destination === target;
             item.classList.toggle('active', active);
             if (active) item.setAttribute('aria-current', 'page');
             else item.removeAttribute('aria-current');
@@ -501,7 +517,7 @@ const app = {
     },
 
     moduleRoute() {
-        return { moduleId: this.currentModule?.id, tab: this.currentTab, sectionId: this.currentSection, mode: this.currentMode };
+        return { moduleId: this.currentModule?.id, tab: this.currentTab, sectionId: this.currentSection, mode: this.currentMode, reference: true };
     },
 
     isWorkflowPrototype(moduleId) {
@@ -661,6 +677,10 @@ const app = {
         this.routing = true;
         try {
             if (module) {
+                if (!route.reference && UnitEngine.content().modules[module.id]) {
+                    UnitEngine.open(module.id, route);
+                    return;
+                }
                 const explicitMode = /[?&]mode=/.test(window.location.hash) ? route.mode : null;
                 if (!document.getElementById('moduleView').classList.contains('active') || this.currentModule?.id !== module.id) {
                     this.loadModule(module.id, { ...route, mode: explicitMode });
@@ -684,6 +704,7 @@ const app = {
         document.getElementById('dashboard').classList.add('active');
         document.getElementById('moduleView').classList.remove('active');
         document.getElementById('destinationView').classList.remove('active');
+        document.getElementById('unitView').classList.remove('active');
         // Clear active state on module links (not section links)
         document.querySelectorAll('#sidebar li.nav-module').forEach(li => li.classList.remove('active'));
         this.setRoute({ destination: 'today' });
@@ -696,6 +717,10 @@ const app = {
     loadModule(moduleId, route = {}) {
         const mod = MODULES.find(m => m.id === moduleId);
         if (!mod) return;
+        if (UnitEngine.shouldOpen(moduleId, route)) {
+            UnitEngine.open(moduleId, route);
+            return;
+        }
 
         if (this.currentModule) LearningEngine.saveDrafts(this.currentModule.id);
         this.loadingModule = true;
@@ -709,6 +734,7 @@ const app = {
 
         document.getElementById('dashboard').classList.remove('active');
         document.getElementById('destinationView').classList.remove('active');
+        document.getElementById('unitView').classList.remove('active');
         document.getElementById('moduleView').classList.add('active');
         this.updateDestinationState(route.tab === 'quiz' ? 'practice' : route.tab === 'lab' ? 'build' : 'learn');
 
@@ -727,7 +753,7 @@ const app = {
 
         const learnContent = mod.learn || '<p>Content coming soon.</p>';
         document.getElementById('tab-learn').innerHTML =
-            `<p class="content-verification">Model sources checked: ${CONTENT_LAST_VERIFIED}. External labs not executed.</p>${learnContent}`;
+            `<p class="content-verification">${new Date().toISOString().slice(0, 10) > MODEL_LANDSCAPE.nextReviewDate ? 'Source review overdue. ' : ''}Model sources checked: ${CONTENT_LAST_VERIFIED}. External labs not executed.</p>${learnContent}`;
         LearningEngine.renderCoaching(mod);
 
         // Inject section ids on <h2> elements for scroll targeting
@@ -795,6 +821,7 @@ const app = {
         if (this._pendingSection) {
             const slug = this._pendingSection;
             setTimeout(() => {
+                if (this.currentModule?.id !== moduleId) return;
                 this._scrollToSection(slug);
                 this._observeAfterScroll(moduleId);
             }, 120);
@@ -906,7 +933,7 @@ const app = {
         const overallPct = Math.round((practicedModules.length / realModules.length) * 100);
 
         document.getElementById('overallProgress').style.width = `${overallPct}%`;
-        document.getElementById('overallProgressText').textContent = `${overallPct}% Complete`;
+        document.getElementById('overallProgressText').textContent = `${overallPct}% with module practice evidence`;
 
         [100, 200, 300, 400].forEach(level => {
             const levelModules = realModules.filter(m => m.level === level);

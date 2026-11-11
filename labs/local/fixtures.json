@@ -1,0 +1,21 @@
+{
+  "provenance": "Original synthetic teaching fixtures. No customer data or provider output.",
+  "tickets": [
+    { "id": "T1", "text": "I cannot sign in." },
+    { "id": "T2", "text": "It does not work." }
+  ],
+  "outputs": [
+    { "ticket_id": "T1", "category": "access", "needs_clarification": false },
+    { "ticket_id": "T2", "category": "unknown", "needs_clarification": true }
+  ],
+  "documents": [
+    { "id": "hours", "text": "Library hours are 9 to 5.", "audience": "public" },
+    { "id": "policy", "text": "Library loan period is 14 days.", "audience": "public" },
+    { "id": "staff", "text": "Library loan exception procedure.", "audience": "staff" }
+  ],
+  "cases": [
+    { "id": "a", "slice": "normal", "expected": "access" },
+    { "id": "b", "slice": "ambiguous", "expected": "unknown", "critical": true }
+  ],
+  "predictions": { "a": "access", "b": "unknown" }
+}

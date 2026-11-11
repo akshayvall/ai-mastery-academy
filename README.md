@@ -9,6 +9,54 @@
 **Sibling project:** [`../azure-networking-academy`](../azure-networking-academy/) — same engine, different domain.
 **Live site:** https://akshayvall.github.io/ai-mastery-academy/
 
+**Latest review:** [November 2026 education audit and modernization PRD](docs/AI_ACADEMY_WORLD_CLASS_PRD_2026-11-10.md). Rollout approved and implemented except runtime-blocked Builder-source corrections and archive packaging. [Pages workflow](https://github.com/akshayvall/ai-mastery-academy/actions/workflows/pages.yml) records publication status.
+
+## November learning release
+
+All 31 substantive modules now have 62 core short lessons, plus eight optional
+specializations. The original twelve pilot lessons are preserved. Path / Lab / Progress leads
+to Learn / Try / Check, with a mobile-readable trace, changed-condition questions,
+saved explanations and exact-step resume. The full reference lessons and existing
+mastery evidence remain available; local unit checks do not award mastery.
+
+Academy-owned teaching corrections and the model registry are source-reviewed for
+November 11. Generated Builder corrections are blocked on permission to access
+their separate source project even after user approval; Builder output is unchanged.
+The 39 diagram instances have compact explanations, explicit source caveats and
+optional detailed SVGs. Progress contains integrated PM/Builder dossiers and the
+source-review queue. Real-learner validation remains separate from software validation.
+
+Release: `2026-11-learning-2`. Local review: http://127.0.0.1:8911/ when the preview
+server is running. See [implementation disposition](docs/AI_ACADEMY_WORLD_CLASS_PRD_2026-11-10.md#24-full-local-rollout-after-explicit-approval).
+Additional maintainer evidence lives at `..\specs\001-ai-academy-learning\evidence.md`
+in the parent workspace; it is not part of this published repository.
+
+Run local gates from this folder:
+
+```powershell
+node --test tests/*.test.js
+python tests/browser_smoke.py
+python tests/browser_units.py
+python tests/browser_portfolio.py
+python tests/browser_diagram_learning.py
+```
+
+All browser suites explicitly use Microsoft Edge with disposable test storage.
+Install `tests/requirements.txt` only if missing; browser setup uses
+`python -m playwright install --with-deps msedge`, never a bundled-browser fallback.
+
+### Runnable local labs
+
+Six standard-library Node exercises now live in [`labs/local`](labs/local/README.md):
+task contracts, bounded retries, retrieval diagnosis, approved writes,
+regression-catching evaluation and traced timeout recovery. Read the guide before
+running `node labs/local/run.js contract`; verify with
+`node --test labs/local/labs.test.js`. The main Node suite also includes them.
+They use synthetic fixtures and make no provider/network calls.
+
+Archive creation was denied, so this local release does not offer a ZIP download.
+The Lab page links to the source guide and explains the local-only setup.
+
 ---
 
 ## 📖 What is this?
@@ -32,7 +80,7 @@ The deployment gate runs locally with:
 ```powershell
 node --test tests/*.test.js
 python -m pip install -r tests/requirements.txt
-python -m playwright install chromium
+python -m playwright install msedge
 python tests/browser_smoke.py
 ```
 

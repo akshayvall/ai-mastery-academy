@@ -1,0 +1,1503 @@
+{
+  "browser": "Microsoft Edge",
+  "viewports": [
+    {
+      "width": 390,
+      "home": "MODEL LAB NOTEBOOK\n\nAI Mastery Academy\nFrame\nBuild\nEvaluate\nOperate\n\nTODAY\n\nFind my starting point\n\n10 questions, about 4 minutes \u00b7 25-minute session\n\nStart diagnostic\n\nALSO DUE\n\nNothing else today\n\nYour next scheduled evidence will appear here.\n\n1\nPhase 0: AI Orientation\nNot started\n2\nPhase 1: Prompt Engineering\nNot started\n3\nCompanion Track: Zero to Claude Code\nNot started\n0 practiced\n0 demonstrated\n0 durable\nStudy preferences\nL100\nFoundations\n\nPhase 0\u20133: AI orientation, prompt engineering, platform mastery (ChatGPT/Claude/Gemini), calling AI from code, plus a 2026 systems landscape flagship and Zero to Claude command-line companion track. Portfolio: journal, prompts, Custom GPT, CLI assistant.\n\n0/6 modules\nStart Foundations \u2192\nL200\nIntermediate\n\nPhase 4\u20138: context engineering + RAG, schema-first tool use, agent loops with governance, Claude Code deep dive (.claude/ folder, hooks, skills, MCP, managed agents), and multi-agent orchestration.\n\n0/10 modules\nStart Intermediate \u2192\nL300\nAdvanced\n\nPhase 9\u201312: MCP servers & tool ecosystems, full-stack AI app deployment, AI SaaS product, expert layer (scaling, security, cost optimization).\n\n0/8 modules\nStart Advanced \u2192\nBUILD\nBuilder Track\n\nSeven portfolio-grade builds with step-by-step labs, animated diagrams, and quizzes: MCP assistant, multi-agent orchestration, eval pipeline, RAG security guardrails, audit-log agent, fine-tuning, and knowledge graphs. Theory above; shipping here.\n\n0/7 modules\nStart Building \u2192",
+      "modules": [
+        {
+          "id": "phase0-orientation",
+          "firstHeadings": [
+            "Worked case: A fluent refund answer with no policy",
+            "Predict the result",
+            "Changed-task brief",
+            "What is an LLM \u2014 Really?",
+            "The AI Technology Stack"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "firstScreen": "\u2190 Back\nL100\nPhase 0: AI Orientation\nModule 1 of 31 \u00b7 ~45m\nExplain tokens, context, inference, model limits, and evaluation without relying on vendor marketing.\nNot started\nEvidence\n0/4 evidence checks complete\nGuided\nBrowse\n1\nUnderstand\n2\nVisualize\n3\nPractice\n4\nCheck\n5\nBuild\n6\nTransfer\n7\nReview\nIn this lesson\nWorked case: A fluent refund answer with no policy\n\nMapleDesk is a fictional shop with three synthetic support tickets. T1 asks how to reset a password, T2 asks about an unopened item bought 14 days ago, and T3 asks about an opened item bought 35 days ago. A fluent assistant promises refunds for both items before receiving any shop policy.\n\nSeparate the model from the application. The model predicts text from its current input; the application decides which policy to supply. A chat product might retrieve documents, but that capability is not guaranteed by a model name.\nIntroduce document D2: unopened items qualify within 30 days; opened-item exceptions require a human decision. T2 now has supporting evidence. T3 still lacks permission for an automatic refund, regardless of how confident its answer sounds.\nUse a fixed mock answer for each ticket and mark every factual claim supported, contradicted, or absent from D2. Count unsupported refund promises separately from spelling or helpful tone.\nRemove D2 and repeat the reasoning on paper. The correct behavior is to request the policy or defer, not recall a rule from a previous independent request.\nWorked result\nPredict the result\nA fresh API request contains only T3 and no policy or earlier messages. What can the model safely conclude about MapleDesk refund eligibility?\nIt must recall D2 from the earlier independent request.\nIt needs the policy or must defer the eligibility decision.\nIts large context window guarantees the correct shop rule.\nCheck prediction\n\nChanged-task brief\n\nReplace refunds with a fictional repair warranty. The only supplied rule covers manufacturing defects, while a new ticket reports accidental damage. Explain the system boundary and draft its response.\n\nIdentify one model behavior and one application responsibility.\nQuote the warranty rule without inventing an accidental-damage exception.\nList the missing evidence and route the unresolved decision to a human.\nWrite case analysis\nDownload worksheet\nRecord transfer assessment\nIllustrative example, not your evidence\n\nModel sources checked: 2026-09. External labs not executed.\n\nWhat is an LLM \u2014 Really?\n\nA Large Language Model is a neur",
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            },
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase1-prompting",
+          "firstHeadings": [
+            "Worked case: Turn a vague triage request into a contract",
+            "Predict the result",
+            "Changed-task brief",
+            "Why Prompt Engineering Matters",
+            "Next-token prediction & temperature"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase2-platforms",
+          "firstHeadings": [
+            "Worked case: Compare a document product with an API",
+            "Predict the result",
+            "Changed-task brief",
+            "Platform Deep Dives",
+            "\ud83d\udcda Further Reading & References"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "phase3-ai-from-code",
+          "firstHeadings": [
+            "Worked case: An API client that fails predictably",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: From API Calls to AI Runtime Design",
+            "How an API call with tools actually flows"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "landscape-2026-ai-systems",
+          "firstHeadings": [
+            "Worked case: A catalog update is not a migration result",
+            "Predict the result",
+            "Changed-task brief",
+            "The strategic shift in 2026",
+            "Provider shifts that matter for builders"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "zero-to-claude-companion",
+          "firstHeadings": [
+            "Worked case: Readiness without an agent account",
+            "Predict the result",
+            "Changed-task brief",
+            "Why this syllabus belongs here",
+            "Syllabus snapshot"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "ai-stack",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 328,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "tokenisation",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 328,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "next-token",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 328,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase4-memory-rag",
+          "firstHeadings": [
+            "Worked case: Locate the first failing RAG boundary",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: Context Engineering is now a core skill",
+            "The RAG pipeline end-to-end"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            },
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase5-tool-use",
+          "firstHeadings": [
+            "Worked case: A tool proposal is not permission to act",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: Prompt engineering became context and contract engineering",
+            "Function calling \u2014 the message handshake"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase6-agents",
+          "firstHeadings": [
+            "Worked case: Choose a workflow before adding an agent loop",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: Agents moved from pattern to platform primitive",
+            "The ReAct agent loop"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase7-claude-code",
+          "firstHeadings": [
+            "Worked case: Supervise one repository change",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: Code agent usage now includes runtime operations",
+            "Claude Code \u2014 Context to Verified Change"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase8-multi-agent",
+          "firstHeadings": [
+            "Worked case: Parallel research with a broken handoff",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: Multi-agent design now includes hosted orchestration",
+            "Orchestrator\u2013Worker pattern"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "rag-pipeline",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 328,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "embedding-space",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 328,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "tool-calling",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 328,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "agent-loop",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 328,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "multi-agent",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 328,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "pm-evals",
+          "firstHeadings": [
+            "Worked case: An average score that hides a release blocker",
+            "Predict the result",
+            "Changed-task brief",
+            "Why evals are the #1 PM skill in 2026",
+            "The eval ladder \u2014 5 maturity levels"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-unit-economics",
+          "firstHeadings": [
+            "Worked case: Price successful tasks, including retries",
+            "Predict the result",
+            "Changed-task brief",
+            "Why this is a PM problem, not a finance problem",
+            "Token math 101"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-build-buy-wait",
+          "firstHeadings": [
+            "Worked case: Make a reversible build-or-buy decision",
+            "Predict the result",
+            "Changed-task brief",
+            "The 2026 trap: building what the platform is about to ship",
+            "The scoring rubric"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-discovery-ship",
+          "firstHeadings": [
+            "Worked case: Test a job before testing a model",
+            "Predict the result",
+            "Changed-task brief",
+            "The AI demo-to-deploy gap",
+            "Step 1 \u2014 Find the JTBD that AI improves"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-comms",
+          "firstHeadings": [
+            "Worked case: Make a decision request that survives scrutiny",
+            "Predict the result",
+            "Changed-task brief",
+            "Why this is its own skill",
+            "The exec-friendly vocabulary"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "phase9-mcp-skills",
+          "firstHeadings": [
+            "Worked case: Trace an MCP request across trust boundaries",
+            "Predict the result",
+            "Changed-task brief",
+            "MCP \u2014 USB Standard for AI Tools",
+            "MCP \u2014 client / server architecture"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase10-fullstack",
+          "firstHeadings": [
+            "Worked case: Diagnose an authenticated request end to end",
+            "Predict the result",
+            "Changed-task brief",
+            "From Script \u2192 Deployed System",
+            "\ud83d\udcda Further Reading & References"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase11-product",
+          "firstHeadings": [
+            "Worked case: Enforce one plan policy across tenant boundaries",
+            "Predict the result",
+            "Changed-task brief",
+            "Product Before Code",
+            "\ud83d\udcda Further Reading & References"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "phase12-expert",
+          "firstHeadings": [
+            "Worked case: Review a failure by architecture boundary",
+            "Predict the result",
+            "Changed-task brief",
+            "Expert Thinking: 3 Axes",
+            "\ud83d\udcda Further Reading & References"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase13-capstone",
+          "firstHeadings": [
+            "Worked case: Defend the capstone after the requirement changes",
+            "Predict the result",
+            "Changed-task brief",
+            "\ud83c\udfc6 The Capstone Project: AI-Powered Document Q&A Assistant",
+            "Document Q&A Assistant \u2014 Full Architecture"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            },
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "mcp-architecture",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 328,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "context-decay",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 328,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "pm-trust-safety",
+          "firstHeadings": [
+            "Worked case: Turn a threat into an owned release gate",
+            "Predict the result",
+            "Changed-task brief",
+            "Why \"the model is safe\" is the wrong question",
+            "Risk #1 \u2014 Hallucination"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-analytics",
+          "firstHeadings": [
+            "Worked case: Fix the denominator before celebrating adoption",
+            "Predict the result",
+            "Changed-task brief",
+            "What's different about AI analytics",
+            "What to log per call"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-roadmap",
+          "firstHeadings": [
+            "Worked case: Plan around decisions that can expire",
+            "Predict the result",
+            "Changed-task brief",
+            "Why AI roadmaps look different",
+            "The quarterly AI review (60 minutes, every quarter)"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "builder-mcp-assistant",
+          "firstHeadings": [
+            "Worked case: Route a discovered tool without broadening access",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "MCP architecture \u2014 discovery & routing"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            },
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-multi-agent",
+          "firstHeadings": [
+            "Worked case: Recover a dependency graph without stale results",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "Orchestration DAG \u2014 plan, fan out, merge"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            },
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-eval-pipeline",
+          "firstHeadings": [
+            "Worked case: Prove that the release gate can fail",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "The eval pipeline \u2014 dataset to regression gate"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            },
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-rag-guardrails",
+          "firstHeadings": [
+            "Worked case: A valid-looking citation can still be wrong",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "Defense in depth \u2014 five layers, three of them guardrails"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            },
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-audit-agent",
+          "firstHeadings": [
+            "Worked case: Audit enough to reconstruct a denied action",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "One trace, reconstructed \u2014 every event category"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            },
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-finetune",
+          "firstHeadings": [
+            "Worked case: Reject tuning that loses on the real boundary",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "Reading the loss curve \u2014 the fine-tuner's vital sign"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            },
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-knowledge-graph",
+          "firstHeadings": [
+            "Worked case: Resolve identity before trusting a graph path",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "Multi-hop traversal \u2014 the question vector search can't answer"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            },
+            {
+              "width": 332,
+              "scrollWidth": 848,
+              "tabindex": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "home": "MODEL LAB NOTEBOOK\n\nAI Mastery Academy\nFrame\nBuild\nEvaluate\nOperate\n\nTODAY\n\nFind my starting point\n\n10 questions, about 4 minutes \u00b7 25-minute session\n\nStart diagnostic\n\nALSO DUE\n\nNothing else today\n\nYour next scheduled evidence will appear here.\n\n1\nPhase 0: AI Orientation\nNot started\n2\nPhase 1: Prompt Engineering\nNot started\n3\nCompanion Track: Zero to Claude Code\nNot started\n0 practiced\n0 demonstrated\n0 durable\nWhy this start?\nStudy preferences\nL100\nFoundations\n\nPhase 0\u20133: AI orientation, prompt engineering, platform mastery (ChatGPT/Claude/Gemini), calling AI from code, plus a 2026 systems landscape flagship and Zero to Claude command-line companion track. Portfolio: journal, prompts, Custom GPT, CLI assistant.\n\n0/6 modules\nStart Foundations \u2192\nL200\nIntermediate\n\nPhase 4\u20138: context engineering + RAG, schema-first tool use, agent loops with governance, Claude Code deep dive (.claude/ folder, hooks, skills, MCP, managed agents), and multi-agent orchestration.\n\n0/10 modules\nStart Intermediate \u2192\nL300\nAdvanced\n\nPhase 9\u201312: MCP servers & tool ecosystems, full-stack AI app deployment, AI SaaS product, expert layer (scaling, security, cost optimization).\n\n0/8 modules\nStart Advanced \u2192\nBUILD\nBuilder Track\n\nSeven portfolio-grade builds with step-by-step labs, animated diagrams, and quizzes: MCP assistant, multi-agent orchestration, eval pipeline, RAG security guardrails, audit-log agent, fine-tuning, and knowledge graphs. Theory above; shipping here.\n\n0/7 modules\nStart Building \u2192",
+      "modules": [
+        {
+          "id": "phase0-orientation",
+          "firstHeadings": [
+            "Worked case: A fluent refund answer with no policy",
+            "Predict the result",
+            "Changed-task brief",
+            "What is an LLM \u2014 Really?",
+            "The AI Technology Stack"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "firstScreen": "\u2190 Back\nL100\nPhase 0: AI Orientation\nModule 1 of 31 \u00b7 ~45m\n\nOBSERVABLE OUTCOME\n\nExplain tokens, context, inference, model limits, and evaluation without relying on vendor marketing.\nNot started\nEvidence\n0/4 evidence checks complete\nGuided\nBrowse\n1\nUnderstand\n2\nVisualize\n3\nPractice\n4\nCheck\n5\nBuild\n6\nTransfer\n7\nReview\nIn this lesson\nWorked case: A fluent refund answer with no policy\nPredict the result\nChanged-task brief\nWhat is an LLM \u2014 Really?\nThe AI Technology Stack\nHow LLMs Work \u2014 Under the Hood\nThe Big Three Platforms: September 2026\n\ud83e\uddf1 How to Structure an AI Project\n\ud83c\udf93 Official Anthropic Learning Resources\n\ud83d\udcda Further Reading & References\nWorked case: A fluent refund answer with no policy\n\nMapleDesk is a fictional shop with three synthetic support tickets. T1 asks how to reset a password, T2 asks about an unopened item bought 14 days ago, and T3 asks about an opened item bought 35 days ago. A fluent assistant promises refunds for both items before receiving any shop policy.\n\nSeparate the model from the application. The model predicts text from its current input; the application decides which policy to supply. A chat product might retrieve documents, but that capability is not guaranteed by a model name.\nIntroduce document D2: unopened items qualify within 30 days; opened-item exceptions require a human decision. T2 now has supporting evidence. T3 still lacks permission for an automatic refund, regardless of how confident its answer sounds.\nUse a fixed mock answer for each ticket and mark every factual claim supported, contradicted, or absent from D2. Count unsupported refund promises separately from spelling or helpful tone.\nRemove D2 and repeat the reasoning on paper. The correct behavior is to request the policy or defer, not recall a rule from a previous independent request.\nWorked result\nPredict the result\nA fresh API request contains only T3 and no policy or earlier messages. What can the model safely conclude about MapleDesk refund eligibility?\nIt must recall D2 from the earlier independent request.\nIt needs the policy or must defer the eligibility decision.\nIts large context window guarantees the correct shop rule.\nCheck prediction\n\nChanged-task brief\n\nReplace refunds with a fictional repair warranty. The only supplied rule covers manufacturing defects, while a new ticket reports accidental damage. Explain the system boundary and draft its response.\n\nIdentify one model behavior and one application responsibility.\nQuote the warranty rule without invent",
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            },
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase1-prompting",
+          "firstHeadings": [
+            "Worked case: Turn a vague triage request into a contract",
+            "Predict the result",
+            "Changed-task brief",
+            "Why Prompt Engineering Matters",
+            "Next-token prediction & temperature"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase2-platforms",
+          "firstHeadings": [
+            "Worked case: Compare a document product with an API",
+            "Predict the result",
+            "Changed-task brief",
+            "Platform Deep Dives",
+            "\ud83d\udcda Further Reading & References"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "phase3-ai-from-code",
+          "firstHeadings": [
+            "Worked case: An API client that fails predictably",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: From API Calls to AI Runtime Design",
+            "How an API call with tools actually flows"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "landscape-2026-ai-systems",
+          "firstHeadings": [
+            "Worked case: A catalog update is not a migration result",
+            "Predict the result",
+            "Changed-task brief",
+            "The strategic shift in 2026",
+            "Provider shifts that matter for builders"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "zero-to-claude-companion",
+          "firstHeadings": [
+            "Worked case: Readiness without an agent account",
+            "Predict the result",
+            "Changed-task brief",
+            "Why this syllabus belongs here",
+            "Syllabus snapshot"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "ai-stack",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 798,
+              "scrollWidth": 798,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "tokenisation",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 798,
+              "scrollWidth": 798,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "next-token",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 798,
+              "scrollWidth": 798,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase4-memory-rag",
+          "firstHeadings": [
+            "Worked case: Locate the first failing RAG boundary",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: Context Engineering is now a core skill",
+            "The RAG pipeline end-to-end"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            },
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase5-tool-use",
+          "firstHeadings": [
+            "Worked case: A tool proposal is not permission to act",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: Prompt engineering became context and contract engineering",
+            "Function calling \u2014 the message handshake"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase6-agents",
+          "firstHeadings": [
+            "Worked case: Choose a workflow before adding an agent loop",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: Agents moved from pattern to platform primitive",
+            "The ReAct agent loop"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase7-claude-code",
+          "firstHeadings": [
+            "Worked case: Supervise one repository change",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: Code agent usage now includes runtime operations",
+            "Claude Code \u2014 Context to Verified Change"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase8-multi-agent",
+          "firstHeadings": [
+            "Worked case: Parallel research with a broken handoff",
+            "Predict the result",
+            "Changed-task brief",
+            "2026 Upgrade: Multi-agent design now includes hosted orchestration",
+            "Orchestrator\u2013Worker pattern"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "rag-pipeline",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 798,
+              "scrollWidth": 798,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "embedding-space",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 798,
+              "scrollWidth": 798,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "tool-calling",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 798,
+              "scrollWidth": 798,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "agent-loop",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 798,
+              "scrollWidth": 798,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "multi-agent",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 798,
+              "scrollWidth": 798,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "pm-evals",
+          "firstHeadings": [
+            "Worked case: An average score that hides a release blocker",
+            "Predict the result",
+            "Changed-task brief",
+            "Why evals are the #1 PM skill in 2026",
+            "The eval ladder \u2014 5 maturity levels"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-unit-economics",
+          "firstHeadings": [
+            "Worked case: Price successful tasks, including retries",
+            "Predict the result",
+            "Changed-task brief",
+            "Why this is a PM problem, not a finance problem",
+            "Token math 101"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-build-buy-wait",
+          "firstHeadings": [
+            "Worked case: Make a reversible build-or-buy decision",
+            "Predict the result",
+            "Changed-task brief",
+            "The 2026 trap: building what the platform is about to ship",
+            "The scoring rubric"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-discovery-ship",
+          "firstHeadings": [
+            "Worked case: Test a job before testing a model",
+            "Predict the result",
+            "Changed-task brief",
+            "The AI demo-to-deploy gap",
+            "Step 1 \u2014 Find the JTBD that AI improves"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-comms",
+          "firstHeadings": [
+            "Worked case: Make a decision request that survives scrutiny",
+            "Predict the result",
+            "Changed-task brief",
+            "Why this is its own skill",
+            "The exec-friendly vocabulary"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "phase9-mcp-skills",
+          "firstHeadings": [
+            "Worked case: Trace an MCP request across trust boundaries",
+            "Predict the result",
+            "Changed-task brief",
+            "MCP \u2014 USB Standard for AI Tools",
+            "MCP \u2014 client / server architecture"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase10-fullstack",
+          "firstHeadings": [
+            "Worked case: Diagnose an authenticated request end to end",
+            "Predict the result",
+            "Changed-task brief",
+            "From Script \u2192 Deployed System",
+            "\ud83d\udcda Further Reading & References"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase11-product",
+          "firstHeadings": [
+            "Worked case: Enforce one plan policy across tenant boundaries",
+            "Predict the result",
+            "Changed-task brief",
+            "Product Before Code",
+            "\ud83d\udcda Further Reading & References"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "phase12-expert",
+          "firstHeadings": [
+            "Worked case: Review a failure by architecture boundary",
+            "Predict the result",
+            "Changed-task brief",
+            "Expert Thinking: 3 Axes",
+            "\ud83d\udcda Further Reading & References"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "phase13-capstone",
+          "firstHeadings": [
+            "Worked case: Defend the capstone after the requirement changes",
+            "Predict the result",
+            "Changed-task brief",
+            "\ud83c\udfc6 The Capstone Project: AI-Powered Document Q&A Assistant",
+            "Document Q&A Assistant \u2014 Full Architecture"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            },
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "mcp-architecture",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 858,
+              "scrollWidth": 858,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "context-decay",
+          "firstHeadings": [],
+          "pageOverflow": false,
+          "inlineSvg": 0,
+          "svgCount": 1,
+          "canvas": [
+            {
+              "width": 798,
+              "scrollWidth": 798,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "pm-trust-safety",
+          "firstHeadings": [
+            "Worked case: Turn a threat into an owned release gate",
+            "Predict the result",
+            "Changed-task brief",
+            "Why \"the model is safe\" is the wrong question",
+            "Risk #1 \u2014 Hallucination"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-analytics",
+          "firstHeadings": [
+            "Worked case: Fix the denominator before celebrating adoption",
+            "Predict the result",
+            "Changed-task brief",
+            "What's different about AI analytics",
+            "What to log per call"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "pm-roadmap",
+          "firstHeadings": [
+            "Worked case: Plan around decisions that can expire",
+            "Predict the result",
+            "Changed-task brief",
+            "Why AI roadmaps look different",
+            "The quarterly AI review (60 minutes, every quarter)"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 0
+        },
+        {
+          "id": "builder-mcp-assistant",
+          "firstHeadings": [
+            "Worked case: Route a discovered tool without broadening access",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "MCP architecture \u2014 discovery & routing"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            },
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-multi-agent",
+          "firstHeadings": [
+            "Worked case: Recover a dependency graph without stale results",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "Orchestration DAG \u2014 plan, fan out, merge"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            },
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-eval-pipeline",
+          "firstHeadings": [
+            "Worked case: Prove that the release gate can fail",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "The eval pipeline \u2014 dataset to regression gate"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            },
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-rag-guardrails",
+          "firstHeadings": [
+            "Worked case: A valid-looking citation can still be wrong",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "Defense in depth \u2014 five layers, three of them guardrails"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            },
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-audit-agent",
+          "firstHeadings": [
+            "Worked case: Audit enough to reconstruct a denied action",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "One trace, reconstructed \u2014 every event category"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            },
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-finetune",
+          "firstHeadings": [
+            "Worked case: Reject tuning that loses on the real boundary",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "Reading the loss curve \u2014 the fine-tuner's vital sign"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            },
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        },
+        {
+          "id": "builder-knowledge-graph",
+          "firstHeadings": [
+            "Worked case: Resolve identity before trusting a graph path",
+            "Predict the result",
+            "Changed-task brief",
+            "The core idea",
+            "Multi-hop traversal \u2014 the question vector search can't answer"
+          ],
+          "pageOverflow": false,
+          "inlineSvg": 1,
+          "svgCount": 2,
+          "canvas": [
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            },
+            {
+              "width": 818,
+              "scrollWidth": 818,
+              "tabindex": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "live": {
+    "status": 200,
+    "title": "AI Mastery Academy \u2014 Beginner to Expert",
+    "firstText": "MODEL LAB NOTEBOOK\n\nAI Mastery Academy\nFrame\nBuild\nEvaluate\nOperate\n\nTODAY\n\nFind my starting point\n\n10 questions, about 4 minutes \u00b7 25-minute session\n\nStart diagnostic\n\nALSO DUE\n\nNothing else today\n\nYour next scheduled evidence will appear here.\n\n1\nPhase 0: AI Orientation\nNot started\n2\nPhase 1: Prompt Engineering\nNot started\n3\nCompanion Track: Zero to Claude Code\nNot started\n0 practiced\n0 demonstrated\n0 durable\nWhy this start?\nStudy preferences\nL100\nFoundations\n\nPhase 0\u20133: AI orientation, prompt engineering, platform mastery (ChatGPT/Claude/Gemini), calling AI from code, plus a 2026 systems landscape flagship and Zero to Claude command-line companion track. Portfolio: journal, prompts, Custom GPT, CLI assistant.\n\n0/6 modules\nStart Foundations \u2192\nL200\nIntermediate\n\nPhase 4\u20138: context engineering + RAG, schema-first tool use, agent loops with governance, Claude Code deep dive (.claude/ folder, hooks, skills, MCP, managed agents), and multi-agent orchestration.\n\n0/10 modules\nStart Intermed"
+  },
+  "parity": [
+    {
+      "file": "index.html",
+      "match": true
+    },
+    {
+      "file": "js/app.js",
+      "match": true
+    },
+    {
+      "file": "js/landscape.js",
+      "match": true
+    },
+    {
+      "file": "js/learning-engine.js",
+      "match": true
+    },
+    {
+      "file": "js/learning-content.js",
+      "match": true
+    },
+    {
+      "file": "js/modules-100.js",
+      "match": true
+    },
+    {
+      "file": "js/modules-200.js",
+      "match": true
+    },
+    {
+      "file": "js/modules-300.js",
+      "match": true
+    },
+    {
+      "file": "js/modules-pm.js",
+      "match": true
+    },
+    {
+      "file": "js/modules-builder.js",
+      "match": true
+    },
+    {
+      "file": "js/diagrams.js",
+      "match": true
+    },
+    {
+      "file": "sw.js",
+      "match": true
+    }
+  ]
+}

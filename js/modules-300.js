@@ -20,7 +20,7 @@ const MODULES_300 = [
             id: 'mcp-architecture-diagram',
             type: 'mcp-architecture',
             title: 'MCP — client / server architecture',
-            description: 'Model Context Protocol is JSON-RPC over a transport. Servers expose three surfaces (tools, resources, prompts) and any compatible client can use any server.',
+            description: 'Model Context Protocol uses JSON-RPC over an agreed transport. Capability negotiation, protocol versions, authentication, and host support determine which tools, resources, and prompts are usable.',
             steps: [
                 'Client side: an LLM agent runs inside a host app and uses the MCP runtime to discover and call servers.',
                 'Transport: JSON-RPC messages use the standard stdio or Streamable HTTP transport; custom transports require explicit interoperability design.',
@@ -54,8 +54,18 @@ server.tool("get_status", "Get project status. Use when user asks about progress
         <tr><td><strong>Observability</strong></td><td>Do traces record correlation ID, caller, tool, latency, status, and sanitized failure details without logging secrets or sensitive arguments?</td></tr>
         <tr><td><strong>Recovery</strong></td><td>Are timeouts, bounded retries, idempotency, circuit breakers, and useful errors defined for downstream failures?</td></tr>
     </table>
-    <h3>A2A — Agent-to-Agent Protocol</h3>
-    <p>MCP = AI→tools. A2A = agents→agents. AgentCards for capability discovery. The emerging ecosystem.</p>
+    <h3>Optional interoperability reference: API, Agent Skills, MCP, or A2A?</h3>
+    <p><strong>Source-reviewed 2026-11-11; integrations not executed.</strong> Prerequisites: Phase 3 request/response contracts, Phase 5 authorization, and a bounded single-agent workflow. More protocols do not automatically improve a system; a direct API or local function may be enough.</p>
+    <table class="content-table">
+        <tr><th>Need</th><th>Contract</th><th>Not supplied by the format</th></tr>
+        <tr><td>A direct operation owned by your application</td><td>Function/API: explicitly version the request, result, and errors</td><td>Domain authorization or retry safety without implementation</td></tr>
+        <tr><td>Reusable procedural knowledge</td><td>Agent Skills: SKILL.md metadata, instructions, optional scripts/assets, loaded by a compatible host</td><td>Remote transport, universal host behavior, or permission to run bundled code</td></tr>
+        <tr><td>Tool and data integration</td><td>MCP: tools, resources, prompts, versions, transport, and supported capabilities</td><td>Trust in server output or blanket permission to invoke every tool</td></tr>
+        <tr><td>Delegation to a separately operated agent</td><td>A2A: Agent Card discovery, messages/tasks, status, and artifacts</td><td>Automatic trust in an advertised capability, business authorization, or guaranteed completion</td></tr>
+    </table>
+    <p><strong>Version boundary:</strong> the MCP versioning page reviewed today resolves to revision <code>2026-07-28</code>: version and capability metadata are carried per request, without an initialize handshake. Revision <code>2025-11-25</code> and earlier use initialization-based negotiation. Existing SDK snippets in the detailed reference may target that legacy era. Pin a mutually supported revision and SDK version; test rejection of an unsupported version instead of mixing message shapes from both eras. Capability compatibility is not authorization.</p>
+    <p><strong>Required offline exercise:</strong> choose a contract for three fictional requirements: reuse a ticket-triage checklist, read ticket status through a service, and delegate a long-running research task to another operator. Expected candidates: Skill, API/MCP, A2A, with a simpler alternative allowed if justified. Then inject an unknown protocol version, unavailable host capability, and denied write. Record expected rejection or explicit fallback; never silently upgrade permissions. A2A progress is not a completed artifact, and a timeout does not prove a delegated action was cancelled.</p>
+    <p>Sources: <a href="https://agentskills.io/what-are-skills" target="_blank" rel="noopener">Agent Skills format</a>, <a href="https://code.claude.com/docs/en/skills" target="_blank" rel="noopener">Claude-specific extensions</a>, <a href="https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning" target="_blank" rel="noopener">MCP 2026-07-28 versioning</a>, and <a href="https://a2a-protocol.org/latest/topics/what-is-a2a/" target="_blank" rel="noopener">A2A purpose and agent collaboration</a>. A2A's latest URL can change; record the exact revision supported by the selected implementation before a connected experiment. No protocol service is started by this lesson.</p>
     <h3>Evaluate → Ship → Operate</h3>
     <table class="content-table">
         <tr><th>Stage</th><th>What</th></tr>
@@ -163,6 +173,27 @@ server.tool("get_status", "Get project status. Use when user asks about progress
         }
     ],
     learn: `
+<div class="learn-section">
+    <h2>Optional public specialization: Microsoft Foundry lifecycle</h2>
+    <p><strong>Source-reviewed 2026-11-11; Azure resources, SDKs, and agents not executed or provisioned.</strong> Required classroom work is offline analysis using fictional MapleDesk data. Prerequisites: Phase 3 API contracts, Phase 5 tool permissions, and PM Evals. No subscription, account sign-in, workplace document, or provider call is needed to complete this reference exercise.</p>
+    <table class="content-table">
+        <tr><th>Path</th><th>What you own</th><th>What to verify before connecting</th></tr>
+        <tr><td>Prompt agent</td><td>Instructions, model/tool choices, evaluation and permission policy</td><td>Managed runtime contract, supported features, API/SDK version</td></tr>
+        <tr><td>Hosted agent</td><td>Application code, dependencies, container behavior and agent logic</td><td>Hosting capabilities, resource limits, image security, identity and scale behavior</td></tr>
+        <tr><td>Voice-based prompt agent</td><td>Audio experience, consent, interruption and fallback design</td><td>Voice Live transport, regional/model availability, preview limits, transcript retention</td></tr>
+    </table>
+    <p><strong>Identity is not authorization:</strong> Microsoft Entra authenticates identities; RBAC (role-based access control) and downstream permissions determine allowed actions. The reviewed Foundry identity documentation says new agent identities start without resource permissions. Caller-to-agent access and agent-to-tool access are separate boundaries. Grant only the required resource scope; an agent's successful sign-in must not imply write permission. This prevents a read-only assistant from becoming a cross-resource writer.</p>
+    <ol>
+        <li><strong>Design:</strong> choose the simplest path and draw caller → agent endpoint → retrieval store/tool. Mark data destinations, private/public boundaries, allowed operations, cost owner, and retention.</li>
+        <li><strong>Evaluate:</strong> use a versioned held-out synthetic set, a simpler baseline, per-slice quality and denial tests, and calibrated graders. Foundry evaluation can assess existing outputs or generate new responses; cloud scoring may itself call a judge model and incur cost.</li>
+        <li><strong>Release:</strong> record agent/model/tool/SDK versions, rollout gates, named approver, stable endpoint mapping, and rollback target. Do not equate creating an agent with safe publishing.</li>
+        <li><strong>Operate:</strong> review minimized traces, failures, budgets, permission changes and lifecycle notices. Monitoring is not evidence that every result is correct.</li>
+    </ol>
+    <p><strong>Offline changed-condition exercise:</strong> a read-only support agent authenticates successfully but receives a denied write. Expected: no side effect, a permission failure in the minimal trace, and a safe user explanation, not a broader role assignment. Next, a new agent version reduces cost but fails two high-impact holdout cases. Decide hold/rollback and state the evidence required to retry. Deliver a one-page release decision; label every result simulated.</p>
+    <p><strong>Optional connected work:</strong> requires separate subscription/resource/spend approval, current region and preview/GA checks, verified exact SDK/API versions, least-privilege roles, synthetic data, an explicit budget and cleanup inventory. Hosted/voice features and evaluators can have distinct availability and pricing. No deploy, role-assignment, or publication command is required or automatically run here.</p>
+    <p>Public sources: <a href="https://learn.microsoft.com/en-us/azure/foundry/agents/overview" target="_blank" rel="noopener">Foundry Agent Service and agent types</a>, <a href="https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/agent-identity" target="_blank" rel="noopener">agent identity and downstream access</a>, and <a href="https://learn.microsoft.com/azure/foundry/concepts/evaluation-overview" target="_blank" rel="noopener">evaluation lifecycle</a>. These references establish documented capabilities, not account entitlement or tested integration.</p>
+</div>
+
 <div class="learn-section">
     <h2>From Script → Deployed System</h2>
     <div class="code-block">POST /api/run-agent {"task":"Research competitors","max_iterations":5}
@@ -325,7 +356,7 @@ server.tool("get_status", "Get project status. Use when user asks about progress
             { title: 'Build the backend', subtitle: '3 AI-powered endpoints', duration: '30 min', instructions: [
                 { type: 'command', cmd: 'mkdir ai-tpm-assistant && cd ai-tpm-assistant && claude' },
                 'Run /init, then:',
-                { type: 'prompt', text: 'Build FastAPI backend for a fictional AI TPM Assistant:\n\n1. POST /api/status-report — {updates:str, format:executive|detailed} → {report:str, tokens, cost}\n2. POST /api/risk-analysis — {project_context:str} → {risks:[{risk,likelihood,impact,severity,mitigation}], tokens, cost}\n3. POST /api/meeting-prep — {agenda:str, past_notes:str} → {talking_points:[str], questions:[{question,response}], tokens, cost}\n\nDefault to deterministic mock responses for synthetic fixtures. Keep Gemini 2.5 Flash as an optional supported provider pin; paid execution requires separate approval. Record only minimized generation metadata in SQLite, never raw prompts or keys. Swagger docs at /docs. requirements.txt.' },
+                { type: 'prompt', text: 'Build FastAPI backend for a fictional AI TPM Assistant:\n\n1. POST /api/status-report — {updates:str, format:executive|detailed} → {report:str, tokens, cost}\n2. POST /api/risk-analysis — {project_context:str} → {risks:[{risk,likelihood,impact,severity,mitigation}], tokens, cost}\n3. POST /api/meeting-prep — {agenda:str, past_notes:str} → {talking_points:[str], questions:[{question,response}], tokens, cost}\n\nDefault to deterministic mock responses for synthetic fixtures. Gemini 2.5 Flash is a deprecated historical pin with existing-user API restrictions; on December 1, 2026 its requests reroute to 3.5 Flash-Lite with changed billing. Before any separately approved paid execution, select an available model, check its API contract, and evaluate migration. Record only minimized generation metadata in SQLite, never raw prompts or keys. Swagger docs at /docs. requirements.txt.' },
                 { type: 'command', cmd: 'pip install -r requirements.txt\nuvicorn main:app --reload' },
                 'Test all three endpoints at /docs with synthetic fixtures only: updates="MapleDesk demo: 8 of 10 fictional tasks done; review moved to Friday"; project_context="Fictional library kiosk: one test device, two-day delivery delay, volunteer owner"; agenda="Review mock search quality and the next trial" with past_notes="Synthetic trial: 3 of 5 questions answered; two need clarification". Do not substitute workplace documents or customer information. Use mock responses unless provider execution is separately approved.',
                 { type: 'verify', text: 'Status report has ## Highlights, ## Risks, ## Next Week. Risk analysis ranks by severity. Meeting prep has specific anticipated questions.' }
@@ -359,11 +390,11 @@ server.tool("get_status", "Get project status. Use when user asks about progress
             id: 'context-decay-diagram',
             type: 'context-decay',
             title: 'Lost in the middle — recall vs context position',
-            description: 'Even with huge context windows, models don\u2019t remember evenly. Information at the start and end is recalled best; the middle gets lost.',
+            description: 'Illustrative position-effect curve, not a benchmark. Some tasks show weaker retrieval in the middle; results vary by model, prompt length, distractors, and task.',
             steps: [
-                'High recall at the start — the system prompt and earliest instructions stick.',
-                'Recall sags through the middle — important facts buried here often go missed.',
-                'Recency bump at the very end — the most recent turn is heavily weighted.'
+                'This illustrative curve starts high; test your model rather than assuming early evidence is recalled.',
+                'The middle dip represents a possible retrieval failure, not a universal decay rate.',
+                'An end-position gain is possible. Move the same evidence between positions and compare accuracy.'
             ]
         }
     ],
@@ -389,8 +420,26 @@ server.tool("get_status", "Get project status. Use when user asks about progress
         <tr><td><strong>Cost</strong></td><td>Workload forecast, unit economics, tenant attribution, budgets, sensitivity analysis, and alerts for spend anomalies.</td></tr>
         <tr><td><strong>Migration</strong></td><td>Compatibility inventory, baseline evals, shadow/canary plan, data migration and reconciliation, rollback trigger, and decommission criteria.</td></tr>
     </table>
+    <h3>Required offline clinic: model and SDK migration</h3>
+    <p><strong>Source-reviewed 2026-11-11; no provider execution.</strong> A catalogue upgrade, API migration, SDK upgrade, and deployment change are separate decisions. Begin with a copy of the local synthetic fixtures and a baseline result sheet; no account or package installation is required for analysis.</p>
+    <table class="content-table">
+        <tr><th>Record</th><th>Evidence required</th></tr>
+        <tr><td>Exact source and review date</td><td>Official URL, document revision/date when available, checked date, next review trigger, owner, and source-reviewed versus executed status</td></tr>
+        <tr><td>Exact model/platform</td><td>Model ID or deployment name, alias/snapshot behavior, provider versus hosted-platform schedule, account access, input/output limits and pricing tier</td></tr>
+        <tr><td>SDK version and API contract</td><td>Installed version, supported runtime, lockfile, release notes, request fields, response items, error types, timeout/retry/storage defaults</td></tr>
+        <tr><td>Acceptance and rollback</td><td>Same held-out inputs and grader across versions, repeated trials, per-slice quality, latency, cost per successful task, denial tests and rollback trigger</td></tr>
+    </table>
+    <p><strong>Local-only inspection commands:</strong> in your separate Node lab project, <code>node --version</code> and <code>npm ls openai --depth=0</code> report local versions without requesting a model. Inspect <code>package-lock.json</code> for the resolved package version and integrity. If absent, record "SDK not installed; unverified" rather than installing automatically or inventing a version. Compare that exact version's official release documentation before any approved installation or API call.</p>
+    <ol>
+        <li><strong>Snapshot exercise:</strong> the reviewed OpenAI notice identifies <code>gpt-4o-2024-08-06</code> for January 14, 2027 shutdown. Record that exact ID and platform; do not conclude that all GPT-4 endpoints are already retired. Choose a replacement only after compatibility and task evaluation.</li>
+        <li><strong>Alias exercise:</strong> <code>gemini-2.5-flash</code> is access-limited and deprecated; on December 1, 2026 requests reroute to <code>gemini-3.5-flash-lite</code> with replacement billing and API differences. A source-code diff of zero does not prove unchanged behavior or cost.</li>
+        <li><strong>API exercise:</strong> map a Chat Completions fixture's messages/choices into Responses input/output items and text.format. Keep a refusal, an incomplete result, a timeout and an unauthorized tool proposal in the held-out set. Do not carry unsupported sampling controls into the new adapter.</li>
+        <li><strong>Decision:</strong> compare simulated old/new results and propose ship/hold/rollback with a named review gate. A rollback must target a still-available version; after retirement, the fallback may need to be no-AI rather than an unavailable old model.</li>
+    </ol>
+    <p><strong>Optional connected validation:</strong> after separate approval, lock the reviewed SDK version in an isolated lab, use public/synthetic inputs and a bounded request budget, then record actual usage, errors, latency, and model identity. Never label the offline result provider-tested.</p>
+    <p>Sources checked 2026-11-11: <a href="https://developers.openai.com/api/docs/deprecations" target="_blank" rel="noopener">OpenAI exact-ID lifecycle notices</a>, <a href="https://ai.google.dev/gemini-api/docs/deprecations" target="_blank" rel="noopener">Gemini lifecycle and rerouting</a>, <a href="https://developers.openai.com/api/docs/guides/migrate-to-responses" target="_blank" rel="noopener">Responses migration</a>, and <a href="https://github.com/openai/openai-node" target="_blank" rel="noopener">SDK release and runtime reference</a>. Catalogue dates do not substitute for checking your deployed SDK and account.</p>
     <h3>Production Stack</h3>
-    <p>Prompt Caching (90% off) + Batch API (50% off) + Model Routing + Structured Outputs + Streaming + Extended Thinking.</p>
+    <p>Consider prompt caching, batch processing, model routing, structured outputs, streaming, and model-specific reasoning controls. Check current provider rates and measure total cost per successful task; discounts on eligible tokens do not equal savings on the whole application.</p>
     <h3>Image Generation</h3>
     <table class="content-table">
         <tr><th>Type</th><th>How</th><th>Examples</th></tr>
@@ -411,18 +460,18 @@ server.tool("get_status", "Get project status. Use when user asks about progress
 `,
     quiz: [
         { question: 'Expert axes?', options: ['Speed', 'Tradeoffs, Failures, Scaling', 'Models', 'Cost only'], correct: 1, explanation: 'Tradeoffs, what breaks, what breaks at 10x.' },
-        { question: '90/10 rule?', options: ['Training', '90% cheap, 10% expensive, saves 50-70%', 'Free', 'Output'], correct: 1, explanation: 'Smart model routing.' },
+        { question: 'How do you validate model routing?', options: ['Assume a 90/10 split', 'Compare quality, latency, and cost per successful task on representative traffic', 'Use only the newest model', 'Count output length alone'], correct: 1, explanation: 'Include router overhead, retries, escalations, and human review. Keep the simpler baseline if routing does not improve the measured tradeoff.' },
         { question: 'Injection defense?', options: ['System prompts', 'Validation', 'No foolproof — layer defenses', 'Latest model'], correct: 2, explanation: 'Defense in depth, limit blast radius.' },
         { question: '1000 users breaks?', options: ['Nothing', 'Rate limits, DB, cost, agents', 'Frontend', '1M only'], correct: 1, explanation: 'Scale reveals hidden problems.' },
         { question: 'Migration review?', options: ['Change the model directly', 'Baseline evals, canary, rollback trigger, decommission criteria', 'Update the README', 'Use the newest model'], correct: 1, explanation: 'Migration needs measured compatibility and a reversible release path.' },
         { question: 'Indirect injection?', options: ['Slow', 'Hidden in data AI processes', 'Multiple prompts', 'API'], correct: 1, explanation: 'Webpages/docs with hidden instructions.' },
-        { question: 'AI-as-judge?', options: ['Legal', 'Another AI evaluates quality', 'Competition', 'Human'], correct: 1, explanation: 'Opus scores Haiku. Scalable.' },
+        { question: 'AI-as-judge?', options: ['Legal', 'Another AI evaluates quality', 'Competition', 'Human'], correct: 1, explanation: 'A model grades against a rubric. Calibrate on human-scored task examples; the grader can be wrong regardless of its price.' },
         { question: 'Complete journey?', options: ['Prompting', 'Talk→Prompt→Code→Memory→Tools→Agents→Claude Code→Multi-Agent→MCP→Deploy→SaaS→Scale', 'Coding', 'ChatGPT'], correct: 1, explanation: 'Each phase builds on the last.' }
     ],
     interactive: [
         { type: 'drag-drop', id: 'expert-dd', title: 'Problem → Solution', description: 'Match.', items: ['Route cheap models', 'max_iterations+timeout', 'Input sanitisation', 'PostgreSQL+pooling', 'Usage limits'], targets: { 'Cost': ['Route cheap models'], 'Agent Safety': ['max_iterations+timeout'], 'Security': ['Input sanitisation'], 'DB Scaling': ['PostgreSQL+pooling'], 'Abuse': ['Usage limits'] } },
         { type: 'flashcards', id: 'expert-cards', title: 'Expert Cards', cards: [
-            { front: '90/10?', back: '90% cheap → $0.70 avg vs $5.00 all expensive. 78% savings.' },
+            { front: 'Does routing guarantee savings?', back: 'No. Measure cost per successful task against a single-model baseline, including router calls, retries, escalations, and review. Require quality and latency gates.' },
             { front: '1000 users?', back: 'Rate limits→queue. SQLite→PostgreSQL. Cost→routing. Agents→cap.' },
             { front: 'Injection?', back: 'No foolproof. Input sanitise, output validate, separate data/instructions.' }
         ]}
@@ -435,8 +484,8 @@ server.tool("get_status", "Get project status. Use when user asks about progress
         steps: [
             { title: 'Scaling audit: cost analysis', subtitle: 'Calculate real costs for 1000 users', duration: '15 min', instructions: [
                 'Create SCALING.md in your ai-tpm-assistant/ project:',
-                { type: 'code', language: 'markdown', code: '## Cost Analysis: 1000 Users\n\n### Assumptions\n- 1000 users × 10 gens/day × 2000 input + 500 output tokens\n\n### Without Routing (all Haiku $1/$5 per 1M)\n- Input: 20M × $1 = $20/day\n- Output: 5M × $5 = $25/day\n- Monthly: $1,350\n\n### With Routing (90% Flash $0.15/$0.60, 10% Haiku)\n- Flash: $5.40/day | Haiku: $4.50/day\n- Monthly: ~$300\n\n### Savings: 78% ($1,350 → $300)' },
-                { type: 'verify', text: 'SCALING.md has the math showing 78% savings with model routing.' }
+                { type: 'code', language: 'markdown', code: '## Routing comparison: illustrative workload\n\n### Assumptions to validate\n- 1000 users × 10 generations/day × 2000 input + 500 output tokens\n- Baseline load: 20M input and 5M output tokens/day, before retries\n- Record exact model IDs, dated official prices, cache eligibility, and quality gate\n\n### Baseline\n- Daily model cost = 20 × input rate per MTok + 5 × output rate per MTok\n\n### Routed alternative\n- Measure the task mix; do not assume a 90/10 split\n- Add routed token costs, router calls, escalations, retries, tools, hosting, and review\n- Cost per successful task = total cost / tasks passing the quality gate\n\n### Decision\n- Compare both systems on the same fixtures, quality threshold, and latency target\n- Report measured or simulated assumptions explicitly; routing may cost more' },
+                { type: 'verify', text: 'SCALING.md compares cost per successful task and quality/latency against a baseline, with dated rates and all assumptions. Do not claim a fixed savings percentage.' }
             ]},
             { title: 'Full production review', subtitle: 'Five go/no-go gates plus operations', duration: '20 min', instructions: [
                 'Use Claude to generate a comprehensive plan. Ask:',
@@ -523,7 +572,7 @@ server.tool("get_status", "Get project status. Use when user asks about progress
 
     <div class="concept-box">
         <h4>🎯 What We Are Building</h4>
-        <p>A web application where users <strong>upload documents</strong> (PDFs, Word files, text) and <strong>ask questions</strong> about them. An LLM answers each question using <strong>only the content from the uploaded documents</strong> — no hallucination, no making things up. Every answer includes <strong>citations</strong> pointing back to the exact source passage.</p>
+        <p>A web application where users <strong>upload documents</strong> (PDFs, Word files, text) and <strong>ask questions</strong> about them. The system should answer from retrieved evidence with <strong>citations</strong>, or abstain when evidence is insufficient. This is a requirement to evaluate, not a guarantee: retrieval can miss a passage, generation can invent a claim, and citations can be incorrect.</p>
         <p>Think of it as your own private NotebookLM or ChatGPT with file uploads — but you built it, you understand every layer, and you control the entire stack.</p>
     </div>
 

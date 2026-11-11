@@ -15,7 +15,7 @@ from playwright.sync_api import expect, sync_playwright
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE = "2026-09-learning-1"
+RELEASE = "2026-11-learning-2"
 MOUNT = "/academy/"
 VIEWPORTS = ((320, 900), (390, 844), (768, 1024), (1440, 1000))
 TIMEOUT = 10000
@@ -161,10 +161,17 @@ class AcademyBrowserTests(unittest.TestCase):
 
     def navigate(self, destination):
         navigation = ".bottom-nav" if self.page.viewport_size["width"] <= 768 else ".workspace-nav"
-        self.page.locator(f'{navigation} [data-destination="{destination}"]').click()
+        if destination in ("learn", "practice"):
+            if self.page.viewport_size["width"] <= 768:
+                self.page.locator("#mobileNavToggle").click()
+            self.page.locator(".curriculum-reference").evaluate("element => element.open = true")
+            self.page.locator(f'.reference-destinations [data-destination="{destination}"]').click()
+        else:
+            self.page.locator(f'{navigation} [data-destination="{destination}"]').click()
         expected_view = "#dashboard" if destination == "today" else "#destinationView"
         expect(self.page.locator(expected_view)).to_have_class(re.compile(r"\bactive\b"))
-        expect(self.page.locator(f'{navigation} [data-destination="{destination}"]')).to_have_attribute("aria-current", "page")
+        primary = {"learn": "today", "practice": "build"}.get(destination, destination)
+        expect(self.page.locator(f'{navigation} [data-destination="{primary}"]')).to_have_attribute("aria-current", "page")
 
     def screenshot(self, name):
         if self.screenshots_dir:
@@ -227,7 +234,7 @@ class AcademyBrowserTests(unittest.TestCase):
         titles = []
         for destination in ("learn", "practice", "build", "more"):
             self.navigate(destination)
-            expect(self.page.locator("#destinationTitle")).to_have_text(destination.title())
+            expect(self.page.locator("#destinationTitle")).to_have_text({"build": "Lab", "more": "Progress"}.get(destination, destination.title()))
             expect(self.page.locator("#destinationTitle")).to_be_focused()
             titles.append(self.page.locator("main .view.active h1").inner_text())
             self.assert_drawer_closed()
@@ -301,7 +308,7 @@ class AcademyBrowserTests(unittest.TestCase):
         inventory = self.page.evaluate("""() => {
             const modules = MasteryEngine.getRealModules(MODULES, ACADEMY_MASTERY);
             return { contentIds: Object.keys(LEARNING_CONTENT.modules), modules: modules.map(module => {
-                app.loadModule(module.id, { mode: 'guided' });
+                app.loadModule(module.id, { mode: 'guided', reference: true });
                 return {
                     id: module.id, title: module.title, renderedTitle: document.getElementById('moduleTitle').textContent,
                     coachingId: document.getElementById('moduleCoaching')?.dataset.moduleId,
@@ -336,6 +343,10 @@ class AcademyBrowserTests(unittest.TestCase):
         first = modules[0]
         self.navigate("learn")
         self.page.get_by_role("link", name=f"Learn: {first['title']}", exact=True).click()
+        if self.page.locator("#unitView.active").count():
+            self.page.locator(".unit-reference summary").click()
+            self.page.get_by_role("link", name="Open the full reference lesson", exact=True).click()
+            self.page.locator('[data-module-mode="guided"]').click()
         expect(self.page.locator("#moduleTitle")).to_have_text(first["title"])
         expect(self.page.locator('[data-module-mode="guided"]')).to_have_attribute("aria-pressed", "true")
         self.screenshot("module")
@@ -531,11 +542,15 @@ class AcademyBrowserTests(unittest.TestCase):
         self.assertIsNone(self.storage_snapshot()["progress"]["moduleMastery"].get(module["id"], {}).get("transfer"))
         self.page.locator("#transfer-score-0").select_option("0")
         self.page.locator("#transfer-submit").click()
+        expect(self.page.locator("#transfer-feedback")).to_contain_text("every essential criterion")
+        self.assertIsNone(self.storage_snapshot()["progress"]["moduleMastery"].get(module["id"], {}).get("transfer"))
+        self.page.locator("#transfer-score-0").select_option("3")
+        self.page.locator("#transfer-submit").click()
         expect(self.page.locator("#transfer-feedback")).to_contain_text("Self-assessment saved")
         expect(self.page.locator("#transfer-feedback")).to_be_focused()
         transfer = self.storage_snapshot()["progress"]["moduleMastery"][module["id"]]["transfer"]
-        self.assertEqual(transfer["scores"], [0, 4, 4, 4])
-        self.assertEqual(transfer["score"], 3)
+        self.assertEqual(transfer["scores"], [3, 4, 4, 4])
+        self.assertEqual(transfer["score"], 3.75)
         self.assertEqual(transfer["reflection"], reflection)
         self.assertEqual(transfer["provenance"], "self-assessed")
         self.assertNotIn(self.page.evaluate("() => MasteryEngine.getStatus(app.currentModule).state"), ["demonstrated", "durable"])
@@ -941,7 +956,7 @@ def localhost_url(value):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Standalone local-only Chromium release gate")
+    parser = argparse.ArgumentParser(description="Standalone local-only Microsoft Edge release gate")
     parser.add_argument("--base-url", type=localhost_url, help="Use an existing localhost preview for application checks")
     parser.add_argument("--peer-base-url", type=localhost_url, help="Also check a sibling academy on the preview's origin")
     parser.add_argument("--screenshots-dir", type=Path, help="Optional screenshot output under the system temp directory or a git-ignored path")
@@ -959,7 +974,7 @@ def main():
         options.screenshots_dir.mkdir(parents=True, exist_ok=True)
     expect.set_options(timeout=TIMEOUT)
     with local_server() as server, sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=True, args=["--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1, EXCLUDE localhost"])
+        browser = playwright.chromium.launch(channel="msedge", headless=True, args=["--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1, EXCLUDE localhost"])
         try:
             AcademyBrowserTests.browser = browser
             AcademyBrowserTests.server = server

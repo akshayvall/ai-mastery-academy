@@ -24,6 +24,22 @@ Parent project context: [`../SESSION_CONTEXT.md`](../SESSION_CONTEXT.md).
 
 ## Log
 
+## 2026-11-11 - Full local rollout after approval
+- User approved all remaining local scope. Expanded to 70 authored units across all 31 modules (62 core, eight optional), upgraded all 39 diagrams, and integrated PM/Builder dossiers, editorial review queue, modern API/protocol/Foundry references and stricter per-dimension assessment.
+- Verified 306 Node tests, 31 Edge journey tests and a 312-combination diagram matrix; all pass. Three bounded workers authored content, reference corrections and diagrams; main integrated and independently verified. Release `2026-11-learning-2`, preview http://127.0.0.1:8911/ .
+- Runtime still denied Builder-source access and archive creation despite approval; no workaround, generated source/output unchanged. All denials and requirement dispositions are in `../specs/001-ai-academy-learning/evidence.md`. No commits, deployment, paid calls or measured learner-outcome claims.
+
+## 2026-11-11 - Approved beginner pilot implemented locally
+- Continued with six runnable offline Node labs in `labs/local`, including synthetic fixtures, failure drills and a learner guide; 224 Node and 28 Edge browser checks pass. Archive creation was denied, so no download bundle is offered and no missing archive remains in the offline cache.
+- Implemented twelve authored units in six modules, Path/Lab/Progress, Learn/Try/Check, compact traces, saved explanations, exact-step resume and additive recoverable backup state. Original references/labs/mastery remain; local checks do not imply external verification.
+- Applied academy-owned teaching corrections and November source registry review. Two disjoint content workers contributed units and corrections; main integrated and ran Node/syntax/Edge browser gates. Evidence: `../specs/001-ai-academy-learning/evidence.md`.
+- Generated Builder corrections remain blocked: source access outside the academy was denied and not retried. No source/output Builder changes, Git mutation, deployment or provider execution. Local preview: http://127.0.0.1:8911/ ; full-core rollout remains behind the PRD learner-pilot gate.
+
+## 2026-11-10 - Education-quality audit and modernization PRD
+- Audited the September release, inventoried 31 substantive modules plus 10 review activities, rendered all 39 diagrams at two widths in Microsoft Edge, and compared 12 local/live assets. Existing 184 Node and 19 Edge browser checks passed; provider/cloud labs and learner outcomes remain unverified.
+- Created `docs/AI_ACADEMY_WORLD_CLASS_PRD_2026-11-10.md` using the networking audit conversation, current first-party AI documentation, and education benchmarks. Priorities: beginner sequence, factual corrections, authored units, reproducible labs, meaningful assessment, and maintained specializations.
+- Recommendation only: application/curriculum source, learner progress, Git commits, and publication unchanged. Review the first six-module slice before implementation; evidence is in `docs/audit-evidence-2026-11-10/`.
+
 ## 2026-09-16 - Publication approved and release gates repeated
 - Akshay requested publication of the completed phases. Release `2026-09-learning-1` targets `main` in `akshayvall/ai-mastery-academy`; the existing Pages workflow must pass before deployment.
 - Repeated all 184 Node tests and 19 browser tests successfully. The generated Builder module is unchanged, and the pending files contain no matches for the credential patterns checked.

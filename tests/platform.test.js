@@ -86,7 +86,7 @@ test('workflow prototype exposes guided mode, section resume, compact evidence, 
 });
 
 test('runtime assets and offline cache share the learning release', () => {
-    const release = '2026-09-learning-1';
+    const release = '2026-11-learning-2';
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
     const serviceWorker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
     const assets = Array.from(html.matchAll(/(?:src|href)="((?:css|js)\/[^"?]+)(?:\?v=[^"]+)?"/g), match => match[1]);
@@ -270,8 +270,9 @@ test('standalone browser gate is pinned and required before Pages deployment', (
     assert.match(validation, /python-version: ['"]3\.12['"]/);
     const commands = [
         'python -m pip install -r tests/requirements.txt',
-        'python -m playwright install --with-deps chromium',
-        'python tests/browser_smoke.py'
+        'python -m playwright install --with-deps msedge',
+        'python tests/browser_smoke.py',
+        'python tests/browser_units.py'
     ];
     let previousPosition = -1;
     for (const command of commands) {
@@ -287,5 +288,6 @@ test('standalone browser gate is pinned and required before Pages deployment', (
     assert.match(browser, /Thread\(target=server\.serve_forever, daemon=True\)/);
     assert.match(browser, /finally:\s+server\.shutdown\(\)/);
     assert.match(browser, /finally:\s+browser\.close\(\)/);
+    assert.match(browser, /launch\(channel="msedge"/);
     assert.doesNotMatch(browser, /time\.sleep|wait_for_timeout|8891|_shared\//);
 });

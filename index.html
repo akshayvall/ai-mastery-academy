@@ -6,10 +6,12 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="theme-color" content="#44236f">
-    <title>AI Mastery Academy — Beginner to Expert</title>
+    <title>AI Mastery Academy — Understand, Build, Evaluate</title>
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="css/styles.css?v=2026-09-learning-1">
-    <link rel="stylesheet" href="css/learning.css?v=2026-09-learning-1">
+    <link rel="stylesheet" href="css/styles.css?v=2026-11-learning-2">
+    <link rel="stylesheet" href="css/learning.css?v=2026-11-learning-2">
+    <link rel="stylesheet" href="css/units.css?v=2026-11-learning-2">
+    <link rel="stylesheet" href="css/diagram-learning.css?v=2026-11-learning-2">
     <link rel="icon" href="icons/app-icon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -25,24 +27,27 @@
                     <span class="logo-icon">🧠</span>
                     <h1>AI Mastery<br>Academy</h1>
                 </div>
-                <p class="tagline">Beginner → Expert | ChatGPT · Claude · Gemini</p>
+                <p class="tagline">Understand AI. Build with evidence.</p>
             </div>
 
             <div class="progress-overview">
                 <div class="progress-bar-container">
                     <div class="progress-bar" id="overallProgress"></div>
                 </div>
-                <span class="progress-text" id="overallProgressText">0% Complete</span>
+                <span class="progress-text" id="overallProgressText">0% with module practice evidence</span>
             </div>
 
             <div class="workspace-nav" aria-label="Learning destinations">
-                <a href="#today" data-destination="today">Today</a>
-                <a href="#learn" data-destination="learn">Learn</a>
-                <a href="#practice" data-destination="practice">Practice</a>
-                <a href="#build" data-destination="build">Build</a>
-                <a href="#more" data-destination="more">Progress and settings</a>
+                <a href="#today" data-destination="today">Path</a>
+                <a href="#build" data-destination="build">Lab</a>
+                <a href="#more" data-destination="more">Progress</a>
             </div>
 
+            <details class="curriculum-reference"><summary>Curriculum reference</summary>
+            <div class="reference-destinations">
+                <a href="#learn" data-destination="learn">Browse modules</a>
+                <a href="#practice" data-destination="practice">Review and practice</a>
+            </div>
             <div class="nav-section">
                 <h3 class="nav-level level-100">⬡ Level 100 — Foundations</h3>
                 <ul id="nav-level-100"></ul>
@@ -59,6 +64,7 @@
                 <h3 class="nav-level level-400">🛠 Builder Track — Ship It</h3>
                 <ul id="nav-level-400"></ul>
             </div>
+            </details>
 
             <div class="sidebar-footer">
                 <button id="openSearch" class="btn-search" title="Search (Ctrl+K)" aria-label="Search modules and topics">🔍 Search (Ctrl+K)</button>
@@ -73,6 +79,7 @@
         <main id="content">
             <section id="storageNotice" class="storage-notice" role="alert" hidden></section>
             <div id="destinationView" class="view learning-surface"></div>
+            <div id="unitView" class="view"></div>
             <!-- Dashboard (shown by default) -->
             <div id="dashboard" class="view active">
                 <header class="academy-identity ai-identity">
@@ -83,6 +90,7 @@
                 <section id="masteryDashboard" class="mastery-dashboard" aria-label="Learning route and mastery progress"></section>
                 <details class="study-preferences"><summary>Study preferences</summary><section id="learningPreferences"></section></details>
 
+                <details class="reference-library"><summary>Explore the full reference library</summary>
                 <div class="level-cards">
                     <div class="level-card level-100-card">
                         <div class="level-card-header">
@@ -136,6 +144,7 @@
                         <button class="btn-primary" data-app-action="start-level" data-level="400">Start Building →</button>
                     </div>
                 </div>
+                </details>
 
             </div>
 
@@ -202,11 +211,9 @@
     </div>
 
     <nav class="bottom-nav" aria-label="Primary navigation">
-        <button type="button" class="bottom-nav-item active" data-app-action="navigate-destination" data-destination="today"><span aria-hidden="true">⌂</span><span>Today</span></button>
-        <button type="button" class="bottom-nav-item" data-app-action="navigate-destination" data-destination="learn"><span aria-hidden="true">≡</span><span>Learn</span></button>
-        <button type="button" class="bottom-nav-item" data-app-action="navigate-destination" data-destination="practice"><span aria-hidden="true">✓</span><span>Practice</span></button>
-        <button type="button" class="bottom-nav-item" data-app-action="navigate-destination" data-destination="build"><span aria-hidden="true">◇</span><span>Build</span></button>
-        <button type="button" class="bottom-nav-item" data-app-action="navigate-destination" data-destination="more"><span aria-hidden="true">•••</span><span>More</span></button>
+        <button type="button" class="bottom-nav-item active" data-app-action="navigate-destination" data-destination="today"><span aria-hidden="true">⌂</span><span>Path</span></button>
+        <button type="button" class="bottom-nav-item" data-app-action="navigate-destination" data-destination="build"><span aria-hidden="true">◇</span><span>Lab</span></button>
+        <button type="button" class="bottom-nav-item" data-app-action="navigate-destination" data-destination="more"><span aria-hidden="true">✓</span><span>Progress</span></button>
     </nav>
 
     <!-- Toast Notification -->
@@ -237,24 +244,28 @@
     </dialog>
 
     <!-- Scripts -->
-    <script src="js/progress.js?v=2026-09-learning-1"></script>
-    <script src="js/ui-state.js?v=2026-09-learning-1"></script>
-    <script src="js/today-engine.js?v=2026-09-learning-1"></script>
-    <script src="js/landscape.js?v=2026-09-learning-1"></script>
-    <script src="js/modules-100.js?v=2026-09-learning-1"></script>
-    <script src="js/modules-200.js?v=2026-09-learning-1"></script>
-    <script src="js/modules-300.js?v=2026-09-learning-1"></script>
-    <script src="js/modules-extras.js?v=2026-09-learning-1"></script>
-    <script src="js/modules-pm.js?v=2026-09-learning-1"></script>
-    <script src="js/modules-builder.js?v=2026-09-learning-1"></script>
-    <script src="js/mastery-content.js?v=2026-09-learning-1"></script>
-    <script src="js/learning-content.js?v=2026-09-learning-1"></script>
-    <script src="js/quiz-engine.js?v=2026-09-learning-1"></script>
-    <script src="js/interactive.js?v=2026-09-learning-1"></script>
-    <script src="js/lab-engine.js?v=2026-09-learning-1"></script>
-    <script src="js/diagrams.js?v=2026-09-learning-1"></script>
-    <script src="js/mastery-engine.js?v=2026-09-learning-1"></script>
-    <script src="js/learning-engine.js?v=2026-09-learning-1"></script>
-    <script src="js/app.js?v=2026-09-learning-1"></script>
+    <script src="js/progress.js?v=2026-11-learning-2"></script>
+    <script src="js/ui-state.js?v=2026-11-learning-2"></script>
+    <script src="js/today-engine.js?v=2026-11-learning-2"></script>
+    <script src="js/landscape.js?v=2026-11-learning-2"></script>
+    <script src="js/modules-100.js?v=2026-11-learning-2"></script>
+    <script src="js/modules-200.js?v=2026-11-learning-2"></script>
+    <script src="js/modules-300.js?v=2026-11-learning-2"></script>
+    <script src="js/modules-extras.js?v=2026-11-learning-2"></script>
+    <script src="js/modules-pm.js?v=2026-11-learning-2"></script>
+    <script src="js/modules-builder.js?v=2026-11-learning-2"></script>
+    <script src="js/mastery-content.js?v=2026-11-learning-2"></script>
+    <script src="js/learning-content.js?v=2026-11-learning-2"></script>
+    <script src="js/unit-content.js?v=2026-11-learning-2"></script>
+    <script src="js/quiz-engine.js?v=2026-11-learning-2"></script>
+    <script src="js/interactive.js?v=2026-11-learning-2"></script>
+    <script src="js/lab-engine.js?v=2026-11-learning-2"></script>
+    <script src="js/diagrams.js?v=2026-11-learning-2"></script>
+    <script src="js/mastery-engine.js?v=2026-11-learning-2"></script>
+    <script src="js/learning-engine.js?v=2026-11-learning-2"></script>
+    <script src="js/unit-engine.js?v=2026-11-learning-2"></script>
+    <script src="js/portfolio-engine.js?v=2026-11-learning-2"></script>
+    <script src="js/editorial-engine.js?v=2026-11-learning-2"></script>
+    <script src="js/app.js?v=2026-11-learning-2"></script>
 </body>
 </html>

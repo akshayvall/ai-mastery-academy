@@ -13,22 +13,22 @@ const MODULES_EXTRAS = [
     id: 'ai-stack',
     level: 100,
     title: 'The AI Technology Stack',
-    subtitle: 'Nested fields: AI ⊃ ML ⊃ DL ⊃ GenAI ⊃ LLMs',
+    subtitle: 'A simplified map of modern generative language models',
     icon: '⬡',
     estimatedTime: '5m',
-    learn: `<div class="learn-section"><p>A focused diagram for the AI stack. The most useful chunk of Phase 0 to revisit.</p></div>`,
+    learn: `<div class="learn-section"><p>A simplified map, not a complete taxonomy. The nested boxes show modern generative language models within deep learning, ML, and AI. Generative methods also exist outside deep learning, and language models are not all chat generators.</p></div>`,
     diagrams: [
         {
             id: 'ai-stack-standalone',
             type: 'ai-stack',
             title: 'The AI Technology Stack',
-            description: 'AI is a stack of nested fields. Each inner layer is a special case of the layer that contains it.',
+            description: 'A simplified map of a modern generative-model subset, not a complete taxonomy of AI. The boxes do not imply that all generative AI uses deep learning or that all language models generate chat.',
             steps: [
                 'AI — anything that simulates human intelligence (chess engines, spam filters).',
                 'ML — AI that learns patterns from data instead of being hand-coded.',
                 'DL — ML using layered neural networks.',
-                'GenAI — DL that creates new content (text, images, video).',
-                'LLMs — generative AI specialised in text. The thing you talk to.'
+                'Generative deep models — the subset shown here creates text, images, or other content; generative methods also exist outside deep learning.',
+                'Generative language models — the subset used in this course predicts tokens; language-model families also include non-generative encoders.'
             ]
         }
     ]
@@ -72,14 +72,14 @@ const MODULES_EXTRAS = [
             id: 'next-token-standalone',
             type: 'next-token',
             title: 'Next-token probability distribution',
-            description: 'Top-k candidates and how sampling picks one.',
+            description: 'Illustrative candidate probabilities, not measured output. Vocabulary size and sampling controls depend on the tokenizer and model.',
             steps: [
                 '"sat" is the most likely next token at 42% — the obvious continuation.',
                 '"jumped" at 18% — plausible alternative.',
                 '"ran" at 12% — less common but valid.',
                 '"slept" at 8% — fine in a story context.',
                 '"walked" at 5% — getting unusual.',
-                'The remaining 50K-ish tokens collectively share 15%. Top-p sampling truncates this long tail.'
+                'All other tokens share 15% in this illustrative distribution. Top-p keeps a set whose cumulative probability reaches its threshold.'
             ]
         }
     ]
@@ -105,7 +105,7 @@ const MODULES_EXTRAS = [
                 'Embed the query with the same model used at index time.',
                 'Vector DB returns the top-k nearest chunks by cosine similarity.',
                 'Augment: stuff the chunks into the prompt as context.',
-                'Generate: model answers grounded in the retrieved chunks.'
+                'Generate a source-based answer, then verify its claims and citations; abstain when retrieved evidence is insufficient.'
             ]
         }
     ]
@@ -189,13 +189,13 @@ const MODULES_EXTRAS = [
     subtitle: 'Plan → fan-out → merge',
     icon: '🕸',
     estimatedTime: '5m',
-    learn: `<div class="learn-section"><p>The single most common multi-agent pattern: an orchestrator decomposes work and dispatches specialists in parallel.</p></div>`,
+    learn: `<div class="learn-section"><p>One multi-agent pattern: an orchestrator decomposes work and dispatches independent subtasks in parallel. Dependent work must wait for its inputs. Compare quality, latency, and cost with a single-agent or fixed workflow baseline; specialization is not a guarantee of better results.</p></div>`,
     diagrams: [
         {
             id: 'multi-agent-standalone',
             type: 'multi-agent',
             title: 'Orchestrator–Worker pattern',
-            description: 'Workers run in parallel. Orchestrator merges results into a final answer.',
+            description: 'Independent workers may run in parallel; dependent workers wait for inputs. The orchestrator validates and merges results.',
             steps: [
                 'Orchestrator receives the user request and plans the work.',
                 'Researcher gathers facts from the web.',
@@ -215,13 +215,13 @@ const MODULES_EXTRAS = [
     subtitle: 'Client / server / tools / resources / prompts',
     icon: '🔌',
     estimatedTime: '5m',
-    learn: `<div class="learn-section"><p>Model Context Protocol in one picture. Build a tool once, any compatible client can use it.</p></div>`,
+    learn: `<div class="learn-section"><p>Model Context Protocol in one picture. Reuse depends on protocol and transport compatibility, capability negotiation, authentication, permissions, and host support; a common wire format alone is not enough.</p></div>`,
     diagrams: [
         {
             id: 'mcp-architecture-standalone',
             type: 'mcp-architecture',
             title: 'MCP — client / server architecture',
-            description: 'JSON-RPC over a transport. Servers expose three surfaces (tools, resources, prompts) and any compatible client can use any server.',
+            description: 'JSON-RPC over an agreed transport. Capability negotiation determines supported surfaces; check protocol versions, authentication, permissions, and host support.',
             steps: [
                 'Client side: an LLM agent runs inside a host app and uses the MCP runtime to discover and call servers.',
                 'Transport: JSON-RPC messages use the standard stdio or Streamable HTTP transport; custom transports require explicit interoperability design.',
@@ -237,17 +237,17 @@ const MODULES_EXTRAS = [
     subtitle: 'Recall accuracy vs context position',
     icon: '📉',
     estimatedTime: '5m',
-    learn: `<div class="learn-section"><p>Long context windows do not mean even attention. Important facts buried in the middle frequently get missed.</p></div>`,
+    learn: `<div class="learn-section"><p>A long context limit does not guarantee accurate use of every passage. Position effects vary by model and task. This synthetic curve illustrates a possible failure, not measured performance.</p></div>`,
     diagrams: [
         {
             id: 'context-decay-standalone',
             type: 'context-decay',
             title: 'Lost in the middle — recall vs context position',
-            description: 'Recall is U-shaped: high at the start and end, sagging in the middle. Mitigate with RAG, chunking, and re-stating critical info near the end.',
+            description: 'Illustrative position-effect curve, not a benchmark. Test evidence at several positions on your model; evaluate retrieval, chunking, and summaries rather than assuming they solve the problem.',
             steps: [
-                'High recall at the start — the system prompt and earliest instructions stick.',
-                'Recall sags through the middle — important facts buried here often go missed.',
-                'Recency bump at the very end — the most recent turn is heavily weighted.'
+                'This illustrative curve starts high; test your model rather than assuming early evidence is recalled.',
+                'The middle dip represents a possible retrieval failure, not a universal decay rate.',
+                'An end-position gain is possible. Move the same evidence between positions and compare accuracy.'
             ]
         }
     ]

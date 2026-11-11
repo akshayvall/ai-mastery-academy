@@ -54,7 +54,8 @@ const TodayEngine = {
             const review = entry.review || {};
             const transfer = entry.transfer;
             const dueDate = review.nextDue ? new Date(review.nextDue) : null;
-            const transferPassed = transfer && transfer.score / transfer.max >= 0.75;
+            const transferPassed = transfer && transfer.score / transfer.max >= 0.75 &&
+                (!transfer.scores?.length || (transfer.scores.length === 4 && transfer.scores.every(score => Number.isInteger(score) && score >= 3 && score <= 4)));
             if (transferPassed && dueDate && !Number.isNaN(dueDate.getTime()) && dueDate <= now) {
                 const dueDay = dueDate.toISOString().slice(0, 10);
                 if (dueDay < today) candidates.push(this.moduleAction('overdue_review', module, 2, order, {

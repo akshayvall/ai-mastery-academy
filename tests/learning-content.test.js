@@ -200,13 +200,16 @@ test('lab metadata specifies local fixtures, verification, cleanup, cost and dat
     assert.equal(Object.values(content.modules).filter(entry => entry.lab.mode === 'artifact').length, 6);
 });
 
-test('September registry distinguishes current models, supported pins, and source review', () => {
+test('November registry distinguishes current models, supported pins, lifecycle, and source review', () => {
     const { landscape } = loadCatalog();
-    assert.equal(landscape.verifiedDate, '2026-09-14');
+    assert.equal(landscape.verifiedDate, '2026-11-11');
     assert.equal(landscape.verificationStatus, 'source-reviewed');
-    assert.equal(landscape.nextReviewDate, '2026-10-14');
+    assert.equal(landscape.nextReviewDate, '2026-11-17');
     assertText(landscape.reviewOwner, 'catalog review owner', 1);
     assert.match(landscape.verificationNote, /not (?:been )?executed/i);
+    assert.match(landscape.verificationNote, /lab pins/);
+    assert.match(landscape.verificationNote, /promotional through November 30, 2026/);
+    assert.match(landscape.verificationNote, /100K.*\$0\.50\/\$2\.50/);
     assert.equal(landscape.openai.frontier, 'GPT-6 Astra');
     assert.equal(landscape.openai.frontierId, 'gpt-6-astra');
     assert.equal(landscape.openai.contextTokens, 1050000);
@@ -214,44 +217,63 @@ test('September registry distinguishes current models, supported pins, and sourc
     assert.equal(landscape.openai.supported, 'GPT-5.6 Sol');
     assert.equal(landscape.openai.supportedId, 'gpt-5.6-sol');
     assert.deepEqual(landscape.openai.supportedPrice, { input: '$4', output: '$20' });
-    assert.deepEqual(landscape.openai.balancedPrice, { input: '$2', output: '$12' });
-    assert.deepEqual(landscape.openai.smallPrice, { input: '$0.20', output: '$1.20' });
-    assert.equal(landscape.anthropic.frontier, 'Claude Fable 5.1');
-    assert.equal(landscape.anthropic.frontierId, 'claude-fable-5-1');
-    assert.equal(landscape.anthropic.reasoningId, 'claude-opus-5');
-    assert.deepEqual(landscape.anthropic.frontierPrice, { input: '$10', output: '$50' });
-    assert.deepEqual(landscape.anthropic.reasoningPrice, { input: '$5', output: '$25' });
+    assert.equal(landscape.openai.balancedId, 'gpt-6.1-sol');
+    assert.equal(landscape.openai.smallId, 'gpt-6-luna');
+    assert.deepEqual(landscape.openai.balancedPrice, { input: '$2', output: '$10' });
+    assert.deepEqual(landscape.openai.smallPrice, { input: '$0.10', output: '$0.50' });
+    assert.equal(landscape.anthropic.frontier, 'Claude Fable 5.2');
+    assert.equal(landscape.anthropic.frontierId, 'claude-fable-5-2');
+    assert.equal(landscape.anthropic.reasoningId, 'claude-opus-5-5');
+    assert.equal(landscape.anthropic.balancedId, 'claude-sonnet-5-5');
+    assert.equal(landscape.anthropic.smallId, 'claude-haiku-5-5');
+    assert.equal(landscape.anthropic.smallContextTokens, 1000000);
+    assert.deepEqual(landscape.anthropic.frontierPrice, { input: '$8', output: '$40' });
+    assert.deepEqual(landscape.anthropic.reasoningPrice, { input: '$4', output: '$20' });
     assert.deepEqual(landscape.anthropic.balancedPrice, { input: '$2', output: '$10' });
     assert.deepEqual(landscape.anthropic.balancedStandardPrice, { input: '$2', output: '$10' });
+    assert.deepEqual(landscape.anthropic.smallPrice, { input: '$0.10', output: '$0.50' });
+    assert.match(landscape.anthropic.balancedPriceStatus, /Older Sonnet 5.*active.*cancelled/);
     assert.equal(Object.hasOwn(landscape.anthropic, 'balancedIntroThrough'), false);
     assert.equal(landscape.google.stable, 'Gemini 3.8 Flash');
     assert.equal(landscape.google.stableId, 'gemini-3.8-flash');
     assert.equal(landscape.google.supported, 'Gemini 3.6 Flash');
     assert.equal(landscape.google.supportedId, 'gemini-3.6-flash');
-    assert.equal(landscape.google.frontierStatus, 'Preview');
+    assert.equal(landscape.google.frontierId, 'gemini-4-carbon');
+    assert.equal(landscape.google.frontierStatus, 'Current catalogue; verify account availability');
+    assert.equal(landscape.google.smallId, 'gemini-3.5-flash-lite');
+    assert.match(landscape.google.supported25, /deprecated.*existing API users/);
+    assert.match(landscape.google.supported25, /December 1, 2026.*billing/);
+    assert.match(landscape.google.supported25, /Flash-Lite is not deprecated.*access-limited/);
     for (const source of Object.values(landscape.sources)) {
-        assert.equal(source.verifiedDate, '2026-09-14');
+        assert.equal(source.verifiedDate, '2026-11-11');
         assert.match(source.models, /^https:\/\//);
+        assert.match(source.lifecycle, /^https:\/\//);
     }
 });
 
-test('dependent catalog and economics lessons remove the cancelled Sonnet forecast while keeping supported lab pins', () => {
+test('dependent November lessons distinguish catalogue facts and historical lab pins without changing arithmetic', () => {
     const { modules } = loadCatalog();
     const byId = Object.fromEntries(modules.map(module => [module.id, module]));
     for (const moduleId of ['phase0-orientation', 'landscape-2026-ai-systems', 'pm-unit-economics']) {
         const text = JSON.stringify(byId[moduleId]);
-        assert.doesNotMatch(text, /introductory.{0,120}August 31|Post-promotion|\$3\/\$15|Big Three Platforms.{0,10}July 2026/i, moduleId);
+        assert.doesNotMatch(text, /introductory.{0,120}August 31|Post-promotion|\$3\/\$15|Big Three Platforms.{0,10}(?:July|September) 2026/i, moduleId);
         assert.doesNotMatch(text, /\bundefined\b/, moduleId);
-        assert.match(text, /cancelled|canceled/i, moduleId);
-        assert.match(text, /Fable 5\.1/, moduleId);
+        assert.match(text, /Fable 5\.2/, moduleId);
+        assert.match(text, /Sonnet 5\.5/, moduleId);
+        assert.match(text, /not (?:been )?executed|no provider lab was executed/i, moduleId);
     }
     assert.match(byId['phase0-orientation'].learn, /GPT-6 Astra/);
     assert.match(byId['phase0-orientation'].learn, /GPT-5\.6 Sol/);
     assert.match(byId['phase0-orientation'].learn, /Gemini 3\.8 Flash/);
+    assert.match(byId['phase0-orientation'].learn, /Gemini 4 Carbon/);
+    assert.match(byId['phase0-orientation'].learn, /Haiku 4\.5.*200K/);
     assert.match(byId['phase3-ai-from-code'].learn, /model="gemini-3\.6-flash"/);
     assert.match(JSON.stringify(byId['phase3-ai-from-code'].lab), /gemini-3\.6-flash/);
     assert.match(JSON.stringify(byId['phase11-product'].lab), /Gemini 2\.5 Flash/);
+    assert.match(JSON.stringify(byId['phase11-product'].lab), /deprecated.*December 1, 2026.*billing/);
     const economics = byId['pm-unit-economics'].learn;
+    assert.match(economics, /Older Sonnet 5.*active at \$2\/\$10/);
+    assert.match(economics, /cancelled September increase/);
     assert.match(economics, /\$0\.0092 per query/);
     assert.match(economics, /\$0\.0132/);
     assert.match(economics, /\$0\.0156/);

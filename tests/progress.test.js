@@ -125,6 +125,14 @@ test('default progress uses the versioned mastery schema', () => {
     assert.equal(Object.keys(progress.moduleMastery).length, 0);
 });
 
+test('old criterion scores are retained but a failed essential dimension requires recheck', () => {
+    const manager = loadProgressManager();
+    const transfer = { score: 3, max: 4, scores: [0, 4, 4, 4], reflection: 'Historical evidence note remains preserved.' };
+    assert.equal(manager.hasPassingTransfer(transfer), false);
+    assert.deepEqual(transfer.scores, [0, 4, 4, 4]);
+    assert.equal(manager.hasPassingTransfer({ ...transfer, score: 3.75, scores: [3, 4, 4, 4] }), true);
+});
+
 test('quiz and lab evidence advance a module from learned to practiced', () => {
     const manager = loadProgressManager();
     const requirements = { quiz: true, lab: true, transfer: true };

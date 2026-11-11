@@ -51,16 +51,16 @@ const MODULES_PM = [
 <div class="learn-section">
     <h2>The eval ladder — 5 maturity levels</h2>
     <table class="content-table">
-        <tr><th>Level</th><th>What you have</th><th>When it's enough</th></tr>
+        <tr><th>Level</th><th>What you have</th><th>What it supports, not certifies</th></tr>
         <tr><td><strong>0 — Vibes</strong></td><td>"It feels good in the demo"</td><td>Hackathon. Never production.</td></tr>
-        <tr><td><strong>1 — Fixed examples</strong></td><td>10–30 inputs you eyeball after every change</td><td>Internal tools, &lt;100 users</td></tr>
-        <tr><td><strong>2 — Golden dataset</strong></td><td>100–500 input/expected-output pairs scored automatically</td><td>External beta, paid users</td></tr>
-        <tr><td><strong>3 — LLM-as-judge</strong></td><td>A stronger model scores outputs against a rubric</td><td>Open-ended outputs (writing, summaries)</td></tr>
+        <tr><td><strong>1 — Fixed examples</strong></td><td>A small, manually reviewed practice set</td><td>Finding initial failure modes, not proving release readiness</td></tr>
+        <tr><td><strong>2 — Golden dataset</strong></td><td>Versioned, representative cases with held-out evaluation</td><td>Regression evidence; size depends on risk and coverage</td></tr>
+        <tr><td><strong>3 — LLM-as-judge</strong></td><td>A task-calibrated grader scores outputs against a rubric</td><td>Open-ended criteria, with human disagreement review</td></tr>
         <tr><td><strong>4 — Production evals</strong></td><td>Real traffic sampled + scored continuously, with drift alerts</td><td>GA, regulated industries</td></tr>
     </table>
     <div class="tip-box">
         <h4>💡 Where to land</h4>
-        <p>Most teams should target <strong>Level 2 + Level 3 hybrid</strong> before launch and add Level 4 within the first quarter post-launch. Level 1 is fine for an internal MVP <em>only if you upgrade before paid users touch it</em>.</p>
+        <p>Choose checks according to task and risk. Programmatic checks may suffice for exact outputs; open-ended judgments may need calibrated model or human graders. High-impact internal tools can need stronger controls than a low-risk paid feature. Plan monitoring before launch, not after a fixed calendar interval.</p>
     </div>
 </div>
 
@@ -68,14 +68,14 @@ const MODULES_PM = [
     <h2>Building a golden dataset (the PM deliverable)</h2>
     <p>The dataset <strong>is</strong> the spec. Engineering will build the harness, but the PM owns the dataset because the dataset encodes "what good looks like" — and that is product judgment.</p>
     <table class="content-table">
-        <tr><th>Bucket</th><th>~% of dataset</th><th>What it catches</th></tr>
+        <tr><th>Bucket</th><th>Illustrative practice mix, not a rule</th><th>What it catches</th></tr>
         <tr><td><strong>Happy path</strong></td><td>40%</td><td>Core use case still works</td></tr>
         <tr><td><strong>Edge cases</strong></td><td>25%</td><td>Long inputs, ambiguous queries, multilingual, malformed data</td></tr>
         <tr><td><strong>Adversarial</strong></td><td>15%</td><td>Prompt injection, jailbreaks, attempts to extract system prompt</td></tr>
         <tr><td><strong>Refusal cases</strong></td><td>10%</td><td>Things the AI <em>should</em> decline or say "I don't know"</td></tr>
         <tr><td><strong>Past failures</strong></td><td>10%</td><td>Every bug found in production gets added here forever</td></tr>
     </table>
-    <p>Aim for <strong>100 examples to start</strong>, growing to 500. Past 500, marginal value drops fast — invest in better rubrics instead.</p>
+    <p>Start with representative cases, then expand by failure severity, class balance, rare conditions, and statistical uncertainty. There is no universal sample-size ceiling: a small set can expose a bug but cannot establish a rare-failure rate. Keep a held-out set separate from prompt development and grader calibration; repeat stochastic trials and report per-slice results, not just an overall average.</p>
 
     <h3>Anatomy of one example</h3>
     <div class="code-block">{
@@ -101,7 +101,7 @@ const MODULES_PM = [
         <tr><td>Length</td><td>Token count under limit</td></tr>
         <tr><td>Latency</td><td>Wall-clock from request to last token</td></tr>
         <tr><td>Cost</td><td>Input tokens × rate + output tokens × rate</td></tr>
-        <tr><td>Tone / helpfulness</td><td>LLM-as-judge with 1–5 rubric. Stronger model than the one being judged.</td></tr>
+        <tr><td>Tone / helpfulness</td><td>LLM-as-judge with a task-specific rubric, calibrated against human judgments.</td></tr>
         <tr><td>Refusal correctness</td><td>"Did it correctly refuse this adversarial example?"</td></tr>
     </table>
 
@@ -124,13 +124,13 @@ USER MESSAGE: {input}
 RESPONSE TO EVALUATE: {output}</div>
     <div class="warning-box">
         <h4>⚠️ The judge can be wrong</h4>
-        <p>Always calibrate your judge against ~30 examples a human has scored. If judge agreement with humans is below ~80%, fix the rubric before you trust it. Cheap models make terrible judges; use the strongest model you can afford.</p>
+        <p>Calibrate candidate judges on human-scored examples from the actual task. Review disagreements, class balance, false approvals on high-severity failures, and uncertainty on each slice. Set acceptance thresholds by risk; overall agreement alone can hide a rare but costly failure. Model price is not a quality guarantee: choose the least costly grader that passes the calibration gate, and verify on held-out examples with ongoing human review.</p>
     </div>
 </div>
 
 <div class="learn-section">
     <h2>The release gate (your non-negotiable)</h2>
-    <p>Before any prompt/model/RAG change ships, the eval suite must run and clear these bars:</p>
+    <p>Before any prompt/model/RAG change ships, agree on risk-based acceptance criteria. The numbers below are illustrative planning thresholds, not universal safety standards; define critical failures and statistical confidence separately.</p>
     <table class="content-table">
         <tr><th>Bar</th><th>Default</th><th>Why</th></tr>
         <tr><td>Overall pass rate</td><td>≥ baseline</td><td>No quality regression</td></tr>
@@ -166,10 +166,10 @@ RESPONSE TO EVALUATE: {output}</div>
         { question: 'What does an eval primarily answer?', options: ['Is the model fast?', 'Is the output good enough on a real task, repeatably?', 'Is the API key valid?', 'Is the prompt short?'], correct: 1, explanation: 'Evals are repeatable, scored tests for real outputs — the LLM equivalent of unit tests.' },
         { question: 'Who owns the golden dataset?', options: ['Engineering', 'Data science', 'PM — it encodes what good looks like', 'Legal'], correct: 2, explanation: 'The dataset IS the spec. Engineering builds the harness; PM owns the judgment of what counts as "good".' },
         { question: 'Past-failures bucket exists to…', options: ['Pad the dataset', 'Prevent reintroducing previously fixed bugs', 'Train the model', 'Fail releases'], correct: 1, explanation: 'Every production bug becomes a permanent test case so the same regression cannot ship twice.' },
-        { question: 'When is LLM-as-judge appropriate?', options: ['Always', 'For fuzzy criteria like tone/helpfulness, with a stronger model than the one being judged', 'Only for math', 'Never'], correct: 1, explanation: 'Use programmatic checks where you can; reserve LLM-as-judge for criteria you cannot easily express as a rule.' },
-        { question: 'Calibration target for an LLM judge?', options: ['Speed under 1s', '~80% agreement with human-scored examples', 'Costs under $0.01', 'Open source only'], correct: 1, explanation: 'Always validate the judge against human-scored examples first.' },
+        { question: 'When is LLM-as-judge appropriate?', options: ['Always', 'For fuzzy criteria when calibrated against human judgments on the task', 'Only for math', 'Never'], correct: 1, explanation: 'Use programmatic checks where possible. Judge price or size cannot replace task-specific calibration and human disagreement review.' },
+        { question: 'How should an LLM judge be calibrated?', options: ['Speed under 1s proves accuracy', 'Set task- and risk-specific thresholds and examine per-slice disagreements', 'Costs under $0.01 proves accuracy', 'Open source only'], correct: 1, explanation: 'Use human-scored and held-out examples, inspect high-severity false approvals, and quantify uncertainty. No single agreement percentage works for every task.' },
         { question: 'Where should the release-gate evals live?', options: ['In a Notion doc', 'In CI as a blocking check on merge', 'In the PM\'s head', 'In production'], correct: 1, explanation: 'Same status as a failing unit test — block the merge automatically.' },
-        { question: 'Roughly how big should a starting golden dataset be?', options: ['10', '~100, growing to 500', '10,000', '1M'], correct: 1, explanation: '100 examples is enough to detect most regressions; ROI drops fast past 500.' },
+        { question: 'What determines golden dataset size?', options: ['Always 10', 'Risk, coverage, class balance, and uncertainty; expand as needed', 'Always 10,000', 'Stop at 500'], correct: 1, explanation: 'There is no universal sufficient count or ceiling. Cover rare failures, maintain held-out cases, and grow the set when evidence is weak.' },
         { question: 'Adversarial bucket primarily catches…', options: ['Slow latency', 'Prompt injection, jailbreaks, system-prompt extraction attempts', 'Typos', 'JSON parse errors'], correct: 1, explanation: 'These are deliberate attacks against the model behaviour.' }
     ],
     interactive: [
@@ -177,7 +177,7 @@ RESPONSE TO EVALUATE: {output}</div>
         { type: 'flashcards', id: 'pm-evals-cards', title: 'Eval Cards', cards: [
             { front: 'The four eval questions?', back: 'Good enough to ship? Did this change break anything? Is cheaper model OK here? Is quality drifting in prod?' },
             { front: 'Eval ladder?', back: '0 vibes → 1 fixed examples → 2 golden dataset → 3 LLM-as-judge → 4 production sampled evals.' },
-            { front: 'Dataset bucket mix?', back: '40% happy / 25% edge / 15% adversarial / 10% refusal / 10% past failures.' },
+            { front: 'Dataset bucket mix?', back: 'Cover happy paths, edges, adversarial inputs, refusals, and past failures. Choose proportions by risk and traffic; report per-slice results and uncertainty.' },
             { front: 'Release gate?', back: 'Pass rate ≥ baseline, past-failures 100%, adversarial ≥95% safe, p95 latency ≤ +10%, cost ≤ +10%. Block merge in CI.' }
         ]}
     ],
@@ -246,12 +246,12 @@ RESPONSE TO EVALUATE: {output}</div>
     <p>API pricing is "per million tokens", split between <strong>input</strong> (your prompt + context) and <strong>output</strong> (model response). Output is typically 3–5× the price of input.</p>
     <table class="content-table">
         <tr><th>Anthropic model (verified ${MODEL_LANDSCAPE.sources.anthropic.verifiedDate})</th><th>Input $/M</th><th>Output $/M</th><th>Sweet spot</th></tr>
-        <tr><td>Maximum capability: ${MODEL_LANDSCAPE.anthropic.frontier}</td><td>${MODEL_LANDSCAPE.anthropic.frontierPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.frontierPrice.output}</td><td>Highest-stakes reasoning and evaluation</td></tr>
-        <tr><td>Advanced reasoning: ${MODEL_LANDSCAPE.anthropic.reasoning}</td><td>${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}</td><td>Hard reasoning and judge workloads</td></tr>
-        <tr><td>Workhorse: ${MODEL_LANDSCAPE.anthropic.balanced}</td><td>${MODEL_LANDSCAPE.anthropic.balancedPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.balancedPrice.output}</td><td>Standard API pricing; the planned September 1 increase was cancelled</td></tr>
-        <tr><td>Small and fast: ${MODEL_LANDSCAPE.anthropic.small}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.output}</td><td>Classification, extraction, routing</td></tr>
+        <tr><td>Frontier: ${MODEL_LANDSCAPE.anthropic.frontier}</td><td>${MODEL_LANDSCAPE.anthropic.frontierPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.frontierPrice.output}</td><td>Candidate for demanding reasoning; task evals decide</td></tr>
+        <tr><td>Advanced reasoning: ${MODEL_LANDSCAPE.anthropic.reasoning}</td><td>${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}</td><td>Evaluate reasoning quality, cost, and latency</td></tr>
+        <tr><td>Workhorse: ${MODEL_LANDSCAPE.anthropic.balanced}</td><td>${MODEL_LANDSCAPE.anthropic.balancedPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.balancedPrice.output}</td><td>Standard base API rates</td></tr>
+        <tr><td>Small and fast: ${MODEL_LANDSCAPE.anthropic.small}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.output}</td><td>Base tier up to 100K input tokens; above: $0.50/$2.50 per MTok</td></tr>
     </table>
-    <p>The ${MODEL_LANDSCAPE.anthropic.balanced} rate of ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per million input/output tokens is now standard, not a temporary promotion. The planned September 1 increase was cancelled. Source-reviewed ${MODEL_LANDSCAPE.sources.anthropic.verifiedDate} against the <a href="${MODEL_LANDSCAPE.sources.anthropic.pricing}" target="_blank" rel="noopener">official Anthropic pricing page</a>; re-check before approving a business case. These are standard USD API rates, excluding taxes and separate batch, cached-token, or context-tier pricing. The calculations below use illustrative workloads; no provider lab was executed.</p>
+    <p>Source-reviewed ${MODEL_LANDSCAPE.sources.anthropic.verifiedDate} against the <a href="${MODEL_LANDSCAPE.sources.anthropic.pricing}" target="_blank" rel="noopener">official Anthropic pricing page</a>; re-check before approving a business case. These USD base API rates exclude taxes and separate batch, cache, tool, or context-tier charges. Older Sonnet 5 remains active at $2/$10 per MTok; its cancelled September increase is distinct from the current Sonnet 5.5 catalogue entry. The calculations below use illustrative workloads; no provider lab was executed.</p>
     <p>1 token ≈ 4 English characters ≈ 0.75 words. A 1000-word answer is ~1300 output tokens.</p>
 
     <h3>Example: cost-per-query worked out</h3>
@@ -275,19 +275,19 @@ Output-length sensitivity at the same $2/$10 standard rates:
 <div class="learn-section">
     <h2>The cost-reduction toolkit</h2>
     <table class="content-table">
-        <tr><th>Lever</th><th>Typical saving</th><th>Effort</th><th>Risk</th></tr>
-        <tr><td><strong>Prompt caching</strong></td><td>50–90% on repeated prefixes</td><td>Low — provider feature</td><td>Tiny</td></tr>
-        <tr><td><strong>Smaller model where possible</strong></td><td>5–20× per query</td><td>Medium — needs evals</td><td>Quality regression if untested</td></tr>
-        <tr><td><strong>Model routing (cheap by default, escalate)</strong></td><td>50–70%</td><td>Medium — needs router + evals</td><td>Routing errors</td></tr>
-        <tr><td><strong>Shorter prompts / context pruning</strong></td><td>20–40%</td><td>Medium — needs eval suite</td><td>Lost recall</td></tr>
-        <tr><td><strong>Batch API (async, off-peak)</strong></td><td>~50%</td><td>Low — for non-realtime</td><td>Higher latency</td></tr>
-        <tr><td><strong>Structured output (JSON mode, no chat fluff)</strong></td><td>10–25% on output tokens</td><td>Low</td><td>Tiny</td></tr>
-        <tr><td><strong>Deduplication / semantic cache</strong></td><td>20–80% if usage is repetitive</td><td>Medium</td><td>Stale answers if TTL too long</td></tr>
+        <tr><th>Lever</th><th>What to measure</th><th>Effort</th><th>Risk</th></tr>
+        <tr><td><strong>Prompt caching</strong></td><td>Eligible cache hits minus write/retention charges</td><td>Low — provider feature</td><td>Low reuse, sensitive retained content</td></tr>
+        <tr><td><strong>Smaller model where possible</strong></td><td>Cost per successful task, including retries</td><td>Medium — needs evals</td><td>Quality regression if untested</td></tr>
+        <tr><td><strong>Model routing (evaluate before escalating)</strong></td><td>Workload-dependent; measure net cost per successful task</td><td>Medium — needs router + evals</td><td>Routing errors, retries, and escalation overhead</td></tr>
+        <tr><td><strong>Shorter prompts / context pruning</strong></td><td>Token reduction against answer-quality loss</td><td>Medium — needs eval suite</td><td>Lost recall</td></tr>
+        <tr><td><strong>Batch API (async)</strong></td><td>Provider-specific eligible rate versus turnaround constraints</td><td>Low — for non-realtime</td><td>Higher latency</td></tr>
+        <tr><td><strong>Structured output</strong></td><td>Output tokens, schema failures, and retry cost</td><td>Low</td><td>Valid format can still contain wrong values</td></tr>
+        <tr><td><strong>Deduplication / semantic cache</strong></td><td>Hit rate and validation overhead</td><td>Medium</td><td>Stale or cross-permission answers</td></tr>
         <tr><td><strong>Self-hosted open model</strong></td><td>Variable — only at scale</td><td>High — infra + evals</td><td>Quality, latency, on-call</td></tr>
     </table>
     <div class="tip-box">
         <h4>💡 Order of operations</h4>
-        <p>Caching → model routing → prompt pruning → batch API → semantic cache. Self-hosting is rarely worth it below several million queries per day.</p>
+        <p>Profile the dominant cost first, then compare one change at a time against the baseline. Self-hosting depends on utilization, hardware, staffing, licenses, privacy, and quality requirements; there is no universal query-count break-even point.</p>
     </div>
 </div>
 
@@ -328,20 +328,20 @@ Output-length sensitivity at the same $2/$10 standard rates:
 `,
     quiz: [
         { question: 'Output tokens vs input tokens cost?', options: ['Same', 'Output is typically 3–5× the price of input', 'Input is more expensive', 'Output is free'], correct: 1, explanation: 'Almost every provider prices output tokens 3–5× higher than input.' },
-        { question: 'Best first cost-reduction lever?', options: ['Self-host an open-source model', 'Prompt caching — biggest saving for least work', 'Switch frameworks', 'Negotiate enterprise pricing'], correct: 1, explanation: 'Caching is the highest ROI lever and almost zero risk; do it first.' },
+        { question: 'How should you choose the first cost-reduction lever?', options: ['Always self-host', 'Profile cost drivers and test a change without violating quality or latency gates', 'Always switch frameworks', 'Always cache every input'], correct: 1, explanation: 'Caching helps only with eligible reuse; routing, pruning, or batching may fit other workloads. Measure net savings and data-handling risk.' },
         { question: 'Why model the 99th percentile of user usage?', options: ['Compliance', 'A small number of power users dominate cost and decide your real margin', 'Latency', 'SEO'], correct: 1, explanation: 'AI usage is heavy-tailed; without rate limits the top 1% determines your unit economics.' },
         { question: 'Roughly: 1 token ≈ ?', options: ['1 word', '4 English characters / 0.75 words', '1 sentence', '1 paragraph'], correct: 1, explanation: 'Useful rule of thumb when sizing prompts.' },
-        { question: 'When is self-hosting open models usually worth it?', options: ['Day 1', 'At very high volume (millions of queries/day) with strong evals & infra', 'Always for privacy', 'Never'], correct: 1, explanation: 'Below that scale, hosted APIs are cheaper end-to-end once you count engineering, on-call and quality drift.' },
+        { question: 'When is self-hosting an open model justified?', options: ['Always on day 1', 'Measured quality, total cost, privacy, and operations constraints favor it', 'Always for privacy', 'Never'], correct: 1, explanation: 'Compare utilization, hardware, staffing, licenses, and reliability with hosted alternatives. No universal traffic threshold decides the answer.' },
         { question: 'What does CPQ stand for?', options: ['Customer per quarter', 'Cost per query', 'Cache per quota', 'Calls per question'], correct: 1, explanation: 'The variable cost of one feature invocation.' },
-        { question: 'Why does the workhorse model serve most traffic?', options: ['It\'s the only one available', 'Best quality-per-dollar for most production tasks; reserve frontier for hard reasoning', 'It has more context', 'It\'s open source'], correct: 1, explanation: 'Frontier models are reserved for hard reasoning and as judges; cheap models for classification/extraction.' },
+        { question: 'When should a workhorse model serve most traffic?', options: ['It is the only one available', 'Task evals show it meets quality and latency gates at lower cost', 'It has more context', 'It is open source'], correct: 1, explanation: 'Traffic allocation follows measured task performance, not a universal model hierarchy. Include routing, retry, and review costs.' },
         { question: 'A healthy first artefact for any AI feature is…', options: ['A logo', 'A unit-economics worksheet (CPQ, Q/U, margin per plan)', 'A press release', 'A roadmap deck'], correct: 1, explanation: 'You can\'t price or plan without it.' }
     ],
     interactive: [
-        { type: 'drag-drop', id: 'pm-cost-dd', title: 'Pick the right model class', description: 'Match each task to the cheapest model class that\'s likely good enough; validate the choice with task-specific evals.', items: ['Classifying support tickets into 8 categories', 'Multi-step research agent producing a 5-page brief', 'Acting as the judge in your eval suite', 'Extracting JSON fields from an email'], targets: { [`Frontier (${MODEL_LANDSCAPE.anthropic.frontier} / ${MODEL_LANDSCAPE.openai.frontier} / ${MODEL_LANDSCAPE.google.frontier})`]: ['Multi-step research agent producing a 5-page brief', 'Acting as the judge in your eval suite'], 'Small and fast (Haiku 4.5 / GPT-5.6 Luna / Gemini Flash)': ['Classifying support tickets into 8 categories', 'Extracting JSON fields from an email'] } },
+        { type: 'drag-drop', id: 'pm-cost-dd', title: 'Match task to evaluation evidence', description: 'Choose the evidence needed before choosing a model class.', items: ['Classifying support tickets into 8 categories', 'Multi-step research agent producing a 5-page brief', 'Acting as the judge in your eval suite', 'Extracting JSON fields from an email'], targets: { 'Per-class errors and uncertainty': ['Classifying support tickets into 8 categories'], 'Citation accuracy and successful-task cost': ['Multi-step research agent producing a 5-page brief'], 'Human calibration and disagreement review': ['Acting as the judge in your eval suite'], 'Schema and field-value correctness': ['Extracting JSON fields from an email'] } },
         { type: 'flashcards', id: 'pm-cost-cards', title: 'Cost Cards', cards: [
             { front: 'The PM\'s three numbers?', back: 'Cost per query (CPQ), queries per user per month (Q/U), gross margin per plan.' },
-            { front: 'Cost levers in priority order?', back: 'Caching → model routing → prompt pruning → batch API → semantic cache → self-host (last).' },
-            { front: 'Heavy-tail risk?', back: 'Top 1% of users do ~50× median usage. Always rate-limit per tier or the 99th percentile sets your real margin.' }
+            { front: 'How do you prioritize cost levers?', back: 'Profile costs, choose one hypothesis, and compare cost per successful task against the baseline. Include quality, latency, retries, and operational risk; there is no universal lever order.' },
+            { front: 'Heavy-tail risk?', back: 'A few users may drive disproportionate cost. Measure the usage distribution and set appropriate per-user, tenant, and spend limits rather than assuming a fixed ratio.' }
         ]}
     ],
     lab: {
@@ -414,7 +414,7 @@ Output-length sensitivity at the same $2/$10 standard rates:
         <tr><td><strong>Time-to-value</strong></td><td>Months of build</td><td>Weeks</td></tr>
         <tr><td><strong>Maintenance burden</strong></td><td>Constant model-tracking work</td><td>Stable surface area</td></tr>
     </table>
-    <p>Total ≤ 12 → WAIT or BUY. 13–22 → WRAP with thin moat (be honest about defensibility). ≥ 23 → BUILD.</p>
+    <p>Use the score to structure discussion, not automate the decision. Illustrative bands: ≤ 12 suggests WAIT/BUY, 13–22 suggests WRAP, ≥ 23 suggests BUILD. Validate assumptions, compare no-AI and existing-tool options, and reject any option that fails privacy, quality, cost, or maintenance constraints.</p>
 
     <h3>Worked example</h3>
     <div class="code-block">Feature: "AI assistant in our project-management tool that summarises threads"
@@ -444,7 +444,7 @@ Do not invest in a custom model or fine-tune.</div>
     </table>
     <div class="tip-box">
         <h4>💡 The "search MCP first" rule</h4>
-        <p>Before writing any tool integration, search the public MCP registry. If a server exists, use it. Building a custom MCP server is only justified when none exists or yours has materially better behaviour.</p>
+        <p>Before writing a tool integration, investigate existing options. A registry entry is not approval: assess ownership, maintenance, permissions, data destinations, licensing, protocol compatibility, and tests. An existing API, custom integration, or no integration may fit better.</p>
     </div>
 </div>
 
@@ -473,17 +473,17 @@ Do not invest in a custom model or fine-tune.</div>
 </div>
 `,
     quiz: [
-        { question: 'Highest-risk default in 2026?', options: ['Buying too much', 'Building what the platform is about to ship for free', 'Picking the wrong vector DB', 'Open-source vs closed'], correct: 1, explanation: 'Spending a quarter on something OpenAI/Anthropic/Google ship next quarter is the most expensive mistake.' },
+        { question: 'How should platform-roadmap uncertainty affect build decisions?', options: ['Assume every announced feature will ship', 'Compare build, buy, wait, and no-AI options against evidence and constraints', 'Ignore delivery dates', 'Always wait'], correct: 1, explanation: 'A roadmap forecast is uncertain. Weigh user urgency, differentiation, data boundaries, cost, and reversibility rather than declaring one universal default.' },
         { question: 'Which axis most often gets ignored?', options: ['Defensibility', 'Platform threat horizon — what the model providers will ship', 'Strategic fit', 'Time-to-value'], correct: 1, explanation: 'Ask "is OpenAI/Anthropic likely to ship this within 2 quarters?" before committing.' },
         { question: 'Before building a custom MCP server, you should…', options: ['Write the spec', 'Search the public MCP registry to see if it already exists', 'Hire an engineer', 'Pick a vector DB'], correct: 1, explanation: 'Most common integrations already exist as public MCP servers.' },
         { question: 'What is genuinely worth building in 2026?', options: ['A general-purpose chatbot', 'A retrieval pipeline over your unique data corpus', 'Your own LLM from scratch', 'A new prompt syntax'], correct: 1, explanation: 'Your proprietary data is the moat — wrap models around it, don\'t replace them.' },
-        { question: 'Score 16/30 on the rubric → most likely choice?', options: ['BUILD with custom model', 'WRAP an existing API with thin UX layer', 'WAIT indefinitely', 'Open-source it'], correct: 1, explanation: '13–22 is the WRAP zone — thin layer with honest moat assessment.' },
+        { question: 'What does 16/30 in the illustrative rubric mean?', options: ['Automatically build a custom model', 'Investigate a thin integration, then validate constraints and alternatives', 'Wait indefinitely', 'Publish the data'], correct: 1, explanation: 'The score prompts a hypothesis, not a decision. A well-supported build, buy, wait, or no-AI choice can be valid.' },
         { question: '"That\'s just a wrapper" is only true when…', options: ['You use any provider API', 'The wrapper adds no UX, no evals, no domain workflow, no integrations', 'You don\'t open-source it', 'You use Python'], correct: 1, explanation: 'Real wrappers do real product work; the insult is for empty ones.' }
     ],
     interactive: [
-        { type: 'drag-drop', id: 'pm-bbw-dd', title: 'Build / Buy / Wait sorter', description: 'Sort each capability by best default in 2026.', items: ['A custom LLM trained on your support transcripts', 'A vector database for your RAG store', 'Web search grounding', 'A workflow-specific UX over GPT-5 inside your domain app', 'Voice synthesis for your AI assistant', 'A novel prompt-injection defence specific to your data'], targets: { 'BUILD': ['A workflow-specific UX over GPT-5 inside your domain app', 'A novel prompt-injection defence specific to your data'], 'BUY / WRAP': ['A vector database for your RAG store', 'Web search grounding', 'Voice synthesis for your AI assistant'], 'WAIT': ['A custom LLM trained on your support transcripts'] } },
+        { type: 'drag-drop', id: 'pm-bbw-dd', title: 'Build / Buy / Wait sorter', description: 'Illustrative scenario: approved public data, existing services pass evals and privacy gates, unique workflow needs remain, and there is no demonstrated training gap. These assumptions can change the choice.', items: ['A custom LLM trained on your support transcripts', 'A vector database for your RAG store', 'Web search grounding', 'A workflow-specific UX over GPT-5 inside your domain app', 'Voice synthesis for your AI assistant', 'A novel prompt-injection defence specific to your data'], targets: { 'BUILD': ['A workflow-specific UX over GPT-5 inside your domain app', 'A novel prompt-injection defence specific to your data'], 'BUY / WRAP': ['A vector database for your RAG store', 'Web search grounding', 'Voice synthesis for your AI assistant'], 'WAIT': ['A custom LLM trained on your support transcripts'] } },
         { type: 'flashcards', id: 'pm-bbw-cards', title: 'Build/Buy/Wait Cards', cards: [
-            { front: 'Three defaults?', back: 'WAIT (platform will ship), BUY/WRAP (already exists as API/MCP/SaaS), BUILD (your defensible moat).' },
+            { front: 'Build, buy, or wait?', back: 'Compare user urgency, evidence, data/permission boundaries, total cost, maintenance, and reversibility. Platform roadmaps are uncertain; no-AI is also a valid choice.' },
             { front: 'Worth building?', back: 'Interface to your unique data, workflow-specific UX, evals, distribution, trust scaffolding.' },
             { front: 'Wrapper insult?', back: 'Only true when the wrapper adds no UX, no evals, no workflow, no domain integration. Otherwise it\'s real product work.' }
         ]}
@@ -511,7 +511,7 @@ Do not invest in a custom model or fine-tune.</div>
             <li><strong>Prototype in 30 minutes.</strong> NotebookLM / Claude Project / Custom GPT. No code.</li>
             <li><strong>Wizard-of-Oz with 5 users.</strong> You play the AI manually behind the curtain.</li>
             <li><strong>Build the eval suite</strong> (see PM Playbook: Evals).</li>
-            <li><strong>Ship to shadow mode.</strong> Run alongside humans, log everything, ship nothing user-facing.</li>
+            <li><strong>Ship to shadow mode.</strong> Run alongside humans without applying AI decisions. Use approved data and purpose-limited telemetry: redact sensitive fields, exclude secrets, apply access controls, and set retention limits. Shadow execution still creates privacy, provider-data-use, and cost risks; disable side-effecting tools and cap spend.</li>
             <li><strong>Soft launch to ≤ 5% with kill switch.</strong></li>
             <li><strong>GA with monitoring + on-call.</strong></li>
         </ol>
@@ -593,7 +593,7 @@ Do not invest in a custom model or fine-tune.</div>
 `,
     quiz: [
         { question: 'Why does AI demo-to-deploy take 3 months?', options: ['Slow APIs', 'Stochasticity — the long tail of failures hidden by 5 demo runs', 'Pricing negotiations', 'Compliance only'], correct: 1, explanation: 'Demos hide the variance; production reveals it.' },
-        { question: 'What is shadow mode?', options: ['Dark UI theme', 'Run AI in production but hide output from users; log everything', 'Internal-only build', 'A type of prompt'], correct: 1, explanation: 'Lets you observe real input/output distributions without user risk.' },
+        { question: 'What is shadow mode?', options: ['Dark UI theme', 'Observe AI alongside the live process without applying its decisions, using approved minimized telemetry', 'Internal-only build', 'A type of prompt'], correct: 1, explanation: 'Hidden output does not remove privacy or cost risk. Redact data, enforce access controls and retention, disable side effects, and monitor spend.' },
         { question: 'Wizard-of-Oz tests what?', options: ['Latency', 'Demand and UX before any model investment — humans play the AI', 'Eval scores', 'Pricing'], correct: 1, explanation: 'Validates that users want the thing before you build it.' },
         { question: 'A non-negotiable for soft launch?', options: ['Pricing page', 'A kill switch with a graceful fallback', 'Press release', 'Investor update'], correct: 1, explanation: 'You must be able to disable the AI surface in under a minute.' },
         { question: 'AI is a poor fit for…', options: ['Long text synthesis', 'Tasks needing 100% recall (e.g., medication dispensing)', 'Drafting emails', 'Summarising meeting notes'], correct: 1, explanation: 'Stochastic output is wrong for tasks where any miss is harmful.' },
@@ -835,7 +835,7 @@ Do not invest in a custom model or fine-tune.</div>
         { question: 'Why are AI analytics qualitatively different from regular analytics?', options: ['More events', 'You also need to log quality, which is multi-dimensional and drifts silently', 'They\'re cheaper', 'They\'re slower'], correct: 1, explanation: 'Traditional analytics tracks behaviour; AI analytics also tracks output quality.' },
         { question: 'Strongest implicit-quality signal?', options: ['Page views', 'Edit-before-send (diff between AI draft and final user submission)', 'Bounce rate', 'Cookie consent'], correct: 1, explanation: 'Edit diffs literally show what the AI got wrong and the user fixed.' },
         { question: 'How do you protect against silent model drift from a provider?', options: ['Trust the provider', 'Pin a specific model version and re-run your eval suite on every update', 'Avoid updates', 'Use cheapest model'], correct: 1, explanation: 'Pinning + evals catches behaviour changes the provider didn\'t flag.' },
-        { question: 'Default for an LLM observability platform in 2026?', options: ['Build in-house', 'Buy / use one (Helicone, LangSmith, Arize Phoenix, Langfuse, Braintrust)', 'Skip it', 'Ask the model'], correct: 1, explanation: 'It\'s a saturated commodity; building it costs a quarter you can\'t afford.' },
+        { question: 'How should you choose an LLM observability platform?', options: ['Always build in-house', 'Compare existing and custom options against data, cost, integration, and operating needs', 'Skip it', 'Ask the model to decide'], correct: 1, explanation: 'An existing tool may save work, but data destinations, retention, access controls, portability, and total cost determine fit.' },
         { question: 'How many charts in the standard PM AI dashboard?', options: ['1', '5: Quality, Cost, Latency, Adoption, Refusals/failures', '50', '0'], correct: 1, explanation: 'Five is enough to run the feature; more is a tax.' },
         { question: 'What is "eval drift"?', options: ['Eval scores randomly fluctuate', 'Your golden dataset stops being representative of real inputs', 'Provider price change', 'Prompt size changes'], correct: 1, explanation: 'Refresh the dataset with recent real inputs each quarter.' }
     ],
@@ -905,7 +905,7 @@ Do not invest in a custom model or fine-tune.</div>
         <tr><td>Two providers active in production</td><td>Outage resilience; price negotiation leverage</td></tr>
         <tr><td>Open-weights model in your back pocket (Llama, Qwen, DeepSeek)</td><td>Optionality if hosted prices spike or terms change</td></tr>
         <tr><td>BYO-key support for enterprise customers</td><td>Lets large customers bring their own provider relationship</td></tr>
-        <tr><td>Caching every common prompt prefix</td><td>50-90% cost reduction is your hedge against a price hike</td></tr>
+        <tr><td>Caching eligible, frequently repeated prefixes</td><td>Measure cache-hit savings net of writes and retention; discounts on some tokens are not whole-system savings</td></tr>
     </table>
 </div>
 
@@ -977,7 +977,7 @@ Do not invest in a custom model or fine-tune.</div>
         <tr><td><strong>RAG</strong></td><td>We retrieve relevant chunks of our own data and put them in front of the model so it answers from <em>our</em> facts, not its training data.</td></tr>
         <tr><td><strong>Agent</strong></td><td>An LLM in a loop that picks tools and acts. More capability and more risk than a single-turn AI feature.</td></tr>
         <tr><td><strong>Fine-tuning</strong></td><td>Continuing a model\'s training on our examples. Rarely the right answer in 2026 — better prompts, better RAG, and stronger base models usually win.</td></tr>
-        <tr><td><strong>MCP</strong></td><td>An open standard so any AI client (Claude, Copilot, IDE) can use any tool server (GitHub, our own systems) without custom integration.</td></tr>
+        <tr><td><strong>MCP</strong></td><td>An open protocol for tool and data integration. Clients and servers must agree on protocol version, transport, and capabilities; authentication, permissions, and host support still constrain interoperability.</td></tr>
     </table>
     <div class="tip-box">
         <h4>💡 Replace "the AI knows X"</h4>
@@ -1051,7 +1051,7 @@ cheaper and lower risk. Happy to spike that next sprint."</div>
         { question: 'A roadmap pitch must cover…', options: ['Capability only', 'Capability + Cost & margin + Risk & trust, in that order', 'Just the demo', 'Just the pricing'], correct: 1, explanation: 'Missing any of the three means it\'s a hope, not a pitch.' },
         { question: 'Why show the same prompt 3 times in a demo?', options: ['Pad the time', 'Leadership sees the variance — sets expectations correctly', 'It\'s tradition', 'Trains the model'], correct: 1, explanation: 'Hides nothing; calibrates trust upwards because you didn\'t cherry-pick.' },
         { question: 'Best 2-sentence definition of "hallucination" for execs?', options: ['"It\'s a bug"', '"The model produces plausible, confident, wrong statements; it\'s an unavoidable failure mode we contain, not eliminate"', '"It hallucinates because it\'s tired"', '"Only happens on cheap models"'], correct: 1, explanation: 'Honest, short, sets correct expectations for risk discussions.' },
-        { question: 'When fine-tuning is the right answer in 2026?', options: ['Almost always', 'Rarely — better prompts, RAG, and stronger base models usually win', 'For every chatbot', 'Whenever you have data'], correct: 1, explanation: 'Strong default position to give leadership; protects engineering time.' },
+        { question: 'When is fine-tuning justified?', options: ['Almost always', 'Held-out task evidence shows it improves on simpler baselines within data and cost constraints', 'For every chatbot', 'Whenever you have data'], correct: 1, explanation: 'Compare prompt, retrieval, model-choice, and adaptation options against the same task. Fine-tuning is not a universal first or last resort.' },
         { question: 'Best way to say no to a bad AI ask?', options: ['Block it in OKRs', 'Size capability + cost + risk, then propose a smaller scope that delivers the core outcome', 'Refer to engineering', 'Wait for them to forget'], correct: 1, explanation: 'Numbers + options + path forward almost always lands well.' }
     ],
     interactive: [

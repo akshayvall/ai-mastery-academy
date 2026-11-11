@@ -54,7 +54,10 @@ const ProgressManager = {
             diagnostic: null,
             moduleMastery: {},
             practiceChecks: {},
-            artifactPractice: {}
+            artifactPractice: {},
+            unitLearning: {},
+            portfolios: {},
+            editorialReviews: {}
         };
     },
 
@@ -120,6 +123,9 @@ const ProgressManager = {
                 }
                 : null,
             moduleMastery,
+            unitLearning: this.normalizeUnitLearning(data.unitLearning),
+            portfolios: this.normalizePortfolios(data.portfolios),
+            editorialReviews: this.normalizeEditorialReviews(data.editorialReviews),
             practiceChecks: isRecord(data.practiceChecks)
                 ? Object.fromEntries(Object.entries(data.practiceChecks).filter(([, value]) => isRecord(value))
                     .map(([moduleId, value]) => [moduleId, {
@@ -137,6 +143,59 @@ const ProgressManager = {
                     }]))
                 : {}
         };
+    },
+
+    normalizePortfolios(value) {
+        const record = item => item && typeof item === 'object' && !Array.isArray(item);
+        if (!record(value)) return {};
+        return Object.fromEntries(Object.entries(value).filter(([id, entry]) => ['pm', 'builder'].includes(id) && record(entry))
+            .map(([id, entry]) => [id, {
+                version: 1,
+                sections: Object.fromEntries(Object.entries(record(entry.sections) ? entry.sections : {})
+                    .filter(([key, text]) => /^[a-z][a-z-]{0,40}$/.test(key) && typeof text === 'string')
+                    .slice(0, 16).map(([key, text]) => [key, text.slice(0, 5000)])),
+                scores: Array.isArray(entry.scores) ? entry.scores.slice(0, 4).map(score => Number.isInteger(score) && score >= 0 && score <= 4 ? score : null) : [],
+                assistance: ['none', 'explained', 'scaffolded', 'generated'].includes(entry.assistance) ? entry.assistance : 'not-recorded',
+                provenance: entry.provenance === 'reviewer-reported' ? 'reviewer-reported' : 'self-assessed',
+                reviewer: typeof entry.reviewer === 'string' ? entry.reviewer.slice(0, 100) : '',
+                savedAt: typeof entry.savedAt === 'string' ? entry.savedAt.slice(0, 40) : ''
+            }]));
+    },
+
+    normalizeEditorialReviews(value) {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+        return Object.fromEntries(Object.entries(value)
+            .filter(([id, entry]) => /^[a-z][a-z0-9-]{0,60}$/.test(id) && !['constructor', 'prototype'].includes(id) &&
+                entry && typeof entry === 'object' && !Array.isArray(entry))
+            .slice(0, 100).map(([id, entry]) => [id, {
+                owner: typeof entry.owner === 'string' ? entry.owner.slice(0, 100) : '',
+                reviewed: typeof entry.reviewed === 'string' ? entry.reviewed.slice(0, 10) : '',
+                decision: ['needs-update', 'reviewed', 'blocked'].includes(entry.decision) ? entry.decision : 'needs-update',
+                notes: typeof entry.notes === 'string' ? entry.notes.slice(0, 2000) : ''
+            }]));
+    },
+
+    normalizeUnitLearning(value) {
+        const record = item => item && typeof item === 'object' && !Array.isArray(item);
+        const safeId = id => typeof id === 'string' && /^[a-z0-9][a-z0-9-]{0,99}$/.test(id) &&
+            !['constructor', 'prototype'].includes(id);
+        const choice = value => Number.isInteger(value) && value >= 0 && value < 10 ? value : null;
+        if (!record(value)) return {};
+        return Object.fromEntries(Object.entries(value).filter(([id, entry]) => safeId(id) && record(entry))
+            .slice(0, 100).map(([id, entry]) => [id, {
+                unitId: safeId(entry.unitId) ? entry.unitId : '',
+                step: ['learn', 'try', 'check'].includes(entry.step) ? entry.step : 'learn',
+                version: typeof entry.version === 'string' ? entry.version.slice(0, 40) : '',
+                records: Object.fromEntries(Object.entries(record(entry.records) ? entry.records : {})
+                    .filter(([unitId, attempt]) => safeId(unitId) && record(attempt)).slice(0, 50)
+                    .map(([unitId, attempt]) => [unitId, {
+                        practice: choice(attempt.practice), check: choice(attempt.check),
+                        practiceChecked: attempt.practiceChecked === true,
+                        checkChecked: attempt.checkChecked === true,
+                        passed: attempt.passed === true,
+                        reflection: typeof attempt.reflection === 'string' ? attempt.reflection.slice(0, 2000) : ''
+                    }]))
+            }]));
     },
 
     isValidScore(score, total) {
@@ -228,6 +287,7 @@ const ProgressManager = {
 
     hasPassingTransfer(transfer) {
         return Boolean(transfer && this.isValidScore(transfer.score, transfer.max) &&
+            (!transfer.scores?.length || (transfer.scores.length === 4 && transfer.scores.every(score => Number.isInteger(score) && score >= 3 && score <= 4))) &&
             transfer.score / transfer.max >= 0.75 && typeof transfer.reflection === 'string' && transfer.reflection.trim().length >= 20);
     },
 
@@ -592,6 +652,18 @@ const ProgressManager = {
         if (!isRecord(data) || !Array.isArray(data.completedModules) || !isRecord(data.quizScores)) {
             throw new Error('Invalid progress file format');
         }
+        for (const field of ['portfolios', 'editorialReviews']) {
+            if (data[field] !== undefined && (!isRecord(data[field]) || Object.values(data[field]).some(entry => !isRecord(entry)))) {
+                throw new Error(`Invalid ${field} record`);
+            }
+        }
+        for (const entry of Object.values(data.portfolios || {})) {
+            if (!isRecord(entry.sections) || Object.values(entry.sections).some(value => typeof value !== 'string') ||
+                !Array.isArray(entry.scores) || entry.scores.length > 4 ||
+                entry.scores.some(score => score !== null && (!Number.isInteger(score) || score < 0 || score > 4))) {
+                throw new Error('Invalid portfolio fields');
+            }
+        }
         if (data.schemaVersion !== undefined && (!Number.isInteger(data.schemaVersion) ||
             data.schemaVersion < 1 || data.schemaVersion > this.CURRENT_SCHEMA_VERSION)) {
             throw new Error('Unsupported progress schema version');
@@ -613,7 +685,7 @@ const ProgressManager = {
             }
             if (field === 'completedLabs') moduleIds.push(...data[field]);
         }
-        for (const field of ['quizScores', 'notes', 'labSteps', 'visitedSections', 'moduleMastery', 'practiceChecks', 'artifactPractice']) {
+        for (const field of ['quizScores', 'notes', 'labSteps', 'visitedSections', 'moduleMastery', 'practiceChecks', 'artifactPractice', 'unitLearning']) {
             if (data[field] === undefined) continue;
             if (!isRecord(data[field])) throw new Error('Invalid progress file format');
             if (['quizScores', 'moduleMastery', 'practiceChecks', 'artifactPractice'].includes(field) &&
@@ -628,6 +700,13 @@ const ProgressManager = {
             }
             if (entry.review?.attempts !== undefined && !Array.isArray(entry.review.attempts)) {
                 throw new Error('Invalid progress file format');
+            }
+        }
+        for (const entry of Object.values(data.unitLearning || {})) {
+            if (!isRecord(entry) || !isRecord(entry.records) ||
+                Object.entries(entry.records).some(([id, attempt]) => !/^[a-z0-9][a-z0-9-]{0,99}$/.test(id) ||
+                    ['constructor', 'prototype'].includes(id) || !isRecord(attempt))) {
+                throw new Error('Invalid short-lesson unit progress');
             }
         }
         if (data.lastVisited != null) moduleIds.push(data.lastVisited);

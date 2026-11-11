@@ -23,13 +23,13 @@ const MODULES_100 = [
             id: 'ai-stack-diagram',
             type: 'ai-stack',
             title: 'The AI Technology Stack',
-            description: 'AI is a stack of nested fields. LLMs are a specific kind of generative AI, which is a specific kind of deep learning, which is a specific kind of machine learning, which is a specific kind of AI.',
+            description: 'A simplified map of modern generative language models, not a complete taxonomy. Deep learning is part of machine learning within AI. Generative AI is a cross-cutting purpose: not all generative models use deep learning, and not all language models are chat generators.',
             steps: [
                 'AI — any system that simulates human intelligence (chess engines, spam filters).',
                 'Machine Learning — AI that learns patterns from data instead of being hand-coded.',
                 'Deep Learning — ML using layered neural networks (image / speech recognition).',
-                'Generative AI — DL that creates new content (text, images, video).',
-                'Large Language Models — generative AI specialised in text. The thing you talk to.'
+                'Generative deep models — the subset shown here creates text, images, or other content; generative methods also exist outside deep learning.',
+                'Generative language models — the subset used in this course predicts tokens; language-model families also include non-generative encoders.'
             ]
         },
         {
@@ -51,18 +51,18 @@ const MODULES_100 = [
     learn: `
 <div class="learn-section">
     <h2>What is an LLM — Really?</h2>
-    <p>A Large Language Model is a neural network trained on trillions of words. It learned statistical patterns — which words follow which, in which contexts. When you give it a prompt, it <strong>predicts the next most likely token</strong>, one at a time, like autocomplete on steroids.</p>
-    <p>This means LLMs are astonishingly good at language tasks — writing, coding, summarising, translating — because "pick the most plausible continuation" produces great results for text. But they have <strong>no ground-truth knowledge</strong> and <strong>no persistent memory</strong>. They hallucinate because plausible ≠ correct.</p>
+    <p>A Large Language Model is trained on large collections of data, learning patterns in its <strong>parameters (weights)</strong>. The generative models used here predict a distribution over next tokens and select tokens to form a response. Training sources and coverage vary; no model has read everything.</p>
+    <p>These learned patterns support writing, coding, and summarizing, but a plausible response is not proof of truth. Distinguish <strong>learned parameters</strong>, <strong>request context</strong>, and <strong>application memory</strong>: a product can store history or retrieve saved facts into later requests. Ordinary conversation does not automatically retrain model weights.</p>
     
     <div class="concept-box">
-        <h4>🧠 The Intern Mental Model</h4>
-        <p><strong>LLM = a very smart intern who has read the entire internet but has zero memory and no life experience.</strong></p>
+        <h4>🧠 The Assistant Mental Model</h4>
+        <p><strong>Think of a model as an assistant with learned patterns, a current information packet, and tools or saved notes supplied by its application.</strong> This is an analogy, not a claim about human understanding.</p>
         <ul>
-            <li>They know a lot but cannot verify anything they say</li>
+            <li>Learned patterns can be useful but incomplete or outdated; tools can supply evidence that still needs checking</li>
             <li>They follow instructions but can misinterpret ambiguity</li>
-            <li>They are eager to help but will <strong>confidently fabricate information</strong></li>
-            <li>They perform dramatically better with clear, structured instructions</li>
-            <li>They forget EVERYTHING between conversations</li>
+            <li>Fluent output can contain <strong>confidently fabricated information</strong></li>
+            <li>Clear instructions can help; evaluate results on the actual task</li>
+            <li>Cross-conversation recall depends on application memory, settings, and what is included in context</li>
         </ul>
         <p>Treat them accordingly: give good instructions, verify critical outputs, never trust blindly.</p>
     </div>
@@ -75,14 +75,14 @@ const MODULES_100 = [
 
 <div class="learn-section">
     <h2>The AI Technology Stack</h2>
-    <p>AI is not one thing — it is a stack. Understanding each layer helps you know what LLMs can and cannot do:</p>
+    <p>This is a simplified map, not a complete taxonomy. AI includes hand-coded and learned systems; deep learning is one branch of machine learning. Generative AI describes creating content, not a single architecture. The nested diagram shows the modern generative language-model subset used here.</p>
     <table class="content-table">
         <tr><th>Layer</th><th>What It Is</th><th>Examples</th></tr>
         <tr><td><strong>Artificial Intelligence</strong></td><td>Machines simulating human intelligence</td><td>Chess engines, spam filters, self-driving cars</td></tr>
         <tr><td><strong>Machine Learning</strong></td><td>AI that learns patterns from data</td><td>Netflix recommendations, fraud detection</td></tr>
         <tr><td><strong>Deep Learning</strong></td><td>ML using layered neural networks</td><td>Image recognition, speech-to-text</td></tr>
-        <tr><td><strong>Generative AI</strong></td><td>DL that creates new content</td><td>ChatGPT, Midjourney, Sora, Claude</td></tr>
-        <tr><td><strong>Large Language Models</strong></td><td>GenAI for text understanding and generation</td><td>${MODEL_LANDSCAPE.openai.balanced}, ${MODEL_LANDSCAPE.anthropic.balanced}, ${MODEL_LANDSCAPE.google.frontier}</td></tr>
+        <tr><td><strong>Generative AI</strong></td><td>Systems that generate content; many current systems use deep learning</td><td>ChatGPT, Midjourney, Sora, Claude</td></tr>
+        <tr><td><strong>Large Language Models</strong></td><td>Large models of language; this course focuses on generative and multimodal assistants</td><td>${MODEL_LANDSCAPE.openai.balanced}, ${MODEL_LANDSCAPE.anthropic.balanced}, ${MODEL_LANDSCAPE.google.frontier}</td></tr>
     </table>
 </div>
 
@@ -94,7 +94,7 @@ const MODULES_100 = [
         <tr><th>Stage</th><th>What Happens</th><th>Details</th></tr>
         <tr><td><strong>1. Data Collection</strong></td><td>Crawl the internet at massive scale</td><td>Common Crawl: petabytes of web data. Also books, papers, code repos.</td></tr>
         <tr><td><strong>2. Data Cleaning</strong></td><td>Filter junk, duplicates, toxic content</td><td>RefinedWeb, Dolma, FineWeb — curated datasets removing noise.</td></tr>
-        <tr><td><strong>3. Tokenisation (BPE)</strong></td><td>Break text into tokens</td><td>Byte-Pair Encoding: "unhappiness" → ["un","happi","ness"]. ~50K-100K token vocabulary.</td></tr>
+        <tr><td><strong>3. Tokenisation (e.g. BPE)</strong></td><td>Break text into tokens</td><td>Illustrative split: "unhappiness" → ["un","happi","ness"]. Actual splits and vocabulary size depend on the tokenizer.</td></tr>
         <tr><td><strong>4. Architecture</strong></td><td>Transformer with attention mechanism</td><td>GPT family (decoder-only), Llama (open-source), T5 (encoder-decoder).</td></tr>
         <tr><td><strong>5. Training</strong></td><td>Predict next token, adjust weights</td><td>Thousands of GPUs running for weeks. Cost: $10M-$100M+ for frontier models.</td></tr>
         <tr><td><strong>6. Alignment</strong></td><td>Make helpful, harmless, honest</td><td>RLHF (Reinforcement Learning from Human Feedback), Constitutional AI (Anthropic).</td></tr>
@@ -104,7 +104,7 @@ const MODULES_100 = [
     <table class="content-table">
         <tr><th>Concept</th><th>What It Means</th><th>Why You Care</th></tr>
         <tr><td><strong>Tokens</strong></td><td>Text units of ~3-4 characters. 1,000 tokens ≈ 750 words.</td><td>All pricing and context limits are in tokens.</td></tr>
-        <tr><td><strong>Context Window</strong></td><td>Maximum tokens a model can accept for one request</td><td>GPT-6 Astra: ${MODEL_LANDSCAPE.openai.context}. Reference limits for the supported examples: Claude Opus/Sonnet ${MODEL_LANDSCAPE.anthropic.context}, Haiku 4.5 ${MODEL_LANDSCAPE.anthropic.smallContext}, Gemini 3.6 Flash ${MODEL_LANDSCAPE.google.context} input tokens. Check each newer model separately.</td></tr>
+        <tr><td><strong>Context Window</strong></td><td>Model-specific token budget; check input and output limits separately</td><td>GPT-6 Astra: ${MODEL_LANDSCAPE.openai.context}. Current Claude catalogue: ${MODEL_LANDSCAPE.anthropic.context}; Gemini 3.6 Flash lab reference: ${MODEL_LANDSCAPE.google.context} input tokens. Older Haiku 4.5 pins have 200K context, not the current Haiku limit.</td></tr>
         <tr><td><strong>Temperature</strong></td><td>Controls sampling randomness on models that expose it</td><td>Lower can improve consistency; it does not guarantee identical output. Current Claude models use adaptive thinking and reject sampling parameters.</td></tr>
         <tr><td><strong>System Prompt</strong></td><td>Hidden instructions defining AI behaviour</td><td>The single most powerful lever for controlling output.</td></tr>
         <tr><td><strong>Hallucination</strong></td><td>Generating plausible but factually wrong text</td><td>Always verify critical facts. The model is sometimes confidently wrong.</td></tr>
@@ -115,17 +115,17 @@ const MODULES_100 = [
     <p>When the model outputs probability distributions, HOW it picks the next token matters:</p>
     <table class="content-table">
         <tr><th>Strategy</th><th>How</th><th>Use</th></tr>
-        <tr><td><strong>Greedy</strong></td><td>Always pick highest-probability token</td><td>Deterministic but can loop</td></tr>
+        <tr><td><strong>Greedy</strong></td><td>Pick a highest-probability token</td><td>Fixed scores and tie-breaking yield a fixed choice; the full service can still vary</td></tr>
         <tr><td><strong>Top-K</strong></td><td>Only consider K most probable tokens</td><td>Prevents wild improbable outputs</td></tr>
         <tr><td><strong>Top-P (Nucleus)</strong></td><td>Sample tokens until cumulative prob reaches P</td><td>Adaptive: more options when uncertain</td></tr>
         <tr><td><strong>Beam Search</strong></td><td>Track multiple candidate sequences</td><td>Better quality for translation</td></tr>
     </table>
 
     <h3>The Adaptation Hierarchy</h3>
-    <p>Always try in this order — each step is more expensive:</p>
+    <p>Compare the simplest approach that could meet the task against a no-AI baseline. These options solve different problems; they are not a mandatory sequence or a universal cost ranking.</p>
     <table class="content-table">
         <tr><th>Technique</th><th>What</th><th>Cost</th><th>When</th></tr>
-        <tr><td><strong>Prompt Engineering</strong></td><td>Control via instructions</td><td>Free</td><td>90% of use cases — always try first</td></tr>
+        <tr><td><strong>Prompt Engineering</strong></td><td>Guide via instructions and context</td><td>Token and evaluation costs</td><td>Test whether clearer instructions resolve the observed failure</td></tr>
         <tr><td><strong>RAG</strong></td><td>Retrieve docs, inject into prompt</td><td>Low-Medium</td><td>Model needs your specific knowledge</td></tr>
         <tr><td><strong>LoRA / PEFT</strong></td><td>Train small adapter layers</td><td>Medium</td><td>Need to change behaviour efficiently</td></tr>
         <tr><td><strong>Full Fine-Tuning</strong></td><td>Retrain the model on your data</td><td>High</td><td>Need deep behavioural changes</td></tr>
@@ -133,14 +133,14 @@ const MODULES_100 = [
 </div>
 
 <div class="learn-section">
-    <h2>The Big Three Platforms: September 2026</h2>
-    <p>Catalog names and standard API token rates source-reviewed ${MODEL_LANDSCAPE.verifiedDate}. Prices below are USD per million input/output tokens, not subscription prices. Provider labs have not been executed; product plans, context tiers, and account terms need their own checks.</p>
+    <h2>The Big Three Platforms: November 2026</h2>
+    <p>Catalogue source review: ${MODEL_LANDSCAPE.verifiedDate}. Prices below are USD per million input/output tokens, not subscription prices. ${MODEL_LANDSCAPE.verificationNote} Next review: ${MODEL_LANDSCAPE.nextReviewDate}.</p>
     <div class="comparison-grid">
         <div class="comparison-card">
             <h4>🟢 OpenAI / ChatGPT</h4>
             <ul>
                 <li><strong>Current flagship:</strong> ${MODEL_LANDSCAPE.openai.frontier} (${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output} per MTok)</li>
-                <li><strong>Still supported:</strong> ${MODEL_LANDSCAPE.openai.supported} (${MODEL_LANDSCAPE.openai.supportedPrice.input}/${MODEL_LANDSCAPE.openai.supportedPrice.output}), ${MODEL_LANDSCAPE.openai.balanced} (${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}), ${MODEL_LANDSCAPE.openai.small} (${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output})</li>
+                <li><strong>Current balanced / small:</strong> ${MODEL_LANDSCAPE.openai.balanced} (${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}), ${MODEL_LANDSCAPE.openai.small} (${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output}). <strong>Supported older pin:</strong> ${MODEL_LANDSCAPE.openai.supported} (${MODEL_LANDSCAPE.openai.supportedPrice.input}/${MODEL_LANDSCAPE.openai.supportedPrice.output}; promotional through November 30).</li>
                 <li><strong>Flagship context:</strong> ${MODEL_LANDSCAPE.openai.context} tokens</li>
                 <li><strong>Products:</strong> Custom GPTs, Canvas, Codex (cloud agent), Sora (video), GPT-image-1.5</li>
                 <li><strong>Best at:</strong> General purpose, images, video, consumer UX</li>
@@ -151,8 +151,8 @@ const MODULES_100 = [
             <h4>🟣 Anthropic / Claude</h4>
             <ul>
                 <li><strong>Models:</strong> ${MODEL_LANDSCAPE.anthropic.frontier} (${MODEL_LANDSCAPE.anthropic.frontierPrice.input}/${MODEL_LANDSCAPE.anthropic.frontierPrice.output} per MTok), ${MODEL_LANDSCAPE.anthropic.reasoning} (${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}/${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}), ${MODEL_LANDSCAPE.anthropic.balanced} (${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output}), ${MODEL_LANDSCAPE.anthropic.small} (${MODEL_LANDSCAPE.anthropic.smallPrice.input}/${MODEL_LANDSCAPE.anthropic.smallPrice.output})</li>
-                <li><strong>Reference context:</strong> ${MODEL_LANDSCAPE.anthropic.context} for Opus 5 and Sonnet 5; ${MODEL_LANDSCAPE.anthropic.smallContext} for Haiku 4.5. Check the Fable 5.1 entry before sizing its requests.</li>
-                <li><strong>Sonnet 5 standard pricing:</strong> ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per MTok. The planned September 1 increase was cancelled; the current rate is no longer introductory.</li>
+                <li><strong>Current catalogue context:</strong> ${MODEL_LANDSCAPE.anthropic.context}. Haiku 5.5 base prices above apply to prompts up to 100K tokens; larger prompts use a higher tier.</li>
+                <li><strong>Supported older lab pins:</strong> Sonnet 5 and Haiku 4.5 remain active, but are not the current catalogue recommendations. ${MODEL_LANDSCAPE.anthropic.balancedPriceStatus}</li>
                 <li><strong>Products:</strong> Claude Code, Cowork, Projects, Artifacts, Managed Agents, MCP</li>
                 <li><strong>Best at:</strong> Coding, agents, complex instructions, long documents</li>
                 <li><strong>Plans:</strong> Free / Pro $20 / Max $100</li>
@@ -163,8 +163,8 @@ const MODULES_100 = [
             <ul>
                 <li><strong>Current stable:</strong> ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>)</li>
                 <li><strong>Supported lab pin:</strong> ${MODEL_LANDSCAPE.google.supported} (<code>${MODEL_LANDSCAPE.google.supportedId}</code>); supported older examples do not require automatic migration.</li>
-                <li><strong>Current Pro:</strong> ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>), currently preview</li>
-                <li><strong>Reference context:</strong> ${MODEL_LANDSCAPE.google.context} input tokens for the Gemini 3.6 Flash example. Check newer model limits separately; Gemini 2.5 also remains supported.</li>
+                <li><strong>Current frontier:</strong> ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>); Gemini 4 Argon is another current catalogue option. Verify account availability.</li>
+                <li><strong>Reference context:</strong> ${MODEL_LANDSCAPE.google.context} input tokens for the Gemini 3.6 Flash lab pin. Check other model limits separately. ${MODEL_LANDSCAPE.google.supported25}</li>
                 <li><strong>Products:</strong> NotebookLM, Deep Research, AI Studio (free), Veo 3.1, Computer Use</li>
                 <li><strong>Best at:</strong> Research, multimodal, huge documents, Google Workspace</li>
                 <li><strong>Plans:</strong> Free / Advanced $20</li>
@@ -262,9 +262,9 @@ const MODULES_100 = [
 `,
     quiz: [
         { question: 'What does an LLM do technically?', options: ['Searches a database of facts', 'Predicts the next most likely token based on training patterns', 'Runs logical rules', 'Stores and retrieves memories'], correct: 1, explanation: 'LLMs are token-prediction engines. One token at a time. Plausible ≠ correct.' },
-        { question: 'What is the "intern mental model"?', options: ['Perfect memory', 'Smart but no memory, confidently wrong, needs clear instructions', 'Always correct', 'A search engine'], correct: 1, explanation: 'Knows a lot, forgets between conversations, can fabricate. Give clear instructions.' },
+        { question: 'Which model of an AI assistant is most useful?', options: ['Perfect memory', 'Learned patterns plus current context and application-provided memory or tools', 'Always correct', 'Only a search engine'], correct: 1, explanation: 'Weights, request context, and stored application memory are different. Any answer still needs task-appropriate verification.' },
         { question: 'What is BPE tokenisation?', options: ['Word splitting', 'Iteratively merging frequent character pairs into tokens', 'Sentence splitting', 'Random chunking'], correct: 1, explanation: 'Start with characters, merge frequent pairs. Creates efficient vocabulary.' },
-        { question: 'Which model is Google\'s current Pro entry?', options: ['Gemini 2.5 Pro', 'Gemini 3.1 Pro Preview', 'Gemini 2.0 Pro', 'Gemini 3.6 Pro'], correct: 1, explanation: 'The current Pro model is gemini-3.1-pro-preview. Gemini 3.6 Flash and Gemini 3.5 Flash are stable models, while Gemini 2.5 remains supported.' },
+        { question: 'How should you interpret an older Gemini lab pin?', options: ['Every 2.5 model has identical support', 'Check the exact model and platform lifecycle before executing or migrating', 'An alias never changes billing', 'Newest always means best'], correct: 1, explanation: '3.6 Flash remains available. 2.5 Pro and Flash are deprecated with December 1, 2026 rerouting and changed billing; 2.5 Flash-Lite has separate access restrictions. Source review is not an executed lab.' },
         { question: 'What does temperature control?', options: ['Response speed', 'Sampling randomness on models that support it', 'Cost', 'Context size'], correct: 1, explanation: 'Lower temperature can improve consistency but does not guarantee identical output. Some current models reject sampling parameters entirely.' },
         { question: 'What is hallucination?', options: ['A visual bug', 'Generating confident but factually wrong output', 'When AI refuses', 'A model type'], correct: 1, explanation: 'Plausible ≠ correct. Always verify critical outputs.' },
         { question: 'Adaptation hierarchy order?', options: ['Fine-tune first', 'Prompt Eng → RAG → LoRA → Fine-Tune', 'RAG first always', 'Random'], correct: 1, explanation: 'Try cheapest first. Most problems solved by prompting or RAG.' },
@@ -273,10 +273,10 @@ const MODULES_100 = [
     interactive: [
         { type: 'drag-drop', id: 'platform-products', title: 'Match Product → Company', description: 'Drag each product to its company.', items: ['Claude Code', 'Codex', 'NotebookLM', 'Custom GPTs', 'Cowork', 'Deep Research', 'Sora', 'MCP'], targets: { 'Anthropic': ['Claude Code', 'Cowork', 'MCP'], 'OpenAI': ['Codex', 'Custom GPTs', 'Sora'], 'Google': ['NotebookLM', 'Deep Research'] } },
         { type: 'flashcards', id: 'orientation-cards', title: 'Core Concepts Flashcards', cards: [
-            { front: 'LLM mental model?', back: 'Smart intern: read the internet, no memory, confidently wrong, needs clear instructions. Verify critical outputs.' },
+            { front: 'LLM mental model?', back: 'Learned patterns in weights, evidence in the current request, and optional application memory/tools. History is not automatic retraining, and fluent output is not proof.' },
             { front: 'What is a token?', back: '~3-4 characters. 1000 tokens ≈ 750 words. All pricing and context limits are measured in tokens.' },
-            { front: 'Context windows verified July 26, 2026?', back: 'GPT-5.6 Sol/Terra/Luna: 1.05M. Claude Fable/Opus/Sonnet: 1M; Haiku 4.5: 200K. Listed Gemini text models: 1,048,576 input tokens.' },
-            { front: 'Adaptation hierarchy?', back: 'Prompt Engineering → RAG → LoRA/PEFT → Fine-Tuning. Always try cheapest first.' },
+            { front: 'How do catalogue context limits differ from lab pins?', back: 'Check the exact ID and date. The November catalogue lists Astra at 1.05M and current Claude models at 1M; older Haiku 4.5 has 200K. Gemini 3.6 Flash has 1,048,576 input tokens. Input, output, and price tiers are separate limits.' },
+            { front: 'How do you choose an adaptation approach?', back: 'Diagnose the failure: unclear instructions, missing evidence, or task behavior. Compare prompting, retrieval, and adaptation with a simpler or no-AI baseline on held-out tasks; cost and risk depend on the workload.' },
             { front: 'AI project structure?', back: 'CLAUDE.md + README + product-brief.md + .env.example + .gitignore + src/ + tests/ + docs/ + output/' }
         ]}
     ],
@@ -382,32 +382,32 @@ const MODULES_100 = [
             id: 'next-token-diagram',
             type: 'next-token',
             title: 'Next-token prediction & temperature',
-            description: 'At every step the model produces a probability over its full vocabulary (~100K tokens). Sampling picks one — the temperature setting controls how greedy vs creative that pick is.',
+            description: 'At each step the model scores its token vocabulary, whose size depends on the tokenizer. These probabilities are illustrative. Where supported, temperature changes sampling, not truthfulness.',
             steps: [
                 '"sat" is the most likely next token at 42% — the obvious continuation.',
                 '"jumped" at 18% — plausible alternative.',
                 '"ran" at 12% — less common but valid.',
                 '"slept" at 8% — fine in a story context.',
                 '"walked" at 5% — getting unusual.',
-                'The remaining 50K-ish tokens collectively share 15%. Top-p sampling truncates this long tail.'
+                'All other tokens share 15% in this illustrative distribution. Top-p keeps a set whose cumulative probability reaches its threshold.'
             ]
         }
     ],
     learn: `
 <div class="learn-section">
     <h2>Why Prompt Engineering Matters</h2>
-    <p>The difference between a useless AI output and an exceptional one is <strong>almost always the prompt</strong>. A well-structured prompt does not "ask" — it <em>instructs</em>. It tells the AI who to be, what to do, how to format the output, and what to avoid.</p>
+    <p>Clear prompts can improve task performance, but quality also depends on the model, available evidence, tools, and validation. Specify the task, relevant context, output format, and constraints; then test whether the result meets your needs.</p>
     <p>Think of it like managing an employee. "Do the thing" gets random results. Specific instructions get specific output.</p>
 
     <div class="concept-box">
-        <h4>🎯 The 80/20 Rule of AI</h4>
-        <p>80% of the value from AI comes from prompt quality. A well-engineered prompt 10x the output quality. This module teaches you to reliably get what you want, every time.</p>
+        <h4>🎯 Treat a prompt change as a hypothesis</h4>
+        <p>Compare a vague summary request with one that specifies the audience, length, and source evidence. Score both on the same representative inputs for factual support and usefulness. Improvement is task-specific, not a guaranteed percentage or multiplier.</p>
     </div>
 </div>
 
 <div class="learn-section">
     <h2>The RTCC Framework</h2>
-    <p>Every production-grade prompt has four components:</p>
+    <p>RTCC is a useful checklist, not a requirement to invent a persona for every task:</p>
     <table class="content-table">
         <tr><th>Component</th><th>What It Does</th><th>Example</th></tr>
         <tr><td><strong>Role</strong></td><td>Sets persona, expertise, perspective</td><td>"You are a senior cloud architect with 15 years of Azure experience specialising in cost optimisation."</td></tr>
@@ -422,14 +422,14 @@ const MODULES_100 = [
 🟢 Good:   "You are a senior engineer. Explain REST APIs 
             to a PM using a restaurant analogy. 
             Under 200 words. NO jargon."                   → specific, usable output
-✅ Great:  [All of above + example of desired format]      → consistent, production-ready</div>
+✅ Test:   [All of above + example of desired format]      → evaluate consistency and accuracy</div>
 </div>
 
 <div class="learn-section">
     <h2>Advanced Techniques</h2>
 
     <h3>1. Few-Shot Prompting</h3>
-    <p>Provide 2-3 examples of the input→output pattern. The AI learns the pattern and applies it consistently.</p>
+    <p>Provide a few examples of the input→output pattern. These guide the response in context; they do not train the model or guarantee that it will generalize to different inputs.</p>
     <div class="code-block">Convert informal notes to action items:
 
 Note: "talked to jim about server, needs fixing friday"
@@ -441,8 +441,8 @@ Action: "[P3] Evaluate caching solutions — Owner: Sarah, Due: TBD"
 Now do:
 Note: "mike says db is slow, customers complaining"</div>
 
-    <h3>2. Chain-of-Thought (CoT)</h3>
-    <p>Adding "Think step by step" dramatically improves accuracy on complex reasoning tasks. The model lays out its logic, catching errors it would otherwise miss.</p>
+    <h3>2. Reasoning and Chain-of-Thought (CoT)</h3>
+    <p>Step-by-step examples can help some models and tasks, but follow model-specific reasoning guidance. Reasoning models may use internal reasoning and an effort control without a "think step by step" instruction. Do not request hidden reasoning; ask for a concise answer, assumptions, supporting evidence, and a checkable calculation. Compare accuracy, latency, and cost rather than rewarding a longer explanation.</p>
 
     <h3>3. XML Tags (Claude-Optimised)</h3>
     <p>Claude was specifically trained to parse XML structure. Tags help it understand the priority and role of each section:</p>
@@ -478,8 +478,8 @@ Note: "mike says db is slow, customers complaining"</div>
 `,
     quiz: [
         { question: 'What is the RTCC framework?', options: ['Run, Test, Check, Commit', 'Role, Task, Context, Constraints', 'Read, Think, Code, Compile', 'Request, Template, Content, Check'], correct: 1, explanation: 'Role (who), Task (what), Context (background), Constraints (rules, format, DO NOTs).' },
-        { question: 'What is few-shot prompting?', options: ['Short prompts', 'Providing examples of the desired input/output pattern', 'Using AI briefly', 'Limiting tokens'], correct: 1, explanation: 'Show 2-3 examples → AI learns the pattern → applies consistently.' },
-        { question: 'When use chain-of-thought?', options: ['Simple greetings', 'Complex reasoning, math, multi-step analysis', 'Never', 'Creative writing only'], correct: 1, explanation: '"Think step by step" forces reasoning, catches errors.' },
+        { question: 'What is few-shot prompting?', options: ['Short prompts', 'Providing examples of the desired input/output pattern', 'Using AI briefly', 'Limiting tokens'], correct: 1, explanation: 'Examples guide the response in context; test new inputs rather than assuming consistent generalization.' },
+        { question: 'How should you choose reasoning guidance?', options: ['Always demand hidden reasoning', 'Follow model-specific guidance and test accuracy, cost, and latency', 'Never check calculations', 'Prefer the longest explanation'], correct: 1, explanation: 'Use supported reasoning controls; request concise evidence or a checkable calculation, not hidden reasoning. More visible steps do not guarantee correctness.' },
         { question: 'Which AI works best with XML tags?', options: ['ChatGPT', 'Claude — trained to parse XML structure', 'Gemini', 'All equally'], correct: 1, explanation: 'Claude was specifically trained on XML-tagged prompts.' },
         { question: 'What is meta-prompting?', options: ['Metadata', 'Asking AI to write a better prompt for you', 'Using code', 'Chaining models'], correct: 1, explanation: 'AI knows what makes good prompts. Let it write them for you.' },
         { question: 'Why DO NOT constraints work?', options: ['Speed', 'Explicitly prevent default patterns AI would include', 'Cost', 'Not effective'], correct: 1, explanation: '"DO NOT add pleasantries" blocks a pattern the AI defaults to.' },
@@ -487,7 +487,7 @@ Note: "mike says db is slow, customers complaining"</div>
         { question: 'What makes a prompt production-grade?', options: ['Length', 'Consistently produces usable output with minimal editing', 'Jargon', 'Works on one AI'], correct: 1, explanation: 'Reliable, consistent, immediately actionable across multiple runs.' }
     ],
     interactive: [
-        { type: 'drag-drop', id: 'prompt-techniques-dd', title: 'Match Technique → Example', description: 'Drag each example.', items: ['Think step by step', 'You are a senior engineer', 'Here are 3 examples:', 'Write me a better prompt', 'DO NOT use buzzwords'], targets: { 'Chain-of-Thought': ['Think step by step'], 'Role Prompting': ['You are a senior engineer'], 'Few-Shot': ['Here are 3 examples:'], 'Meta-Prompting': ['Write me a better prompt'], 'Negative Constraint': ['DO NOT use buzzwords'] } },
+        { type: 'drag-drop', id: 'prompt-techniques-dd', title: 'Match Technique → Example', description: 'Drag each example. Test techniques on the selected model.', items: ['Give a concise calculation I can verify', 'You are a senior engineer', 'Here are 3 examples:', 'Write me a better prompt', 'DO NOT use buzzwords'], targets: { 'Checkable explanation': ['Give a concise calculation I can verify'], 'Role Prompting': ['You are a senior engineer'], 'Few-Shot': ['Here are 3 examples:'], 'Meta-Prompting': ['Write me a better prompt'], 'Negative Constraint': ['DO NOT use buzzwords'] } },
         { type: 'flashcards', id: 'prompt-cards', title: 'Prompt Engineering Cards', cards: [
             { front: 'Bad → Good prompt?', back: 'Bad: "Explain APIs." Good: "You are a senior engineer. Explain REST APIs using a restaurant analogy. Under 200 words. DO NOT use jargon."' },
             { front: 'Prompt chaining?', back: 'Step 1: extract decisions → Step 2: identify owners → Step 3: format as Jira tickets. Pipeline.' },
@@ -528,7 +528,7 @@ Note: "mike says db is slow, customers complaining"</div>
                     'Create 5 prompts using the full RTCC framework for tasks YOU do at work:',
                     { type: 'code', language: 'text', code: 'PROMPT 1 — STATUS REPORT:\n"You are an executive communicator. Convert bullet-point\nupdates into a status report with:\n## Highlights (top 3 wins)\n## Risks & Blockers (with mitigations)\n## Next Week Focus\nUnder 2 sentences each. DO NOT add info I did not provide."\n\nPROMPT 2 — EMAIL DRAFT:\n"Draft a [polite/firm] email. Context: [X].\nKey points: [1,2,3]. Under 150 words.\nEnd with a specific call to action."\n\nPROMPT 3 — CODE REVIEW:\n"Review this code for: bugs, security (OWASP Top 10),\nperformance. Format: | Issue | Severity | File:Line | Fix |"\n\nPROMPT 4 — MEETING PREP:\n"Given agenda + past notes, prepare:\n1) 5 talking points 2) 3 tough questions\n3) Recommended responses"\n\nPROMPT 5 — DOCUMENT SUMMARY:\n"5 bullets. Each: one insight + supporting evidence.\nDO NOT include opinions."' },
                     'Add each prompt to prompts.md. Test each with real data.',
-                    { type: 'tip', text: 'Run each prompt 3 times with different inputs. If the output is consistently usable with minimal editing, it is production-grade. If not, add more constraints.' },
+                    { type: 'tip', text: 'Try several representative and edge-case inputs, repeating runs to observe variation. A small successful practice set is not production certification; expand evaluation according to failure risk.' },
                     { type: 'verify', text: 'You have 5 prompts in prompts.md. Each produces usable output. You tested each at least twice.' }
                 ]
             },
@@ -576,12 +576,12 @@ Note: "mike says db is slow, customers complaining"</div>
         <li><strong>Artifacts:</strong> Rendered preview panels for code/HTML/docs. Iterate and download.</li>
         <li><strong>Claude Code:</strong> Terminal agent that reads codebase, edits files, runs tests (Phase 7).</li>
         <li><strong>Managed Agents:</strong> Deploy autonomous agents in cloud sessions (Phase 7).</li>
-        <li><strong>Extended Thinking:</strong> Visible step-by-step reasoning before answering.</li>
+        <li><strong>Thinking:</strong> Model-specific reasoning controls; any displayed summary is not a complete or necessarily faithful account of hidden reasoning.</li>
     </ul>
 
     <h3>Gemini / Google</h3>
     <ul>
-        <li><strong>NotebookLM:</strong> ONLY answers from YOUR sources. Inline citations. Audio Overviews (AI podcast).</li>
+        <li><strong>NotebookLM:</strong> Research over your sources with inline citations and Audio Overviews (AI podcast). Grounding can reduce unsupported answers, but cannot eliminate them.</li>
         <li><strong>Deep Research:</strong> Autonomous agent → searches 100s of sources → cited interactive report.</li>
         <li><strong>AI Studio:</strong> FREE developer playground + API key generation.</li>
         <li><strong>Gems:</strong> Custom Gemini personas. Computer Use: AI clicks on screens (preview).</li>
@@ -589,7 +589,8 @@ Note: "mike says db is slow, customers complaining"</div>
 
     <div class="tip-box">
         <h4>💡 NotebookLM vs Claude Projects</h4>
-        <p><strong>NotebookLM:</strong> Pure research — source-only answers, citations, Audio Overviews. <strong>Claude Projects:</strong> Action — code, artifacts, complex instructions. Use NotebookLM for trust and research. Claude for creation and execution.</p>
+        <p><strong>NotebookLM:</strong> Source-based research, citations, Audio Overviews. <strong>Claude Projects:</strong> Files, instructions, code, and artifacts. With either tool, verify citations and claims: retrieval can miss a passage, interpretation can be wrong, or a citation may not support the answer.</p>
+        <p><strong>Unsupported-answer check:</strong> Upload a fictional policy that says nothing about refunds, then ask for the refund deadline. A good answer says the sources do not establish it, rather than inventing a deadline. Verify the cited passage yourself.</p>
     </div>
     <div class="learn-section">
         <h2>📚 Further Reading &amp; References</h2>
@@ -605,7 +606,7 @@ Note: "mike says db is slow, customers complaining"</div>
     quiz: [
         { question: 'What are Custom GPTs?', options: ['Custom models', 'Specialised bots with instructions + knowledge + API actions', 'Hardware', 'Plugins'], correct: 1, explanation: 'Combine instructions, files, and API connections.' },
         { question: 'What is a Claude Project?', options: ['To-do app', 'Workspace with files + instructions shared across conversations', 'Git repo', 'Billing'], correct: 1, explanation: 'Persistence across conversations.' },
-        { question: 'NotebookLM unique feature?', options: ['Faster', 'ONLY answers from YOUR sources with inline citations', 'Better code', 'Free always'], correct: 1, explanation: 'Source-grounded = no training-data hallucination.' },
+        { question: 'What does NotebookLM source grounding provide?', options: ['Guaranteed truth', 'Source-based answers with citations that still need checking', 'Better code', 'Free always'], correct: 1, explanation: 'Retrieval, interpretation, and attribution can fail. Verify citations and abstain when the sources do not support an answer.' },
         { question: 'Audio Overview?', options: ['TTS', 'Podcast-style AI discussion about your documents', 'Music', 'Transcription'], correct: 1, explanation: 'Two AI hosts discuss your material naturally.' },
         { question: 'Codex?', options: ['Editor', 'Cloud coding agent in parallel sandboxes', 'Linter', 'Theme'], correct: 1, explanation: 'Autonomous development tasks.' },
         { question: 'Artifacts?', options: ['Bugs', 'Rendered preview panels for code/HTML/docs', 'Saved chats', 'Tokens'], correct: 1, explanation: 'Live preview alongside response.' },
@@ -616,7 +617,7 @@ Note: "mike says db is slow, customers complaining"</div>
         { type: 'drag-drop', id: 'platform-features-dd', title: 'Feature → Platform', description: 'Match features.', items: ['Audio Overview', 'Artifacts panel', 'Custom GPTs', 'Cowork agents', 'Canvas editing', 'Deep Research'], targets: { 'ChatGPT': ['Custom GPTs', 'Canvas editing'], 'Claude': ['Artifacts panel', 'Cowork agents'], 'Gemini': ['Audio Overview', 'Deep Research'] } },
         { type: 'flashcards', id: 'platform-cards', title: 'Platform Cards', cards: [
             { front: 'Projects vs GPTs?', back: 'Projects: files shared across many chats. GPTs: standalone bots shareable by link.' },
-            { front: 'NotebookLM vs Claude?', back: 'NotebookLM: research (source-only, citations). Claude: action (code, artifacts).' }
+            { front: 'NotebookLM vs Claude?', back: 'NotebookLM: source-based research and citations. Claude: files, code, and artifacts. Both can misinterpret evidence; verify citations and flag unsupported answers.' }
         ]}
     ],
     lab: {
@@ -775,11 +776,13 @@ Note: "mike says db is slow, customers complaining"</div>
     temperature = 0.7,
     max_tokens = 500
 )</div>
-    <p><strong>The messages array IS the memory.</strong> AI has no persistent memory. You send the FULL conversation each request. Managing this array is how chatbots "remember."</p>
+    <p><strong>This example manages conversation history in a messages array.</strong> For a stateless call, your application supplies relevant history within the context limit. Other products can persist conversations or retrieve saved memory server-side. None of these automatically changes the model weights; check storage, consent, and retention settings.</p>
 
     <h3>Provider Patterns (catalog source-reviewed ${MODEL_LANDSCAPE.verifiedDate})</h3>
     <p><strong>Abbreviated, unexecuted examples:</strong> supported lab pins are retained. Use synthetic message content and local mock responses first; SDK installation and provider execution need separate verification, approval, and a request budget.</p>
-    <div class="code-block"># OpenAI: pip install openai
+    <div class="code-block"># OpenAI compatibility appendix: Chat Completions remains supported.
+# For new integrations, see the optional Responses reference below.
+# Dependency installation is a separate, approved step.
 from openai import OpenAI
 client = OpenAI()  # reads OPENAI_API_KEY env var
 r = client.chat.completions.create(model="${MODEL_LANDSCAPE.openai.smallId}", messages=[...])
@@ -799,12 +802,97 @@ r = client.models.generate_content(
 </div>
 
 <div class="learn-section">
+    <h2>Optional adapter: OpenAI Responses reference client</h2>
+    <p><strong>Source-reviewed 2026-11-11; provider execution not performed.</strong> Responses is recommended for new OpenAI projects; Chat Completions remains supported. Prerequisites: the Phase 3 JSON/HTTP bridge, Node.js, and the offline API lab. This server-side teaching reference defines functions only: opening the lesson or running the definitions sends no request and installs no package. Never put API keys in the academy page or browser JavaScript.</p>
+    <p><strong>Contract:</strong> synthetic MapleDesk input → one structured classification → application validation. Responses uses <code>input</code>, typed <code>output</code> items, and <code>text.format</code>, not Chat Completions' <code>choices</code> or <code>response_format</code>. A valid JSON schema does not establish factual correctness.</p>
+    <div class="code-block" data-reference="responses-client">function buildRequest(model) {
+    if (typeof model !== "string" || !model.trim()) throw new Error("Choose a reviewed model ID");
+    return {
+        model, store: false, max_output_tokens: 512, tools: [],
+        instructions: "Classify the synthetic ticket. Use normal or high priority. Summarize only supplied facts.",
+        input: "MapleDesk fixture: a user asks how to change the display theme. No outage is reported.",
+        text: { format: {
+            type: "json_schema", name: "ticket_triage", strict: true,
+            schema: {
+                type: "object", additionalProperties: false,
+                properties: {
+                    priority: { type: "string", enum: ["normal", "high"] },
+                    summary: { type: "string" }
+                },
+                required: ["priority", "summary"]
+            }
+        } }
+    };
+}
+
+function validateResponse(response) {
+    if (!response || response.status !== "completed") throw new Error("Incomplete or failed response");
+    if (!Array.isArray(response.output) || !response.output.some(item => item.type === "message")) {
+        throw new Error("Missing message output");
+    }
+    for (const item of response.output) {
+        if (item.type !== "message" &amp;&amp; item.type !== "reasoning") throw new Error("Unexpected tool or output item");
+        if (item.type === "message" &amp;&amp; (!Array.isArray(item.content) || item.content.some(part => part.type === "refusal"))) {
+            throw new Error("Refusal or invalid message");
+        }
+    }
+    if (typeof response.output_text !== "string") throw new Error("Missing text output");
+    const value = JSON.parse(response.output_text);
+    if (!value || Array.isArray(value) || typeof value !== "object"
+        || Object.keys(value).sort().join(",") !== "priority,summary"
+        || !["normal", "high"].includes(value.priority)
+        || typeof value.summary !== "string" || !value.summary.trim() || value.summary.length > 240) {
+        throw new Error("Output violates the application contract");
+    }
+    return value;
+}
+
+function failureKind(error) {
+    if (error.status === 401) return "authentication";
+    if (error.status === 403) return "authorization";
+    if (error.status === 429) return "rate-limit";
+    if (error.name === "APIConnectionTimeoutError") return "timeout";
+    if (error.status >= 500) return "provider-unavailable";
+    return "request-failed";
+}
+
+async function runConnected({ approved = false, model } = {}) {
+    if (approved !== true) throw new Error("Separate connected-run approval required");
+    const request = buildRequest(model);
+    if (!process.env.OPENAI_API_KEY) throw new Error("Set OPENAI_API_KEY privately on the server");
+    const { default: OpenAI } = await import("openai");
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, timeout: 20000, maxRetries: 0 });
+    try {
+        const result = await client.responses.create(request);
+        return { ok: true, value: validateResponse(result), requestId: result._request_id,
+            usage: { inputTokens: result.usage?.input_tokens, outputTokens: result.usage?.output_tokens } };
+    } catch (error) {
+        return { ok: false, kind: failureKind(error) };
+    }
+}
+// No invocation here. Offline exercises need neither the SDK nor a key.</div>
+    <h3>Required offline exercise: inspect, break, defend</h3>
+    <ol>
+        <li>Read <code>buildRequest("reviewed-model-id")</code> locally. Explain the strict schema, empty tool list, output cap, and why that placeholder is not a real model selection.</li>
+        <li>Construct a completed fixture with <code>output_text</code> equal to <code>{"priority":"normal","summary":"Theme-change question; no outage."}</code> and one message/output_text item. Pass it to <code>validateResponse</code>; expect a parsed value.</li>
+        <li>Inject an incomplete status, refusal, unexpected function_call item, malformed JSON, extra field, and wrong enum. Each must fail. Change the summary to a false but schema-valid outage claim: explain why a factual evaluation must catch what schema validation cannot.</li>
+        <li>Call <code>runConnected()</code> without arguments; expect an approval error before import, key access, or network activity. This is a local contract check, not an API success.</li>
+    </ol>
+    <h3>Optional connected-run gate</h3>
+    <p>Only after separate approval: verify the exact SDK version and supported Node runtime against the official SDK release documentation, install that reviewed version in a separate lab project with a lockfile, verify account/model availability and token-price tiers, and set a one-request budget. Keep the key outside source control. Explicitly invoking <code>runConnected({approved: true, model: "YOUR_VERIFIED_MODEL_ID"})</code> can incur cost; the string must be replaced with a verified ID. No invocation is required for course completion.</p>
+    <p><strong>Storage:</strong> <code>store: false</code> disables stored-response state for this request; it is not a zero-retention or no-training guarantee. Check the provider's data policy and account controls separately. No conversation ID or previous_response_id is used. Keep only purpose-limited status, request ID, latency, and usage telemetry; never raw keys, prompts, outputs, or error bodies by default.</p>
+    <p><strong>Error policy:</strong> a 20-second timeout and <code>maxRetries: 0</code> prevent hidden repeat calls in this single-shot exercise. Do not retry authentication, authorization, schema, or refusal failures. A production retry policy needs a bounded budget, backoff, and duplicate-side-effect analysis; a timed-out request may still have been processed. The output cap is not a complete spend limit. Incomplete reasoning-model responses may need a separately evaluated budget change.</p>
+    <p><strong>Tool-item extension, not enabled here:</strong> for an explicitly authorized tool workflow, inspect typed output items; validate a function_call name and arguments against an allowlist, enforce authorization and approval in the application, and return a function_call_output with the matching call_id. Preserve required replayable reasoning/tool items according to the chosen SDK/API; never assume the first output item is text. Unknown tools and denied writes stay denied, and a call_id is not an idempotency guarantee.</p>
+    <p>Official references reviewed 2026-11-11: <a href="https://developers.openai.com/api/docs/guides/migrate-to-responses" target="_blank" rel="noopener">Responses migration</a>, <a href="https://developers.openai.com/api/docs/guides/structured-outputs" target="_blank" rel="noopener">structured outputs</a>, <a href="https://developers.openai.com/api/docs/guides/function-calling" target="_blank" rel="noopener">function-call items and results</a>, <a href="https://developers.openai.com/api/docs/guides/your-data" target="_blank" rel="noopener">data controls and retention</a>, and <a href="https://github.com/openai/openai-node" target="_blank" rel="noopener">OpenAI Node SDK (errors, retries, timeout, state)</a>. Documentation review and offline fixtures do not verify an installed SDK or live provider response.</p>
+</div>
+
+<div class="learn-section">
     <h2>Tokens & Cost</h2>
     <table class="content-table">
         <tr><th>Model</th><th>Input $/1M</th><th>Output $/1M</th><th>Best For</th></tr>
         <tr><td>${MODEL_LANDSCAPE.openai.small}</td><td>${MODEL_LANDSCAPE.openai.smallPrice.input}</td><td>${MODEL_LANDSCAPE.openai.smallPrice.output}</td><td>High-volume simple tasks</td></tr>
-        <tr><td>Gemini 2.5 Flash (supported)</td><td>~$0.15</td><td>~$0.60</td><td>Low-cost supported option</td></tr>
-        <tr><td>${MODEL_LANDSCAPE.anthropic.small}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.output}</td><td>Fast + reliable</td></tr>
+        <tr><td>Gemini 2.5 Flash (deprecated)</td><td colspan="2">Check exact lifecycle and replacement pricing</td><td>Existing API access only; reroutes to 3.5 Flash-Lite on December 1, 2026</td></tr>
+        <tr><td>${MODEL_LANDSCAPE.anthropic.small}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.input}</td><td>${MODEL_LANDSCAPE.anthropic.smallPrice.output}</td><td>Base tier up to 100K input tokens; above: $0.50/$2.50 per MTok. Evaluate task reliability.</td></tr>
         <tr><td>Google AI Studio</td><td>FREE</td><td>FREE</td><td>Prototyping</td></tr>
     </table>
     <div class="warning-box"><h4>⚠️ NEVER hardcode API keys</h4><p>Use environment variables or .env files. Add .env to .gitignore. Leaked keys = massive bills within hours.</p></div>
@@ -856,7 +944,7 @@ r = client.models.generate_content(
 `,
     quiz: [
         { question: 'Why APIs over chat?', options: ['Worse models', 'Automation, build apps, thousands of requests', 'More expensive', 'No difference'], correct: 1, explanation: 'APIs let you automate and build products.' },
-        { question: 'Messages array?', options: ['Errors', 'Conversation history = the memory', 'SMS', 'Logs'], correct: 1, explanation: 'AI has zero memory. Your code sends the full history.' },
+        { question: 'What does the messages array provide in this stateless example?', options: ['Errors', 'Conversation history selected by the application for this request', 'Automatic model retraining', 'Permanent memory in the weights'], correct: 1, explanation: 'The application supplies relevant context. Persistent product memory is a separate storage/retrieval feature with its own retention controls.' },
         { question: 'API key storage?', options: ['In code', 'Environment variables — NEVER in source', 'README', 'Comments'], correct: 1, explanation: 'Leaked keys = massive bills.' },
         { question: 'Cheapest prototyping?', options: ['GPT-5.6 Sol', 'Opus', 'Google AI Studio free tier or a small model such as Luna', 'GPT-realtime'], correct: 2, explanation: 'Use a free tier or the smallest model that passes your evals.' },
         { question: 'max_tokens?', options: ['Cost', 'Maximum output length', 'Model', 'Temperature'], correct: 1, explanation: 'Caps response. Does not affect quality.' },
@@ -867,7 +955,7 @@ r = client.models.generate_content(
     interactive: [
         { type: 'flashcards', id: 'api-cards', title: 'API Fundamentals', cards: [
             { front: 'API pattern?', back: 'Send: model + messages + temperature + max_tokens. Get: generated text.' },
-            { front: 'Messages = memory?', back: 'AI has ZERO memory. Your code stores and re-sends. Messages array IS the memory.' },
+            { front: 'Messages = memory?', back: 'Messages provide request context in this example. Applications may separately save or retrieve history; those mechanisms do not automatically retrain model weights.' },
             { front: 'Cheapest?', back: 'Start with a provider free tier or a small model such as GPT-5.6 Luna ($1/$6 per MTok), then confirm quality with evals.' }
         ]}
     ],
@@ -996,17 +1084,18 @@ r = client.models.generate_content(
 
 <div class="learn-section">
     <h2>Current catalog snapshot</h2>
-    <p>Source-reviewed ${MODEL_LANDSCAPE.verifiedDate}; provider labs have not been executed. Keep model selection separate from durable architecture because names, prices, and lifecycle status change faster than system design. Retain supported lab pins until an application-specific migration passes its own evaluation. Next source review: ${MODEL_LANDSCAPE.nextReviewDate}; owner: ${MODEL_LANDSCAPE.reviewOwner}.</p>
+    <p>Source-reviewed ${MODEL_LANDSCAPE.verifiedDate}. ${MODEL_LANDSCAPE.verificationNote} Retain supported lab pins until an application-specific migration passes evaluation. Next source review: ${MODEL_LANDSCAPE.nextReviewDate}; owner: ${MODEL_LANDSCAPE.reviewOwner}. Review is due before near-term lifecycle changes, not a claim of live API testing.</p>
     <table class="content-table">
         <tr><th>Provider</th><th>Current entries</th><th>Context and pricing</th></tr>
-        <tr><td><strong>OpenAI</strong></td><td>Flagship: ${MODEL_LANDSCAPE.openai.frontier} (<code>${MODEL_LANDSCAPE.openai.frontierId}</code>)<br>Supported: ${MODEL_LANDSCAPE.openai.supported} (<code>${MODEL_LANDSCAPE.openai.supportedId}</code>), ${MODEL_LANDSCAPE.openai.balanced} (<code>${MODEL_LANDSCAPE.openai.balancedId}</code>), ${MODEL_LANDSCAPE.openai.small} (<code>${MODEL_LANDSCAPE.openai.smallId}</code>)</td><td>Astra: ${MODEL_LANDSCAPE.openai.context} context. USD per million input/output tokens: Astra ${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output}; Sol ${MODEL_LANDSCAPE.openai.supportedPrice.input}/${MODEL_LANDSCAPE.openai.supportedPrice.output}; Terra ${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}; Luna ${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output}.</td></tr>
-        <tr><td><strong>Anthropic</strong></td><td>Frontier: ${MODEL_LANDSCAPE.anthropic.frontier} (<code>${MODEL_LANDSCAPE.anthropic.frontierId}</code>)<br>Current: ${MODEL_LANDSCAPE.anthropic.reasoning} (<code>${MODEL_LANDSCAPE.anthropic.reasoningId}</code>) and ${MODEL_LANDSCAPE.anthropic.balanced} (<code>${MODEL_LANDSCAPE.anthropic.balancedId}</code>)<br>Small: ${MODEL_LANDSCAPE.anthropic.small} (<code>${MODEL_LANDSCAPE.anthropic.smallId}</code>)</td><td>Fable ${MODEL_LANDSCAPE.anthropic.frontierPrice.input}/${MODEL_LANDSCAPE.anthropic.frontierPrice.output}; Opus ${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}/${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}; Sonnet ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per MTok standard. The planned September increase was cancelled. Reference context: Opus/Sonnet ${MODEL_LANDSCAPE.anthropic.context}, Haiku ${MODEL_LANDSCAPE.anthropic.smallContext}; check Fable 5.1 separately.</td></tr>
-        <tr><td><strong>Google</strong></td><td>Current stable: ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>)<br>Supported pin: ${MODEL_LANDSCAPE.google.supported} (<code>${MODEL_LANDSCAPE.google.supportedId}</code>)<br>Pro preview: ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>)</td><td>Gemini 3.6 Flash reference: ${MODEL_LANDSCAPE.google.context} input tokens. Check the newer model entry for its limits. Gemini 2.5 models remain supported.</td></tr>
+        <tr><td><strong>OpenAI</strong></td><td>Catalogue: ${MODEL_LANDSCAPE.openai.frontier} (<code>${MODEL_LANDSCAPE.openai.frontierId}</code>), ${MODEL_LANDSCAPE.openai.balanced} (<code>${MODEL_LANDSCAPE.openai.balancedId}</code>), ${MODEL_LANDSCAPE.openai.small} (<code>${MODEL_LANDSCAPE.openai.smallId}</code>)<br>Supported older pin: ${MODEL_LANDSCAPE.openai.supported} (<code>${MODEL_LANDSCAPE.openai.supportedId}</code>)</td><td>Astra: ${MODEL_LANDSCAPE.openai.context} context. USD per MTok input/output: Astra ${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output}; 6.1 Sol ${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}; 6 Luna ${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output}; older 5.6 Sol ${MODEL_LANDSCAPE.openai.supportedPrice.input}/${MODEL_LANDSCAPE.openai.supportedPrice.output}, promotional through November 30.</td></tr>
+        <tr><td><strong>Anthropic</strong></td><td>Frontier: ${MODEL_LANDSCAPE.anthropic.frontier} (<code>${MODEL_LANDSCAPE.anthropic.frontierId}</code>)<br>Current: ${MODEL_LANDSCAPE.anthropic.reasoning} (<code>${MODEL_LANDSCAPE.anthropic.reasoningId}</code>) and ${MODEL_LANDSCAPE.anthropic.balanced} (<code>${MODEL_LANDSCAPE.anthropic.balancedId}</code>)<br>Small: ${MODEL_LANDSCAPE.anthropic.small} (<code>${MODEL_LANDSCAPE.anthropic.smallId}</code>)</td><td>Fable ${MODEL_LANDSCAPE.anthropic.frontierPrice.input}/${MODEL_LANDSCAPE.anthropic.frontierPrice.output}; Opus ${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}/${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}; Sonnet ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per MTok base. Current context: ${MODEL_LANDSCAPE.anthropic.context}. Older Sonnet 5 and Haiku 4.5 lab pins remain active; Sonnet 4.5 retires November 30, 2026 on the Claude API.</td></tr>
+        <tr><td><strong>Google</strong></td><td>Current Flash: ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>)<br>Supported older pin: ${MODEL_LANDSCAPE.google.supported} (<code>${MODEL_LANDSCAPE.google.supportedId}</code>)<br>Frontier: ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>); also Gemini 4 Argon</td><td>Gemini 3.6 Flash reference: ${MODEL_LANDSCAPE.google.context} input tokens; check other IDs separately. ${MODEL_LANDSCAPE.google.supported25}</td></tr>
     </table>
     <ul class="references-list" style="list-style:none; padding:0;">
         <li>📄 <a href="${MODEL_LANDSCAPE.sources.openai.models}" target="_blank" rel="noopener">OpenAI model catalog</a> — verified ${MODEL_LANDSCAPE.sources.openai.verifiedDate}</li>
         <li>📄 <a href="${MODEL_LANDSCAPE.sources.anthropic.models}" target="_blank" rel="noopener">Anthropic models</a> and <a href="${MODEL_LANDSCAPE.sources.anthropic.pricing}" target="_blank" rel="noopener">pricing</a> — verified ${MODEL_LANDSCAPE.sources.anthropic.verifiedDate}</li>
         <li>📄 <a href="${MODEL_LANDSCAPE.sources.google.models}" target="_blank" rel="noopener">Gemini model catalog</a> — verified ${MODEL_LANDSCAPE.sources.google.verifiedDate}</li>
+        <li>📄 Lifecycle notices: <a href="${MODEL_LANDSCAPE.sources.openai.lifecycle}" target="_blank" rel="noopener">OpenAI</a>, <a href="${MODEL_LANDSCAPE.sources.anthropic.lifecycle}" target="_blank" rel="noopener">Claude</a>, <a href="${MODEL_LANDSCAPE.sources.google.lifecycle}" target="_blank" rel="noopener">Gemini</a>. Exact IDs and platforms matter: the October OpenAI notice removes named GPT-4o/4.1 snapshots on January 14, 2027, not every GPT-4 endpoint today. Selected Gemini voice/TTS previews retire November 17, 2026; check the specific entry.</li>
     </ul>
 </div>
 

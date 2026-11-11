@@ -88,7 +88,7 @@ const MasteryEngine = {
             Array.from(scores).every(score => Number.isInteger(score) && score >= 0 && score <= 4);
         const average = validScores ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0;
         const meaningfulReflection = String(reflection || '').trim().length >= 20;
-        return { average, passed: validScores && average >= 3 && meaningfulReflection, meaningfulReflection, validScores };
+        return { average, passed: validScores && scores.every(score => score >= 3) && meaningfulReflection, meaningfulReflection, validScores };
     },
 
     getStatus(module) {
@@ -148,6 +148,7 @@ const MasteryEngine = {
                 <button type="button" data-mastery-action="open-diagnostic">${progress.diagnostic ? 'Retake diagnostic' : 'Why this start?'}</button>
             </div>
             `;
+        if (typeof UnitEngine !== 'undefined') UnitEngine.decoratePath();
     },
 
     renderTodayAction(action, className) {
@@ -178,7 +179,7 @@ const MasteryEngine = {
             : requirements.lab ? 'Complete an external lab or local artifact practice; completion is self-attested.' : 'No lab required; no practice evidence recorded.';
         const provenance = entry.transfer?.provenance;
         const reviewerAssessed = provenance === 'reviewer-assessed';
-        const assessmentDescription = !entry.transfer ? 'Record a human transfer assessment averaging at least 3/4.'
+        const assessmentDescription = !entry.transfer ? 'Record a human transfer assessment with every essential criterion at least 3/4.'
             : reviewerAssessed ? `Reviewer-assessed by ${entry.transfer.reviewer || 'unnamed reviewer'}; identity is self-reported.`
             : provenance === 'self-assessed' ? 'Transfer rubric (self-assessed).' : 'Legacy assessment; provenance unknown.';
         const requirementRows = [
@@ -205,6 +206,7 @@ const MasteryEngine = {
                 <summary><span>Evidence</span><strong>${completeCount}/${applicableRows.length} evidence checks complete</strong></summary>
                 <div class="evidence-disclosure-body">
                     ${entry.legacy ? '<p>Legacy completion imported. Check the recorded evidence before treating it as current skill.</p>' : ''}
+                    ${savedScores.length && savedScores.some(score => score < 3) ? '<p class="learning-feedback">Your earlier assessment is preserved. The current rubric requires every essential dimension to score at least 3/4; a high average no longer compensates for a failed dimension. Revise the work and recheck the assessment.</p>' : ''}
                     ${metadata.prerequisites.length ? `<p class="mastery-prereqs"><strong>Prerequisites:</strong> ${metadata.prerequisites.map(id => `<a href="#${encodeURIComponent(id)}">${this.escapeHtml(this.modules.find(item => item.id === id)?.title || id)}</a>`).join(' · ')}</p>` : ''}
                     <div class="mastery-evidence-grid">
                         ${requirementRows.map(([label, complete, description]) => `
@@ -304,7 +306,7 @@ const MasteryEngine = {
             return false;
         }
         if (!result.passed) {
-            this.showTransferFeedback(`The average is ${result.average}/4. Passing transfer evidence needs an average of at least 3/4.`, `transfer-score-${scores.indexOf(Math.min(...scores))}`);
+            this.showTransferFeedback(`The average is ${result.average}/4, but every essential criterion must be at least 3/4. Your draft is retained for revision.`, `transfer-score-${scores.indexOf(Math.min(...scores))}`);
             return false;
         }
         const provenanceControl = document.getElementById('transfer-provenance');
