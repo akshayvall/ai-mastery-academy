@@ -6,6 +6,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 ## [Unreleased]
 ### Publication authorization - November 11, 2026
 - User explicitly authorized committing and pushing this release to `main` and deploying it to the existing GitHub Pages site. Release `2026-11-learning-2`; the Pages workflow remains the validation and publication gate.
+- Fixed duplicate unit-route events rerendering and saving the same lesson, which could clear a storage-recovery notice and steal focus. Added a browser regression; recovery/history checks remain enforced.
 
 ### Full November learning rollout - local only
 - Expanded the short-course experience to 62 core units across all 31 modules and eight optional specialties; original pilot content is preserved.

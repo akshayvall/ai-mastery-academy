@@ -118,6 +118,29 @@ class UnitLearningTests(unittest.TestCase):
         self.page.reload(wait_until="networkidle")
         expect(self.page.locator('input[name="unitPractice"]:checked')).to_have_value(str(current["practice"]))
 
+    def test_duplicate_route_events_do_not_rerender_or_save_the_current_unit(self):
+        self.start()
+        self.page.get_by_role("button", name="Try it yourself", exact=True).click()
+        control = self.page.locator('input[name="unitPractice"]').first
+        control.focus()
+        result = self.page.evaluate("""() => {
+            const original = ProgressManager.saveProgress;
+            let writes = 0;
+            ProgressManager.saveProgress = function(...args) {
+                writes++;
+                return original.apply(this, args);
+            };
+            const focused = document.activeElement;
+            const body = document.querySelector('.unit-body');
+            try {
+                app.syncHashRoute();
+                app.syncHashRoute();
+                return { writes, sameBody: body === document.querySelector('.unit-body'),
+                    sameFocus: focused === document.activeElement };
+            } finally { ProgressManager.saveProgress = original; }
+        }""")
+        self.assertEqual(result, {"writes": 0, "sameBody": True, "sameFocus": True})
+
     def test_old_backup_and_malicious_draft_remain_safe(self):
         self.page.evaluate("""() => {
             const progress = ProgressManager.defaultProgress();

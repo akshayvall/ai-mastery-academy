@@ -678,7 +678,9 @@ const app = {
         try {
             if (module) {
                 if (!route.reference && UnitEngine.content().modules[module.id]) {
-                    UnitEngine.open(module.id, route);
+                    if (!document.getElementById('unitView').classList.contains('active') || !UnitEngine.matchesRoute(module.id, route)) {
+                        UnitEngine.open(module.id, route);
+                    }
                     return;
                 }
                 const explicitMode = /[?&]mode=/.test(window.location.hash) ? route.mode : null;

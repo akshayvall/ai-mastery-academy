@@ -66,6 +66,15 @@ const UnitEngine = {
         return LearningEngine.formatRoute({ moduleId, unitId, step });
     },
 
+    matchesRoute(moduleId, route = {}) {
+        const current = this.current;
+        if (!current || current.moduleId !== moduleId) return false;
+        const invalidUnit = Boolean(route.unitId && !current.units.some(unit => unit.id === route.unitId));
+        const unit = current.units.find(item => item.id === (route.unitId || current.state.unitId)) || current.units[0];
+        const step = invalidUnit ? 'learn' : this.STEPS.includes(route.step) ? route.step : current.state.step;
+        return current.unit.id === unit.id && current.state.step === step && current.invalidUnit === invalidUnit;
+    },
+
     open(moduleId, route = {}) {
         const units = this.content().modules[moduleId];
         if (!units?.length) return;

@@ -24,6 +24,16 @@ Parent project context: [`../SESSION_CONTEXT.md`](../SESSION_CONTEXT.md).
 
 ## Log
 
+## 2026-11-11 - Personal account selected; publication gate repaired
+- User explicitly selected `akshayvall`. The inherited GH_TOKEN had overridden CLI identity; cleared only process-local token overrides, switched the stored CLI account, verified repository push permission, and pushed `58c2ed1` using a command-scoped credential helper. Global Git helpers were not changed.
+- Pages run `42962656988` stopped before deployment on the unit storage-recovery test. Reproduced duplicate popstate/hashchange opening/saving the same unit twice; matching routes now remain untouched, preserving focus and recovery controls.
+- Regression failed before the fix (two writes, replaced DOM, lost focus), then passed. All 306 Node tests and 11 unit-browser journeys passed locally. The corrected commit still needs the full Pages gate and live verification.
+
+## 2026-11-11 - Publication committed; push blocked by GitHub access
+- User explicitly authorized commit, push to main and live deployment. Committed the 60-file release as `58c2ed1` after 306 Node tests and syntax checks passed; no source/archive restrictions were bypassed.
+- `git push origin main` failed with HTTP 403: permission to `akshayvall/ai-mastery-academy.git` denied to `akshayv_microsoft`. No Pages workflow was triggered by this attempt; live deployment is not complete.
+- A read-only GitHub account/permission inspection was then denied by the runtime and not retried. Git must authenticate with a repository-authorized account before pushing the existing commit. No force push, credential change or alternate-account retry was attempted.
+
 ## 2026-11-11 - Full local rollout after approval
 - User approved all remaining local scope. Expanded to 70 authored units across all 31 modules (62 core, eight optional), upgraded all 39 diagrams, and integrated PM/Builder dossiers, editorial review queue, modern API/protocol/Foundry references and stricter per-dimension assessment.
 - Verified 306 Node tests, 31 Edge journey tests and a 312-combination diagram matrix; all pass. Three bounded workers authored content, reference corrections and diagrams; main integrated and independently verified. Release `2026-11-learning-2`, preview http://127.0.0.1:8911/ .
