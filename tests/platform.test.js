@@ -86,7 +86,7 @@ test('workflow prototype exposes guided mode, section resume, compact evidence, 
 });
 
 test('runtime assets and offline cache share the learning release', () => {
-    const release = '2026-11-learning-2';
+    const release = '2026-11-learning-3';
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
     const serviceWorker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
     const assets = Array.from(html.matchAll(/(?:src|href)="((?:css|js)\/[^"?]+)(?:\?v=[^"]+)?"/g), match => match[1]);
@@ -211,6 +211,18 @@ test('worker offline navigation uses its own installed index', async () => {
     await worker.seed(worker.cacheName, 'index.html', 'own offline index');
     const result = await worker.request('./', { mode: 'navigate' });
     assert.equal(await result.response.text(), 'own offline index');
+});
+
+test('worker leaves document navigations alone but serves its installed index for app entry URLs', async () => {
+    const worker = createWorkerHarness();
+    await worker.seed(worker.cacheName, 'index.html', 'installed shell');
+    for (const pathname of ['labs/local/README.md', 'docs/missing.md', 'icons/app-icon.svg']) {
+        assert.equal((await worker.request(pathname, { mode: 'navigate' })).intercepted, false, pathname);
+    }
+    for (const pathname of ['./?view=lab', 'index.html?view=lab']) {
+        const result = await worker.request(pathname, { mode: 'navigate' });
+        assert.equal(await result.response.text(), 'installed shell');
+    }
 });
 
 test('worker leaves requests outside its path scope unintercepted', async () => {

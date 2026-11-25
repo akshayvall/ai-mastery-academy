@@ -13,20 +13,21 @@
 
 ## November learning release
 
-All 31 substantive modules now have 62 core short lessons, plus eight optional
+All 31 substantive modules now have 62 core short lessons, plus ten optional
 specializations. The original twelve pilot lessons are preserved. Path / Lab / Progress leads
 to Learn / Try / Check, with a mobile-readable trace, changed-condition questions,
 saved explanations and exact-step resume. The full reference lessons and existing
 mastery evidence remain available; local unit checks do not award mastery.
 
-Academy-owned teaching corrections and the model registry are source-reviewed for
-November 11. Generated Builder corrections are blocked on permission to access
+Academy-owned teaching corrections were reviewed November 11. The model registry
+was checked November 25 against the providers' catalogues, prices and lifecycle notices;
+the next check is November 30. Generated Builder corrections are blocked on permission to access
 their separate source project even after user approval; Builder output is unchanged.
 The 39 diagram instances have compact explanations, explicit source caveats and
 optional detailed SVGs. Progress contains integrated PM/Builder dossiers and the
 source-review queue. Real-learner validation remains separate from software validation.
 
-Release: `2026-11-learning-2`. Local review: http://127.0.0.1:8911/ when the preview
+Release: `2026-11-learning-3`. Local review: http://127.0.0.1:8911/ when the preview
 server is running. See [implementation disposition](docs/AI_ACADEMY_WORLD_CLASS_PRD_2026-11-10.md#24-full-local-rollout-after-explicit-approval).
 Additional maintainer evidence lives at `..\specs\001-ai-academy-learning\evidence.md`
 in the parent workspace; it is not part of this published repository.
@@ -90,7 +91,7 @@ The browser runner starts and stops its own local server. It uses disposable bro
 
 ## 🗺️ Curriculum
 
-13 phases across 3 levels + a cross-cutting **PM Playbook** (8 modules), a 2026 landscape flagship, a Zero to Claude companion module, and the 7-module Builder Track. The mastery system tracks **31 real modules**. Ten standalone diagram drills remain searchable review activities and no longer inflate mastery progress.
+14 numbered phases (0–13) across 3 levels + a cross-cutting **PM Playbook** (8 modules), a 2026 landscape flagship, a Zero to Claude companion module, and the 7-module Builder Track. The mastery system tracks **31 real modules**. Ten standalone diagram drills remain searchable review activities and no longer inflate mastery progress.
 
 ### ⬡ Level 100 — Foundations (Phases 0–3)
 | # | Module | Covers |
@@ -110,18 +111,25 @@ The browser runner starts and stops its own local server. It uses disposable bro
 | 3 | Phase 6 — AI Agents | ReAct, planning, self-correction |
 | 4 | Phase 7 — Claude Code & `.claude/` Mastery | Folder layout, hooks, skills, MCP, GitHub integration |
 | 5 | Phase 8 — Multi-Agent Systems | Orchestrator/worker, debate, hand-off patterns |
-| 🎯 | **PM Playbook (4 modules)** | Evaluations, Unit Economics, Build vs Buy vs Wait, Discovery → Ship, Communicating AI to Execs |
+| 🎯 | **PM Playbook (5 modules)** | Evaluations, Unit Economics, Build vs Buy vs Wait, Discovery → Ship, Communicating AI to Execs |
 
-### ⬡ Level 300 — Advanced (Phases 9–12 + PM Playbook)
+### ⬡ Level 300 — Advanced (Phases 9–13 + PM Playbook)
 | # | Module | Covers |
 |---|---|---|
 | 1 | Phase 9 — MCP & Tool Ecosystems | Building MCP servers, tool composition |
 | 2 | Phase 10 — Full-Stack AI + Deploy | Frontend + backend + LLM, deployment patterns |
 | 3 | Phase 11 — AI SaaS Product | Productising: auth, billing, evals, observability |
 | 4 | Phase 12 — Expert Layer | Scaling, security, cost optimisation |
+| 5 | Phase 13 — Capstone | Build and evaluate a document question-answering app |
 | 🎯 | **PM Playbook (3 modules)** | Trust/Safety/Risk Register, AI Product Analytics, Roadmap Under Model Uncertainty |
 
 > Full module list: [js/modules-100.js](js/modules-100.js), [js/modules-200.js](js/modules-200.js), [js/modules-300.js](js/modules-300.js), [js/modules-extras.js](js/modules-extras.js), [js/modules-pm.js](js/modules-pm.js).
+
+### Claude Forward Deployed Engineer companion
+
+Open **Lab → Optional AI specializations** for two ten-minute exercises: **Plan a Claude customer pilot** and **Hand off a Claude customer pilot**. Write a pilot agreement with a baseline and stop rule, then decide whether the customer team can run the workflow without you. Both use fictional cases, run offline after the academy loads, and require no account.
+
+The Phase 0 full reference maps the academy lessons to Anthropic's [Claude Forward Deployed Engineer path](https://anthropic-partners.skilljar.com/path/claude-fde). Its public outline, reviewed November 25, 2026, lists 11 courses (about 9.5 hours) for Claude Partner Network members. Nine overlap with the Claude Developer path. Local exercises do not award Anthropic course or certification credit.
 
 ---
 

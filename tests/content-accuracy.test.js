@@ -97,7 +97,7 @@ test('diagram narratives label illustrations and require MCP capability negotiat
 
 test('registry source review is current, dated and distinct from provider execution and lab pins', () => {
     const registry = catalog.landscape;
-    assert.equal(registry.verifiedDate, '2026-11-11');
+    assert.equal(registry.verifiedDate, '2026-11-25');
     assert.ok(registry.nextReviewDate > registry.verifiedDate);
     assert.equal(registry.verificationStatus, 'source-reviewed');
     assert.match(registry.verificationNote, /not (?:been )?executed/i);

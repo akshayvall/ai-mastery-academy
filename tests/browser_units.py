@@ -3,7 +3,7 @@ import unittest
 
 from playwright.sync_api import expect, sync_playwright
 
-from browser_smoke import ROOT, local_server
+from browser_smoke import local_server
 
 
 class UnitLearningTests(unittest.TestCase):
@@ -200,19 +200,41 @@ class UnitLearningTests(unittest.TestCase):
         expect(self.page.locator("#localLabPack li")).to_have_count(6)
         expect(self.page.locator("#localLabPack")).to_contain_text("Archive creation was not authorized")
         expect(self.page.locator("#localLabPack [download]")).to_have_count(0)
-        response = self.page.request.get(self.base_url + "labs/local/README.md")
+        self.page.evaluate("() => navigator.serviceWorker.ready")
+        self.page.wait_for_function("() => Boolean(navigator.serviceWorker.controller)")
+        with self.page.expect_response(self.base_url + "labs/local/README.md") as opened:
+            self.page.get_by_role("link", name="Read the six-lab guide").click()
+        response = opened.value
         self.assertTrue(response.ok)
-        self.assertEqual(response.body(), (ROOT / "labs" / "local" / "README.md").read_bytes())
+        self.assertFalse(response.from_service_worker)
+        self.assertNotIn("text/html", response.headers["content-type"])
 
     def test_optional_specialties_are_discoverable_without_becoming_core_requirements(self):
         self.page.locator('.bottom-nav [data-destination="build"]').click()
         self.page.locator('#specializations summary').click()
         links = self.page.locator('#specializations a')
-        expect(links).to_have_count(8)
+        expect(links).to_have_count(10)
         links.first.click()
         expect(self.page.locator("#unitView")).to_have_class("view active")
         self.assertTrue(self.page.evaluate("() => UnitEngine.current.unit.optional"))
         expect(self.page.locator("#unitView")).to_contain_text("not required for the core route")
+
+    def test_fde_companion_from_orientation_to_pilot_handoff(self):
+        self.page.goto(self.base_url + "#phase0-orientation?mode=browse")
+        path = "https://anthropic-partners.skilljar.com/path/claude-fde"
+        expect(self.page.locator(f'#tab-learn a[href="{path}"]')).to_be_visible()
+        self.page.get_by_role("link", name="Plan a Claude customer pilot").click()
+        expect(self.page.locator("#unitTitle")).to_contain_text("Plan a Claude customer pilot")
+        self.page.get_by_role("button", name="Try it yourself").click()
+        self.choose("unitPractice", self.current()["practice"])
+        self.page.get_by_role("button", name="Check prediction").click()
+        self.page.get_by_role("button", name="Try a changed situation").click()
+        self.choose("unitCheck", self.current()["check"])
+        self.page.locator("#unitReflection").fill("Compare similar requests before expanding to a new cohort.")
+        self.page.get_by_role("button", name="Check answer and save explanation").click()
+        self.page.locator("#unitNext").click()
+        expect(self.page.locator("#unitTitle")).to_contain_text("Hand off a Claude customer pilot")
+        self.assertNotIn("pm-discovery-ship", self.page.evaluate("() => ProgressManager.createExport().moduleMastery"))
 
 
 if __name__ == "__main__":

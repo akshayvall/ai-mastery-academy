@@ -104,7 +104,7 @@ const MODULES_100 = [
     <table class="content-table">
         <tr><th>Concept</th><th>What It Means</th><th>Why You Care</th></tr>
         <tr><td><strong>Tokens</strong></td><td>Text units of ~3-4 characters. 1,000 tokens ≈ 750 words.</td><td>All pricing and context limits are in tokens.</td></tr>
-        <tr><td><strong>Context Window</strong></td><td>Model-specific token budget; check input and output limits separately</td><td>GPT-6 Astra: ${MODEL_LANDSCAPE.openai.context}. Current Claude catalogue: ${MODEL_LANDSCAPE.anthropic.context}; Gemini 3.6 Flash lab reference: ${MODEL_LANDSCAPE.google.context} input tokens. Older Haiku 4.5 pins have 200K context, not the current Haiku limit.</td></tr>
+        <tr><td><strong>Context Window</strong></td><td>Model-specific token budget; check input and output limits separately</td><td>${MODEL_LANDSCAPE.openai.frontier}: ${MODEL_LANDSCAPE.openai.context}. Current Claude catalogue: ${MODEL_LANDSCAPE.anthropic.context}; Gemini 3.6 Flash lab reference: ${MODEL_LANDSCAPE.google.context} input tokens. Older Haiku 4.5 pins have 200K context, not the current Haiku limit.</td></tr>
         <tr><td><strong>Temperature</strong></td><td>Controls sampling randomness on models that expose it</td><td>Lower can improve consistency; it does not guarantee identical output. Current Claude models use adaptive thinking and reject sampling parameters.</td></tr>
         <tr><td><strong>System Prompt</strong></td><td>Hidden instructions defining AI behaviour</td><td>The single most powerful lever for controlling output.</td></tr>
         <tr><td><strong>Hallucination</strong></td><td>Generating plausible but factually wrong text</td><td>Always verify critical facts. The model is sometimes confidently wrong.</td></tr>
@@ -142,7 +142,7 @@ const MODULES_100 = [
                 <li><strong>Current flagship:</strong> ${MODEL_LANDSCAPE.openai.frontier} (${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output} per MTok)</li>
                 <li><strong>Current balanced / small:</strong> ${MODEL_LANDSCAPE.openai.balanced} (${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}), ${MODEL_LANDSCAPE.openai.small} (${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output}). <strong>Supported older pin:</strong> ${MODEL_LANDSCAPE.openai.supported} (${MODEL_LANDSCAPE.openai.supportedPrice.input}/${MODEL_LANDSCAPE.openai.supportedPrice.output}; promotional through November 30).</li>
                 <li><strong>Flagship context:</strong> ${MODEL_LANDSCAPE.openai.context} tokens</li>
-                <li><strong>Products:</strong> Custom GPTs, Canvas, Codex (cloud agent), Sora (video), GPT-image-1.5</li>
+                <li><strong>Examples:</strong> Custom GPTs, Canvas, Codex and image generation. Check the model-specific retirement notice before choosing an image API.</li>
                 <li><strong>Best at:</strong> General purpose, images, video, consumer UX</li>
                 <li><strong>Plans:</strong> Free / Plus $20 / Pro $200</li>
             </ul>
@@ -163,7 +163,7 @@ const MODULES_100 = [
             <ul>
                 <li><strong>Current stable:</strong> ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>)</li>
                 <li><strong>Supported lab pin:</strong> ${MODEL_LANDSCAPE.google.supported} (<code>${MODEL_LANDSCAPE.google.supportedId}</code>); supported older examples do not require automatic migration.</li>
-                <li><strong>Current frontier:</strong> ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>); Gemini 4 Argon is another current catalogue option. Verify account availability.</li>
+                <li><strong>Current frontier:</strong> ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>) for demanding reasoning. Other catalogue options: ${MODEL_LANDSCAPE.google.otherFrontierModels.join(', ')}. Verify account availability.</li>
                 <li><strong>Reference context:</strong> ${MODEL_LANDSCAPE.google.context} input tokens for the Gemini 3.6 Flash lab pin. Check other model limits separately. ${MODEL_LANDSCAPE.google.supported25}</li>
                 <li><strong>Products:</strong> NotebookLM, Deep Research, AI Studio (free), Veo 3.1, Computer Use</li>
                 <li><strong>Best at:</strong> Research, multimodal, huge documents, Google Workspace</li>
@@ -207,7 +207,7 @@ const MODULES_100 = [
 
 <div class="learn-section">
     <h2>🎓 Official Anthropic Learning Resources</h2>
-    <p>Anthropic provides free, high-quality courses and tutorials. Complete these alongside this academy for the deepest understanding.</p>
+    <p>Use these courses alongside the local lessons. The partner learning path below has separate enrollment requirements.</p>
 
     <h3>Anthropic Academy Courses (Free + Certificate)</h3>
     <table class="content-table">
@@ -225,6 +225,23 @@ const MODULES_100 = [
             <td>Phases 3-9</td>
         </tr>
     </table>
+
+    <h3>Partner path: Claude Forward Deployed Engineer (FDE)</h3>
+    <p>A forward deployed engineer works with a customer team to put software to use in its workflow.
+    Anthropic's <a href="https://anthropic-partners.skilljar.com/path/claude-fde" target="_blank" rel="noopener noreferrer">Claude Forward Deployed Engineer learning path</a>
+    is for people who build software and work with clients. The public outline lists 11 self-paced courses
+    (about 9.5 hours). Registration is for Claude Partner Network members.</p>
+    <ol>
+        <li><strong>Foundations (courses 1–4):</strong> capabilities and limits, AI fluency, platform foundations and model choice.
+        Practice here with <a href="#phase2-platforms">Platform Mastery</a>.</li>
+        <li><strong>Building (5–9):</strong> the Claude Platform, Claude Code basics and applied workflows, Model Context Protocol (MCP) and reusable skills.
+        Revisit <a href="#phase3-ai-from-code">Calling AI from Code</a>, <a href="#phase7-claude-code">Claude Code</a> or <a href="#phase9-mcp-skills">MCP and skills</a>.</li>
+        <li><strong>Delivery (10–11):</strong> Delivery Methodology and Driving enterprise adoption of Claude.
+        If you finished Anthropic's Claude Developer path, these are the two remaining courses (about 100 minutes).</li>
+    </ol>
+    <p><strong>Practice here without an account:</strong> <a href="#pm-discovery-ship?unit=scope-a-claude-pilot&amp;step=learn">Plan a Claude customer pilot</a>,
+    then <a href="#pm-discovery-ship?unit=hand-off-a-claude-pilot&amp;step=learn">hand it off to the customer team</a>.
+    These original exercises do not award partner course or certification credit. Outline reviewed November 25, 2026.</p>
 
     <h3>Claude Tutorials Hub</h3>
     <p>Written guides and video lessons at <a href="https://claude.com/resources/tutorials" target="_blank">claude.com/resources/tutorials</a>. Key picks by category:</p>
@@ -1087,15 +1104,15 @@ async function runConnected({ approved = false, model } = {}) {
     <p>Source-reviewed ${MODEL_LANDSCAPE.verifiedDate}. ${MODEL_LANDSCAPE.verificationNote} Retain supported lab pins until an application-specific migration passes evaluation. Next source review: ${MODEL_LANDSCAPE.nextReviewDate}; owner: ${MODEL_LANDSCAPE.reviewOwner}. Review is due before near-term lifecycle changes, not a claim of live API testing.</p>
     <table class="content-table">
         <tr><th>Provider</th><th>Current entries</th><th>Context and pricing</th></tr>
-        <tr><td><strong>OpenAI</strong></td><td>Catalogue: ${MODEL_LANDSCAPE.openai.frontier} (<code>${MODEL_LANDSCAPE.openai.frontierId}</code>), ${MODEL_LANDSCAPE.openai.balanced} (<code>${MODEL_LANDSCAPE.openai.balancedId}</code>), ${MODEL_LANDSCAPE.openai.small} (<code>${MODEL_LANDSCAPE.openai.smallId}</code>)<br>Supported older pin: ${MODEL_LANDSCAPE.openai.supported} (<code>${MODEL_LANDSCAPE.openai.supportedId}</code>)</td><td>Astra: ${MODEL_LANDSCAPE.openai.context} context. USD per MTok input/output: Astra ${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output}; 6.1 Sol ${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}; 6 Luna ${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output}; older 5.6 Sol ${MODEL_LANDSCAPE.openai.supportedPrice.input}/${MODEL_LANDSCAPE.openai.supportedPrice.output}, promotional through November 30.</td></tr>
+        <tr><td><strong>OpenAI</strong></td><td>Catalogue: ${MODEL_LANDSCAPE.openai.frontier} (<code>${MODEL_LANDSCAPE.openai.frontierId}</code>), ${MODEL_LANDSCAPE.openai.balanced} (<code>${MODEL_LANDSCAPE.openai.balancedId}</code>), ${MODEL_LANDSCAPE.openai.small} (<code>${MODEL_LANDSCAPE.openai.smallId}</code>)<br>Supported older pin: ${MODEL_LANDSCAPE.openai.supported} (<code>${MODEL_LANDSCAPE.openai.supportedId}</code>)</td><td>Astra: ${MODEL_LANDSCAPE.openai.context} context. USD per MTok input/output: ${MODEL_LANDSCAPE.openai.frontier} ${MODEL_LANDSCAPE.openai.frontierPrice.input}/${MODEL_LANDSCAPE.openai.frontierPrice.output}; ${MODEL_LANDSCAPE.openai.balanced} ${MODEL_LANDSCAPE.openai.balancedPrice.input}/${MODEL_LANDSCAPE.openai.balancedPrice.output}; ${MODEL_LANDSCAPE.openai.small} ${MODEL_LANDSCAPE.openai.smallPrice.input}/${MODEL_LANDSCAPE.openai.smallPrice.output}; older 5.6 Sol ${MODEL_LANDSCAPE.openai.supportedPrice.input}/${MODEL_LANDSCAPE.openai.supportedPrice.output}, promotional through November 30.</td></tr>
         <tr><td><strong>Anthropic</strong></td><td>Frontier: ${MODEL_LANDSCAPE.anthropic.frontier} (<code>${MODEL_LANDSCAPE.anthropic.frontierId}</code>)<br>Current: ${MODEL_LANDSCAPE.anthropic.reasoning} (<code>${MODEL_LANDSCAPE.anthropic.reasoningId}</code>) and ${MODEL_LANDSCAPE.anthropic.balanced} (<code>${MODEL_LANDSCAPE.anthropic.balancedId}</code>)<br>Small: ${MODEL_LANDSCAPE.anthropic.small} (<code>${MODEL_LANDSCAPE.anthropic.smallId}</code>)</td><td>Fable ${MODEL_LANDSCAPE.anthropic.frontierPrice.input}/${MODEL_LANDSCAPE.anthropic.frontierPrice.output}; Opus ${MODEL_LANDSCAPE.anthropic.reasoningPrice.input}/${MODEL_LANDSCAPE.anthropic.reasoningPrice.output}; Sonnet ${MODEL_LANDSCAPE.anthropic.balancedPrice.input}/${MODEL_LANDSCAPE.anthropic.balancedPrice.output} per MTok base. Current context: ${MODEL_LANDSCAPE.anthropic.context}. Older Sonnet 5 and Haiku 4.5 lab pins remain active; Sonnet 4.5 retires November 30, 2026 on the Claude API.</td></tr>
-        <tr><td><strong>Google</strong></td><td>Current Flash: ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>)<br>Supported older pin: ${MODEL_LANDSCAPE.google.supported} (<code>${MODEL_LANDSCAPE.google.supportedId}</code>)<br>Frontier: ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>); also Gemini 4 Argon</td><td>Gemini 3.6 Flash reference: ${MODEL_LANDSCAPE.google.context} input tokens; check other IDs separately. ${MODEL_LANDSCAPE.google.supported25}</td></tr>
+        <tr><td><strong>Google</strong></td><td>Current Flash: ${MODEL_LANDSCAPE.google.stable} (<code>${MODEL_LANDSCAPE.google.stableId}</code>)<br>Supported older pin: ${MODEL_LANDSCAPE.google.supported} (<code>${MODEL_LANDSCAPE.google.supportedId}</code>)<br>Frontier: ${MODEL_LANDSCAPE.google.frontier} (<code>${MODEL_LANDSCAPE.google.frontierId}</code>); also ${MODEL_LANDSCAPE.google.otherFrontierModels.join(', ')}</td><td>Gemini 3.6 Flash reference: ${MODEL_LANDSCAPE.google.context} input tokens; check other IDs separately. ${MODEL_LANDSCAPE.google.supported25}</td></tr>
     </table>
     <ul class="references-list" style="list-style:none; padding:0;">
         <li>📄 <a href="${MODEL_LANDSCAPE.sources.openai.models}" target="_blank" rel="noopener">OpenAI model catalog</a> — verified ${MODEL_LANDSCAPE.sources.openai.verifiedDate}</li>
         <li>📄 <a href="${MODEL_LANDSCAPE.sources.anthropic.models}" target="_blank" rel="noopener">Anthropic models</a> and <a href="${MODEL_LANDSCAPE.sources.anthropic.pricing}" target="_blank" rel="noopener">pricing</a> — verified ${MODEL_LANDSCAPE.sources.anthropic.verifiedDate}</li>
         <li>📄 <a href="${MODEL_LANDSCAPE.sources.google.models}" target="_blank" rel="noopener">Gemini model catalog</a> — verified ${MODEL_LANDSCAPE.sources.google.verifiedDate}</li>
-        <li>📄 Lifecycle notices: <a href="${MODEL_LANDSCAPE.sources.openai.lifecycle}" target="_blank" rel="noopener">OpenAI</a>, <a href="${MODEL_LANDSCAPE.sources.anthropic.lifecycle}" target="_blank" rel="noopener">Claude</a>, <a href="${MODEL_LANDSCAPE.sources.google.lifecycle}" target="_blank" rel="noopener">Gemini</a>. Exact IDs and platforms matter: the October OpenAI notice removes named GPT-4o/4.1 snapshots on January 14, 2027, not every GPT-4 endpoint today. Selected Gemini voice/TTS previews retire November 17, 2026; check the specific entry.</li>
+        <li>📄 Lifecycle notices: <a href="${MODEL_LANDSCAPE.sources.openai.lifecycle}" target="_blank" rel="noopener">OpenAI</a>, <a href="${MODEL_LANDSCAPE.sources.anthropic.lifecycle}" target="_blank" rel="noopener">Claude</a>, <a href="${MODEL_LANDSCAPE.sources.google.lifecycle}" target="_blank" rel="noopener">Gemini</a>. Exact IDs and platforms matter: the OpenAI notice retires named GPT-4o/4.1 snapshots on January 14, 2027, not every GPT-4 endpoint. Anthropic lists January 22, 2027 for Claude Opus 4.5 on its API. Google lists December 18, 2026 as the earliest shutdown for <code>gemini-3.1-flash-tts-preview</code>.</li>
     </ul>
 </div>
 

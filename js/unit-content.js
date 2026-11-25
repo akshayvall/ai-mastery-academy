@@ -1,5 +1,4 @@
-// Original local tabletop lessons. Source links come from the approved PRD register;
-// reviewed dates record this content review, not a new fetch or provider execution.
+// Original local tabletop lessons. Review dates do not imply provider execution.
 const ACADEMY_UNITS = {
     version: '2026-11-11',
     modules: {
@@ -619,6 +618,7 @@ const UNIT_REFERENCES = {
     a2a: { title: 'PRD S11: A2A documentation, interoperability reference', url: 'https://a2a-protocol.org/latest/' },
     skills: { title: 'PRD S09: Agent Skills overview, portable instructions reference', url: 'https://agentskills.io/home' },
     coding: { title: 'PRD S08: Claude Code skills, optional tool-specific reference', url: 'https://code.claude.com/docs/en/skills' },
+    fde: { title: 'Anthropic: Claude Forward Deployed Engineer (official partner learning path)', url: 'https://anthropic-partners.skilljar.com/path/claude-fde' },
     foundry: { title: 'PRD S12: Foundry agents overview, managed lifecycle reference', url: 'https://learn.microsoft.com/azure/foundry/agents/overview' },
     training: { title: 'PRD S15: Hugging Face LLM Course, optional technical depth', url: 'https://huggingface.co/learn/llm-course/chapter1/1' },
     fluency: { title: 'PRD S13: AI Fluency, interaction and judgment reference', url: 'https://anthropic.skilljar.com/ai-fluency-framework-foundations' }
@@ -1572,5 +1572,38 @@ ACADEMY_UNITS.modules['builder-finetune'].push({
     teachBack: { prompt: 'Explain why local, open-weight, and adapted describe different properties.', example: 'Local describes where inference runs. Open-weight describes availability under a license. Adapted describes additional training. None alone proves privacy, affordability, or task quality, so evaluate each relevant boundary.' },
     takeaway: 'Assess the license, whole data path, resources, and task outcomes separately.', sources: [UNIT_REFERENCES.training, UNIT_REFERENCES.holdout], reviewed: '2026-11-11'
 });
+
+ACADEMY_UNITS.modules['pm-discovery-ship'].push(
+    {
+        id: 'scope-a-claude-pilot', title: 'Claude FDE: Plan a Claude customer pilot', minutes: 10, optional: true,
+        outcome: 'Agree on a pilot scope, a baseline, and a stop rule with the people who do the work.',
+        misconception: 'A faster model response means the whole customer workflow got faster.',
+        paragraphs: [
+            'A forward deployed engineer works beside the customer team. At fictional MapleDesk, a support lead asks for faster answers to return requests. Sit with a reviewer first: the job ends when a correct reply is ready to send, not when Claude produces a draft. Measure the current time from opening a request to approving its reply, including corrections. Keep a set of comparable requests so the team can try the proposed change against that baseline.',
+            'Start with one queue, one shift and one kind of request. Let Claude draft a reply from an approved policy; the reviewer can edit, reject or ignore it. Before building, agree with the support lead on the time target, how to check policy accuracy and who can stop the pilot. Write down what the team will not automate. Use the same clock and review criteria for both methods. This tabletop plan needs no customer records, account or API key.'
+        ],
+        example: { title: 'Count the final edit', text: 'Manual replies take eight minutes to approve. The pilot target is six. Drafting takes one minute but correcting the draft takes six more. Seven minutes improves on the baseline but misses the target.' },
+        trace: [{ label: 'Observe the work', detail: 'Time a reviewed reply rather than the first draft.' }, { label: 'Limit the change', detail: 'Try draft assistance in the returns queue; leave sending with the reviewer.' }, { label: 'Agree on a stop', detail: 'The shift lead pauses the pilot if an incorrect policy reaches a customer.' }],
+        practice: { question: 'Using the MapleDesk figures, what should the engineer report?', options: ['The pilot met its target because Claude drafted in one minute.', 'The reviewed reply took seven minutes and missed the six-minute target.', 'The pilot saved seven minutes on each approved reply.'], correct: 1, explanations: ['The customer needs an approved reply, so the six minutes of correction count too.', 'Adding drafting and correction gives seven minutes against an eight-minute manual baseline.', 'Subtracting draft time alone ignores the work shifted onto the reviewer.'] },
+        check: { question: 'A library timed its manual team on complex renewals but tested assisted drafts only on routine renewals. What must change before it claims savings?', options: ['Compare manual and assisted work on comparable renewals with the same review steps.', 'Apply the routine result to every renewal because both groups use the same software.', 'Drop review time from both groups to make the figures smaller.'], correct: 0, explanations: ['Matching the case mix and review steps helps separate the tool effect from the difficulty of the work.', 'Using the same software does not make complex and routine renewals equally difficult.', 'Removing review time changes the outcome without fixing the difference between the two groups.'] },
+        teachBack: { prompt: 'Write a four-line pilot agreement: first users and task, baseline, target, and who can stop the work under what condition.', example: 'Three returns reviewers try policy-based drafts. Compare total approval time on similar requests against eight minutes. Aim for six with no increase in policy errors. The shift lead stops assisted drafting if an incorrect policy is sent.' },
+        takeaway: 'Measure the finished customer task, including the work people do after the model answers.', sources: [UNIT_REFERENCES.fde], reviewed: '2026-11-25'
+    },
+    {
+        id: 'hand-off-a-claude-pilot', title: 'Claude FDE: Hand off a Claude customer pilot', minutes: 10, optional: true,
+        outcome: 'Use adoption and quality evidence to decide whether the customer team can take over a pilot.',
+        misconception: 'Giving people access proves they can use and support the workflow without the engineer.',
+        paragraphs: [
+            'On Friday the engineer leaves MapleDesk. Twelve reviewers have access to the drafting tool, but only four used it on both of their last two shifts. All four worked beside the engineer. That tells the lead where to look, not why the other eight stayed away. Ask a reviewer to complete an ordinary case and recover from a missing policy without coaching. Observe where they stop. The remedy might be an access change rather than another training session.',
+            'Give the shift lead a short handoff: which requests qualify, how to check a draft, when to switch back to manual replies, and who handles questions. Choose a date to compare repeat use among eligible reviewers, time to approval and policy errors. Do not broaden access just to make the usage chart grow. In this fictional pilot, expansion means another shift can meet the agreed quality target and handle exceptions while the engineer is absent.'
+        ],
+        example: { title: 'A useful handoff test', text: 'The night lead cannot open the approved policy. She switches to manual replies and contacts the named owner. Recovery worked; assisted drafting on nights is still unproven.' },
+        trace: [{ label: 'Inspect adoption', detail: 'Separate people invited from eligible reviewers who return to the workflow.' }, { label: 'Rehearse recovery', detail: 'Have the receiving lead handle a missing policy without the engineer.' }, { label: 'Decide together', detail: 'Record the support owner, remaining gap and date to reconsider expansion.' }],
+        practice: { question: 'What do the four repeat users at MapleDesk establish?', options: ['The eight other reviewers need mandatory training.', 'All twelve reviewers can already work without the engineer.', 'Four reviewers returned with support; independent use still needs observation.'], correct: 2, explanations: ['The usage counts alone do not distinguish training gaps from access or scheduling problems.', 'Invitations do not show whether the receiving team can complete a case independently.', 'Repeat use is a useful signal, but all four reviewers still had the engineer beside them.'] },
+        check: { question: 'Museum staff use drafts every shift and meet the time target, but nobody owns incorrect exhibit descriptions after launch. Should the museum add a second site?', options: ['Expand now because frequent use makes an owner unnecessary.', 'Hold expansion until a named owner rehearses correction and fallback.', 'Stop measuring quality and count only the number of active sites.'], correct: 1, explanations: ['Frequent use shows demand but does not assign responsibility for correcting a harmful error.', 'The next site needs someone who can detect the error and restore the manual process.', 'Site count measures reach while hiding whether visitors receive accurate descriptions.'] },
+        teachBack: { prompt: 'Write a handoff note: who owns the workflow, what repeat use shows, which exception to rehearse, and when to expand or pause.', example: 'The museum lead owns corrections. Daily use shows demand, not safe recovery. Rehearse withdrawing a wrong description, then decide on Friday whether the second site can start with the same safeguards.' },
+        takeaway: 'Expand when the receiving team can run the work and recover from failure without you.', sources: [UNIT_REFERENCES.fde], reviewed: '2026-11-25'
+    }
+);
 
 if (typeof module !== 'undefined' && module.exports) module.exports = ACADEMY_UNITS;

@@ -202,22 +202,22 @@ test('lab metadata specifies local fixtures, verification, cleanup, cost and dat
 
 test('November registry distinguishes current models, supported pins, lifecycle, and source review', () => {
     const { landscape } = loadCatalog();
-    assert.equal(landscape.verifiedDate, '2026-11-11');
+    assert.equal(landscape.verifiedDate, '2026-11-25');
     assert.equal(landscape.verificationStatus, 'source-reviewed');
-    assert.equal(landscape.nextReviewDate, '2026-11-17');
+    assert.equal(landscape.nextReviewDate, '2026-11-30');
     assertText(landscape.reviewOwner, 'catalog review owner', 1);
     assert.match(landscape.verificationNote, /not (?:been )?executed/i);
     assert.match(landscape.verificationNote, /lab pins/);
     assert.match(landscape.verificationNote, /promotional through November 30, 2026/);
     assert.match(landscape.verificationNote, /100K.*\$0\.50\/\$2\.50/);
-    assert.equal(landscape.openai.frontier, 'GPT-6 Astra');
-    assert.equal(landscape.openai.frontierId, 'gpt-6-astra');
+    assert.equal(landscape.openai.frontier, 'GPT-6.2 Astra');
+    assert.equal(landscape.openai.frontierId, 'gpt-6.2-astra');
     assert.equal(landscape.openai.contextTokens, 1050000);
-    assert.deepEqual(landscape.openai.frontierPrice, { input: '$10', output: '$50' });
+    assert.deepEqual(landscape.openai.frontierPrice, { input: '$8', output: '$40' });
     assert.equal(landscape.openai.supported, 'GPT-5.6 Sol');
     assert.equal(landscape.openai.supportedId, 'gpt-5.6-sol');
     assert.deepEqual(landscape.openai.supportedPrice, { input: '$4', output: '$20' });
-    assert.equal(landscape.openai.balancedId, 'gpt-6.1-sol');
+    assert.equal(landscape.openai.balancedId, 'gpt-6.2-sol');
     assert.equal(landscape.openai.smallId, 'gpt-6-luna');
     assert.deepEqual(landscape.openai.balancedPrice, { input: '$2', output: '$10' });
     assert.deepEqual(landscape.openai.smallPrice, { input: '$0.10', output: '$0.50' });
@@ -245,7 +245,7 @@ test('November registry distinguishes current models, supported pins, lifecycle,
     assert.match(landscape.google.supported25, /December 1, 2026.*billing/);
     assert.match(landscape.google.supported25, /Flash-Lite is not deprecated.*access-limited/);
     for (const source of Object.values(landscape.sources)) {
-        assert.equal(source.verifiedDate, '2026-11-11');
+        assert.equal(source.verifiedDate, landscape.verifiedDate);
         assert.match(source.models, /^https:\/\//);
         assert.match(source.lifecycle, /^https:\/\//);
     }
@@ -262,7 +262,14 @@ test('dependent November lessons distinguish catalogue facts and historical lab 
         assert.match(text, /Sonnet 5\.5/, moduleId);
         assert.match(text, /not (?:been )?executed|no provider lab was executed/i, moduleId);
     }
-    assert.match(byId['phase0-orientation'].learn, /GPT-6 Astra/);
+    for (const moduleId of ['phase0-orientation', 'landscape-2026-ai-systems']) {
+        const lesson = byId[moduleId].learn;
+        assert.match(lesson, /GPT-6\.2 Astra/);
+        assert.match(lesson, /GPT-6\.2 Sol/);
+        assert.match(lesson, /Gemini 4 Neon/);
+        assert.match(lesson, /Gemini 4 Hydrogen/);
+        assert.doesNotMatch(lesson, /GPT-6 Astra|6\.1 Sol/);
+    }
     assert.match(byId['phase0-orientation'].learn, /GPT-5\.6 Sol/);
     assert.match(byId['phase0-orientation'].learn, /Gemini 3\.8 Flash/);
     assert.match(byId['phase0-orientation'].learn, /Gemini 4 Carbon/);

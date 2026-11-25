@@ -45,6 +45,7 @@ const optionalUnits = {
     'phase6-agents': ['bound-computer-use', 'resume-a-durable-workflow'],
     'phase9-mcp-skills': ['distinguish-mcp-and-a2a', 'review-a-portable-skill'],
     'phase10-fullstack': ['assess-a-managed-runtime'],
+    'pm-discovery-ship': ['scope-a-claude-pilot', 'hand-off-a-claude-pilot'],
     'builder-finetune': ['assess-an-open-weight-deployment']
 };
 const specialistOutcomes = {
@@ -55,6 +56,8 @@ const specialistOutcomes = {
     'distinguish-mcp-and-a2a': /MCP.*A2A|A2A.*MCP/,
     'review-a-portable-skill': /skill/i,
     'assess-a-managed-runtime': /managed|Foundry/i,
+    'scope-a-claude-pilot': /baseline/i,
+    'hand-off-a-claude-pilot': /adoption/i,
     'assess-an-open-weight-deployment': /local|open.weight/i
 };
 
@@ -85,11 +88,11 @@ function question(value, label) {
     });
 }
 
-test('authored content covers all 31 real modules with 62 core and eight optional units', () => {
+test('authored content covers all 31 real modules with 62 core units and the listed electives', () => {
     const content = loadContent();
     assert.deepEqual(Object.keys(content.modules).sort(), Object.keys(expectedModules).sort());
     const units = Object.values(content.modules).flat();
-    assert.equal(units.length, 70);
+    assert.equal(units.length, 62 + Object.values(optionalUnits).flat().length);
     assert.equal(units.filter(unit => !unit.optional).length, 62);
     assert.equal(new Set(units.map(unit => unit.id)).size, units.length);
     assert.equal(new Set(units.map(unit => unit.outcome)).size, units.length);
@@ -138,7 +141,7 @@ for (const [moduleId, ids] of Object.entries(expectedModules)) {
                 text(source.title, `${id}.source.title`);
                 assert.equal(new URL(source.url).protocol, 'https:');
             });
-            assert.equal(unit.reviewed, '2026-11-11');
+            assert.match(unit.reviewed, /^\d{4}-\d{2}-\d{2}$/);
         });
     }
 }

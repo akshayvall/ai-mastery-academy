@@ -4,6 +4,11 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Claude Forward Deployed Engineer companion - November 25, 2026
+- Mapped the official partner path to existing lessons and added two optional pilot delivery and adoption exercises to Discovery → Ship. Core requirements, mastery credit and existing saved checks are unchanged.
+- Refreshed the offline app shell to `2026-11-learning-3` and corrected the README curriculum inventory.
+- Fixed lab-guide and document navigation under the installed service worker. Refreshed the November 25 catalogue and pricing examples (GPT-6.2 Astra/Sol, Gemini 4 alternatives and dated retirement notices) without upgrading lab pins.
+
 ### Publication authorization - November 11, 2026
 - User explicitly authorized committing and pushing this release to `main` and deploying it to the existing GitHub Pages site. Release `2026-11-learning-2`; the Pages workflow remains the validation and publication gate.
 - Fixed duplicate unit-route events rerendering and saving the same lesson, which could clear a storage-recovery notice and steal focus. Added a browser regression; recovery/history checks remain enforced.

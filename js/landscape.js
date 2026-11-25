@@ -2,43 +2,43 @@
    provider documentation before changing the date or values. */
 const MODEL_LANDSCAPE = Object.freeze({
     verified: '2026-11',
-    verifiedDate: '2026-11-11',
+    verifiedDate: '2026-11-25',
     verificationStatus: 'source-reviewed',
     verificationNote: 'Catalogue names, lifecycle notices, and listed USD API token rates were source-reviewed. Catalogue choices are distinct from supported older lab pins; provider labs have not been executed. GPT-5.6 Sol rates are promotional through November 30, 2026, with a higher long-context tier. Haiku 5.5 base rates apply up to 100K input tokens; above that, input/output are $0.50/$2.50 per MTok. Check tiers, cache/tool charges, platform access, and account terms before use.',
     reviewOwner: 'Akshay',
-    nextReviewDate: '2026-11-17',
+    nextReviewDate: '2026-11-30',
     sources: Object.freeze({
         openai: Object.freeze({
-            verifiedDate: '2026-11-11',
+            verifiedDate: '2026-11-25',
             models: 'https://developers.openai.com/api/docs/models',
             release: 'https://developers.openai.com/api/docs/models/gpt-5.6-sol',
             lifecycle: 'https://developers.openai.com/api/docs/deprecations'
         }),
         anthropic: Object.freeze({
-            verifiedDate: '2026-11-11',
+            verifiedDate: '2026-11-25',
             models: 'https://platform.claude.com/docs/en/about-claude/models/overview',
             pricing: 'https://platform.claude.com/docs/en/about-claude/pricing',
             lifecycle: 'https://platform.claude.com/docs/en/about-claude/model-deprecations'
         }),
         google: Object.freeze({
-            verifiedDate: '2026-11-11',
+            verifiedDate: '2026-11-25',
             models: 'https://ai.google.dev/gemini-api/docs/models',
             sdkMigration: 'https://ai.google.dev/gemini-api/docs/migrate',
             lifecycle: 'https://ai.google.dev/gemini-api/docs/deprecations'
         })
     }),
     openai: Object.freeze({
-        frontier: 'GPT-6 Astra',
-        frontierId: 'gpt-6-astra',
+        frontier: 'GPT-6.2 Astra',
+        frontierId: 'gpt-6.2-astra',
         supported: 'GPT-5.6 Sol',
         supportedId: 'gpt-5.6-sol',
-        balanced: 'GPT-6.1 Sol',
-        balancedId: 'gpt-6.1-sol',
+        balanced: 'GPT-6.2 Sol',
+        balancedId: 'gpt-6.2-sol',
         small: 'GPT-6 Luna',
         smallId: 'gpt-6-luna',
         context: '1.05M',
         contextTokens: 1050000,
-        frontierPrice: Object.freeze({ input: '$10', output: '$50' }),
+        frontierPrice: Object.freeze({ input: '$8', output: '$40' }),
         supportedPrice: Object.freeze({ input: '$4', output: '$20' }),
         balancedPrice: Object.freeze({ input: '$2', output: '$10' }),
         smallPrice: Object.freeze({ input: '$0.10', output: '$0.50' })
@@ -70,6 +70,7 @@ const MODEL_LANDSCAPE = Object.freeze({
         supportedId: 'gemini-3.6-flash',
         frontier: 'Gemini 4 Carbon',
         frontierId: 'gemini-4-carbon',
+        otherFrontierModels: Object.freeze(['Gemini 4 Neon', 'Gemini 4 Hydrogen', 'Gemini 4 Argon']),
         frontierStatus: 'Current catalogue; verify account availability',
         small: 'Gemini 3.5 Flash-Lite',
         smallId: 'gemini-3.5-flash-lite',

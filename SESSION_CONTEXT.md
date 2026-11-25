@@ -24,6 +24,12 @@ Parent project context: [`../SESSION_CONTEXT.md`](../SESSION_CONTEXT.md).
 
 ## Log
 
+## 2026-11-25 - Claude FDE companion and repository rescan
+- Reviewed the public Anthropic partner path. Phase 0 maps its foundations, building and pilot-delivery courses to the academy. Lab lists two original Discovery → Ship electives; partner enrollment and certification remain external.
+- Kept the existing assessment data version: the two units are additive. Changed the offline asset release to `2026-11-learning-3`.
+- Fixed the guide navigation defect: only the app root and index use the installed page for navigation. Rechecked provider model catalogues, pricing and lifecycle guidance on November 25. The next review is November 30, ahead of the December 1 Gemini rerouting. Existing lab pins are unchanged; no paid provider calls were made.
+- Builder corrections still require the separate `AI_Engineer_Builds` source project and exporter; neither is in this checkout. The generated file is unchanged.
+
 ## 2026-11-11 - Personal account selected; publication gate repaired
 - User explicitly selected `akshayvall`. The inherited GH_TOKEN had overridden CLI identity; cleared only process-local token overrides, switched the stored CLI account, verified repository push permission, and pushed `58c2ed1` using a command-scoped credential helper. Global Git helpers were not changed.
 - Pages run `42962656988` stopped before deployment on the unit storage-recovery test. Reproduced duplicate popstate/hashchange opening/saving the same unit twice; matching routes now remain untouched, preserving focus and recovery controls.
