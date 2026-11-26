@@ -65,6 +65,18 @@ test('shadow mode teaches minimized telemetry and remaining data and cost risks'
     }
 });
 
+test('curated readings belong to the lesson where learners use them', () => {
+    for (const [id, repo] of [
+        ['pm-evals', 'ai-evals-course/evals-skills'], ['pm-discovery-ship', 'phuryn/pm-skills'],
+        ['phase6-agents', 'microsoft/ai-agents-for-beginners'], ['phase9-mcp-skills', 'anthropics/skills']
+    ]) {
+        assert.ok(moduleById(id).learn.includes(`https://github.com/${repo}/blob/`), id);
+    }
+    const lesson = moduleById('pm-evals').learn;
+    assert.match(lesson, /https:\/\/www.news.aakashg.com\/p\/ai-evals/);
+    for (const gap of ['Comprehension', 'Specification', 'Generalization']) assert.ok(lesson.includes(gap));
+});
+
 test('agent and routing decisions require measured benefits over a simpler baseline', () => {
     const multi = moduleById('phase8-multi-agent').quiz[0];
     assert.ok(!/Specialised roles = better results/.test(text('phase8-multi-agent')));

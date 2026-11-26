@@ -2,6 +2,24 @@
     --learning-accent: var(--ai-purple);
 }
 
+#evalWorkshop label {
+    display: grid;
+    gap: 6px;
+    margin-block: 12px;
+    font-weight: 600;
+}
+
+#evalWorkshop :is(textarea, select) {
+    max-width: 100%;
+    min-width: 0;
+    padding: 8px;
+    font: inherit;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
 #masteryDashboard {
     min-width: 0;
     padding: 0;

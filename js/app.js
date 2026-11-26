@@ -757,6 +757,7 @@ const app = {
         document.getElementById('tab-learn').innerHTML =
             `<p class="content-verification">${new Date().toISOString().slice(0, 10) > MODEL_LANDSCAPE.nextReviewDate ? 'Source review overdue. ' : ''}Model sources checked: ${CONTENT_LAST_VERIFIED}. External labs not executed.</p>${learnContent}`;
         LearningEngine.renderCoaching(mod);
+        if (mod.id === 'pm-evals') EvalWorkshop.bind(document.getElementById('evalWorkshop'));
 
         // Inject section ids on <h2> elements for scroll targeting
         this._injectSectionIds(moduleId);

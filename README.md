@@ -27,7 +27,7 @@ The 39 diagram instances have compact explanations, explicit source caveats and
 optional detailed SVGs. Progress contains integrated PM/Builder dossiers and the
 source-review queue. Real-learner validation remains separate from software validation.
 
-Release: `2026-11-learning-3`. Local review: http://127.0.0.1:8911/ when the preview
+Release: `2026-11-learning-4`. Local review: http://127.0.0.1:8911/ when the preview
 server is running. See [implementation disposition](docs/AI_ACADEMY_WORLD_CLASS_PRD_2026-11-10.md#24-full-local-rollout-after-explicit-approval).
 Additional maintainer evidence lives at `..\specs\001-ai-academy-learning\evidence.md`
 in the parent workspace; it is not part of this published repository.
@@ -57,6 +57,10 @@ They use synthetic fixtures and make no provider/network calls.
 
 Archive creation was denied, so this local release does not offer a ZIP download.
 The Lab page links to the source guide and explains the local-only setup.
+
+### PM Evals: from a failed reply to a release decision
+
+Open **Lab → Run the ten-conversation eval workshop**. Inspect six fictional support conversations, write a pass/fail rule, and compare one change with the baseline on four held-out cases. The browser runs the exercise offline after the academy loads. It needs no account; worksheet notes last only while the exercise is open. Optional readings in PM Evals, Discovery → Ship, Phase 6 and Phase 9 are read-only references, not required software.
 
 ---
 

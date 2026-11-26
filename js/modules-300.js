@@ -55,6 +55,7 @@ server.tool("get_status", "Get project status. Use when user asks about progress
         <tr><td><strong>Recovery</strong></td><td>Are timeouts, bounded retries, idempotency, circuit breakers, and useful errors defined for downstream failures?</td></tr>
     </table>
     <h3>Optional interoperability reference: API, Agent Skills, MCP, or A2A?</h3>
+    <p>Optional reading: <a href="https://github.com/anthropics/skills/blob/e4bb5d960d87126ff3b3a8af1a104b7db67560ba/skills/brand-guidelines/SKILL.md" target="_blank" rel="noopener noreferrer">Anthropic: an example brand-guidelines skill</a>. Identify one reusable instruction and a proposed action that would need separate permission, such as editing a shared deck. Read the file as text; do not install it.</p>
     <p><strong>Source-reviewed 2026-11-11; integrations not executed.</strong> Prerequisites: Phase 3 request/response contracts, Phase 5 authorization, and a bounded single-agent workflow. More protocols do not automatically improve a system; a direct API or local function may be enough.</p>
     <table class="content-table">
         <tr><th>Need</th><th>Contract</th><th>Not supplied by the format</th></tr>

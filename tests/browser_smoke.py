@@ -15,7 +15,7 @@ from playwright.sync_api import expect, sync_playwright
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE = "2026-11-learning-3"
+RELEASE = "2026-11-learning-4"
 MOUNT = "/academy/"
 VIEWPORTS = ((320, 900), (390, 844), (768, 1024), (1440, 1000))
 TIMEOUT = 10000

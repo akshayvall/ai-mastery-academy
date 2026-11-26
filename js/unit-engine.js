@@ -310,6 +310,7 @@ const UnitEngine = {
             You need Node.js 22 or newer and a text editor. No account, API key,
             package install or provider charge.</p>
             <p><a class="learning-action" href="labs/local/README.md">Read the six-lab guide</a></p>
+            <p>No terminal? <a href="#pm-evals?mode=browse&amp;section=ten-conversation-eval-workshop">Run the ten-conversation eval workshop</a> in this browser instead.</p>
             <p>Available in this local checkout at <code>labs/local</code>.
             Open its README, predict an output, then run <code>node --test labs.test.js</code>
             from that folder. Archive creation was not authorized, so a downloadable pack

@@ -1486,6 +1486,7 @@ DO NOT:
     learn: `
 <div class="learn-section">
     <h2>2026 Upgrade: Agents moved from pattern to platform primitive</h2>
+    <p>Optional reading: <a href="https://github.com/microsoft/ai-agents-for-beginners/blob/3bee2ddf8e7aab27b17ef9e1d4a3f2c541a1913e/04-tool-use/README.md" target="_blank" rel="noopener noreferrer">Microsoft: tool-use design pattern</a>. Sketch one proposed tool call, where the host checks permission and when the loop stops. Read the lesson without running its cloud samples.</p>
     <p>In 2026, teams increasingly deploy managed agent runtimes with built-in memory, tool lifecycles, webhooks, and sandbox controls. You still need ReAct fundamentals, but you now also need governance: scope, approvals, side effects, and observability.</p>
     <table class="content-table">
         <tr><th>Prototype agent</th><th>Production agent</th></tr>

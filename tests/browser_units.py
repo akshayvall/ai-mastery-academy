@@ -236,6 +236,39 @@ class UnitLearningTests(unittest.TestCase):
         expect(self.page.locator("#unitTitle")).to_contain_text("Hand off a Claude customer pilot")
         self.assertNotIn("pm-discovery-ship", self.page.evaluate("() => ProgressManager.createExport().moduleMastery"))
 
+    def test_offline_eval_workshop_freezes_change_before_holdout(self):
+        self.page.evaluate("() => navigator.serviceWorker.ready")
+        self.page.wait_for_function("() => Boolean(navigator.serviceWorker.controller)")
+        self.context.set_offline(True)
+        self.page.reload(wait_until="domcontentloaded")
+        self.page.locator('.bottom-nav [data-destination="build"]').click()
+        self.page.get_by_role("link", name="Run the ten-conversation eval workshop").click()
+        workshop = self.page.locator("#evalWorkshop")
+        for rule, dev, misses, failing_id in (
+            ("missing", "5/6", "0", "H2"), ("boundary", "4/6", "1", "H1")
+        ):
+            if rule == "boundary":
+                self.page.reload(wait_until="domcontentloaded")
+            workshop.get_by_role("button", name="Inspect six conversations").click()
+            expect(workshop.locator("[data-case]")).to_have_count(6)
+            expect(workshop).not_to_contain_text("H1")
+            workshop.get_by_label("Change to test").select_option(rule)
+            workshop.get_by_role("button", name="Compare on six cases").click()
+            expect(workshop.locator("[data-dev-result]")).to_be_empty()
+            workshop.get_by_label("Failure and pass/fail rule").fill("D3 approves with no date. Pass only if the reply asks for missing evidence.")
+            workshop.get_by_role("button", name="Compare on six cases").click()
+            expect(workshop.locator("[data-dev-result]")).to_contain_text(f"Baseline: 3/6. Changed: {dev}")
+            expect(workshop.get_by_label("Change to test")).to_be_disabled()
+            expect(workshop).not_to_contain_text("H1")
+            reveal = workshop.get_by_role("button", name="Reveal four held-out cases")
+            reveal.focus()
+            reveal.press("Enter")
+            result = workshop.locator("[data-holdout-result]")
+            expect(result).to_contain_text("Baseline: 2/4. Changed: 3/4")
+            expect(result).to_contain_text(f"Unsafe approvals: 1 → {misses}")
+            expect(result).to_contain_text(f"Remaining misses: {failing_id}")
+            expect(result.locator("[data-case]")).to_have_count(4)
+
 
 if __name__ == "__main__":
     expect.set_options(timeout=10000)

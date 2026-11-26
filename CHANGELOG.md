@@ -4,6 +4,10 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Eval workshop and curated readings - November 26, 2026
+- Added an offline PM Evals workshop on failure discovery, measurement and choosing a fix. Existing assessments and progress are unchanged. The advanced lab now defaults to synthetic, credential-free checks.
+- Selected four optional, revision-pinned readings from 14 suggested repos and one bonus. The local PRD records all selection decisions. Offline shell release: `2026-11-learning-4`.
+
 ### Claude Forward Deployed Engineer companion - November 25, 2026
 - Mapped the official partner path to existing lessons and added two optional pilot delivery and adoption exercises to Discovery → Ship. Core requirements, mastery credit and existing saved checks are unchanged.
 - Refreshed the offline app shell to `2026-11-learning-3` and corrected the README curriculum inventory.
